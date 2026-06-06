@@ -32,7 +32,11 @@ class CommandParser {
     
     this.commands.set('clear', {
       description: 'Clear terminal output',
-      handler: (args, terminal) => terminal.output.innerHTML = ''
+      handler: (args, terminal) => {
+        if (typeof document !== 'undefined' && terminal.output) {
+          terminal.output.innerHTML = '';
+        }
+      }
     });
     
     this.commands.set('theme', {

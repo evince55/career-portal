@@ -80,7 +80,11 @@ class Terminal {
       case 'skills': this.showSkills(args); break;
       case 'about': this.showAbout(); break;
       case 'contact': this.showContact(); break;
-      case 'clear': this.output.innerHTML = ''; break;
+      case 'clear': 
+        if (typeof document !== 'undefined' && this.output) {
+          this.output.innerHTML = '';
+        }
+        break;
       case 'theme': this.toggleTheme(); break;
       default: this.log(`Unknown command: ${cmd}`, 'warning');
     }
