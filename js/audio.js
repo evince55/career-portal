@@ -71,7 +71,7 @@ class AudioController {
       }
       
       if (typeof document !== 'undefined') {
-        document.body?.classList.toggle('audio-enabled', this.enabled);
+        void document.body?.classList.toggle('audio-enabled', this.enabled);
       }
     }
     
@@ -90,7 +90,7 @@ class AudioController {
         if (typeof document !== 'undefined') {
           const icon = document.querySelector('.audio-icon');
           if (icon) icon.textContent = '🔊';
-          document.body?.classList.add('audio-enabled');
+          void document.body?.classList.add('audio-enabled');
         }
       }
     }

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx serve . -l 3000",
     "build": "npm run lint && npm run test && cp -r js css scripts .github ../dist/ && cp index.html ../dist/",
-    "lint": "eslint js/*.js --ext .js",
+    "lint": "eslint --config .eslintrc.json js/*.js",
     "test": "node --test tests/*.mjs",
     "deploy": "npm run build && azure-storage-blob upload"
   },

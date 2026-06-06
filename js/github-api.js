@@ -25,8 +25,8 @@ class GitHubAPI {
       
       const repos = await response.json();
       
-      const filtered = filter 
-        ? repos.filter(repo => 
+      const filtered = filter
+        ? repos.filter((repo) =>
             repo.name.toLowerCase().includes(filter.toLowerCase()) ||
             repo.description?.toLowerCase().includes(filter.toLowerCase())
           )

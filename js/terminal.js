@@ -75,18 +75,31 @@ class Terminal {
     const args = parts.slice(1);
     
     switch (cmd) {
-      case 'help': this.showHelp(); break;
-      case 'projects': this.showProjects(args); break;
-      case 'skills': this.showSkills(args); break;
-      case 'about': this.showAbout(); break;
-      case 'contact': this.showContact(); break;
-      case 'clear': 
+      case 'help':
+        this.showHelp();
+        break;
+      case 'projects':
+        this.showProjects(args);
+        break;
+      case 'skills':
+        this.showSkills(args);
+        break;
+      case 'about':
+        this.showAbout();
+        break;
+      case 'contact':
+        this.showContact();
+        break;
+      case 'clear':
         if (typeof document !== 'undefined' && this.output) {
           this.output.innerHTML = '';
         }
         break;
-      case 'theme': this.toggleTheme(); break;
-      default: this.log(`Unknown command: ${cmd}`, 'warning');
+      case 'theme':
+        this.toggleTheme();
+        break;
+      default:
+        this.log(`Unknown command: ${cmd}`, 'warning');
     }
   }
   
