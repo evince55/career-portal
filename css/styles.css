@@ -22,7 +22,6 @@ body {
   color: var(--text-primary);
   font-family: var(--font-mono);
   line-height: 1.6;
-  overflow-x: hidden;
   min-height: 100vh;
 }
 
@@ -149,7 +148,7 @@ body {
   }
   
   .terminal-output {
-    border-width: 2px;
+    border-bottom-width: 2px;
   }
 }
 
@@ -388,7 +387,7 @@ body {
 
 /* Demo mode active indicator */
 .demo-active .demo-btn {
-  border-color: var(--warning);
+  border-bottom-color: var(--warning);
   color: var(--warning);
   animation: neonPulse 2s infinite;
 }
