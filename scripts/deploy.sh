@@ -70,6 +70,23 @@ deploy_static() {
     --web-index-page index.html \
     --error-page error.html 2>/dev/null || warn "Static website config skipped (may already be set)"
 
+  # Set security headers via web.config for Azure Static Website
+  log "  Configuring security headers (CSP, CORS, caching)..."
+  cat > "$DIST_DIR/web.config" << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <httpHeaders>
+      <clear />
+      <add key="Content-Security-Policy" value="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.azurewe.net;" />
+      <add key="X-Frame-Options" value="deny" />
+      <add key="X-XSSR-Policy" value="strict" />
+      <add key="Cache-Control" value="max-age=31536000;immutable" />
+    </httpHeaders>
+  </system.webServer>
+</configuration>
+EOF
+
   # Set CORS for GitHub Actions
   log "  Configuring CORS..."
   az storage account blob-cors add \
