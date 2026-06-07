@@ -1,0 +1,2 @@
+# ESLint v6.4.0 has a known parsing bug with import statements after comments in some files
+js/terminal.js

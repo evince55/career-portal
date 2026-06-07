@@ -1,0 +1,91 @@
+{
+  "version": "2.0.0",
+  "demoMode": {
+    "enabled": true,
+    "autoStart": false,
+    "cycleIntervalMs": 4000,
+    "pauseOnInteraction": true,
+    "showAllProjects": true,
+    "loopIndefinitely": true
+  },
+  "mockData": {
+    "meshwatch": {
+      "podsDeployed": 15,
+      "servicesMonitored": 5,
+      "monthlyCost": "5.12",
+      "errorRate": "0.2%",
+      "avgResponseTime": "45ms",
+      "costSavedPercent": 60,
+      "aiAnalysisReady": true,
+      "uptime": "99.9%"
+    },
+    "minecraft": {
+      "tps": 20,
+      "players": 3,
+      "maxPlayers": 20,
+      "serverVersion": "PaperMC 1.21.4",
+      "javaVersion": "Java 21",
+      "uptime": "99.8%",
+      "lastGcPause": "45ms",
+      "heapUsedMB": 256,
+      "heapMaxMB": 512,
+      "discordAlertsToday": 0,
+      "rconLatency": "12ms"
+    },
+    "monitoring": {
+      "grafanaPanels": 20,
+      "alertRules": 7,
+      "logRetentionDays": 7,
+      "lokiQueries": 15234,
+      "prometheusScrapes": 892341,
+      "tempoTraces": 45678
+    },
+    "azureFunctions": {
+      "healthCheckInterval": "15 minutes",
+      "functionsDeployed": 2,
+      "serviceBusMessagesProcessed": 234,
+      "webhookDeliveriesSuccess": 98.5
+    }
+  },
+  "careerFairSettings": {
+    "recruiterView": false,
+    "showCostMetrics": true,
+    "showLiveLinks": true,
+    "highlightAchievements": true,
+    "autoScrollSpeed": "normal",
+    "maxProjectsToShow": 6
+  },
+  "offlineFallback": {
+    "enabled": true,
+    "cacheDurationMinutes": 30,
+    "showOfflineBanner": true,
+    "useMockDataWhenOffline": true,
+    "retryOnOnline": true
+  },
+  "aiAssistant": {
+    "backend": "ollama",
+    "model": "phi-3",
+    "tailscaleUrl": "http://100.65.214.138:11434",
+    "azureProxyUrl": "/api/agent/chat",
+    "fallbackToCached": true,
+    "systemPromptVersion": "2.0"
+  },
+  "themes": {
+    "default": "synthwave",
+    "available": ["synthwave", "retro"],
+    "persistPreference": true
+  },
+  "accessibility": {
+    "ariaLiveRegions": true,
+    "keyboardShortcuts": true,
+    "reducedMotionSupport": true,
+    "highContrastMode": true,
+    "screenReaderOptimized": true
+  },
+  "pwa": {
+    "enabled": true,
+    "offlineFallbackPage": "/offline.html",
+    "cacheAssets": true,
+    "installPromptEnabled": true
+  }
+}

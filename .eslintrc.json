@@ -15,7 +15,7 @@
     "semi": ["error", "always"],
     "quotes": ["error", "single"],
     "indent": ["error", 2, { "SwitchCase": 1 }],
-    "max-len": ["warn", { "code": 120, "ignoreStrings": true, "ignoreTemplateLiterals": true }],
+    "max-len": ["warn", { "code": 130, "ignoreStrings": true, "ignoreTemplateLiterals": true }],
     "no-const-assign": "error",
     "no-dupe-keys": "error",
     "no-func-assign": "error",

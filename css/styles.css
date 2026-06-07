@@ -322,6 +322,77 @@ body {
   outline-offset: 2px;
 }
 
+/* Project badges */
+.project-badges { margin-bottom: 0.5rem; display: flex; gap: 0.25rem; flex-wrap: wrap; }
+
+.project-badge {
+  background: var(--neon-purple);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.project-category {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.project-metrics {
+  font-size: 0.8rem;
+  background: rgba(188, 19, 254, 0.1);
+  border: 1px solid var(--neon-purple);
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  border-radius: 3px;
+}
+
+/* Demo button */
+.demo-btn {
+  background: transparent;
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  border-radius: 3px;
+  transition: all 0.3s;
+}
+
+.demo-btn:hover {
+  background: var(--neon-cyan);
+  color: var(--bg-darker);
+  box-shadow: var(--glow-cyan);
+}
+
+/* Status indicator */
+.status-indicator {
+  font-size: 0.8rem;
+  margin-left: 1rem;
+}
+
+.status-indicator.online { color: var(--success); }
+.status-indicator.offline { color: var(--warning); }
+
+/* Footer layout */
+.footer-left, .footer-right { display: flex; justify-content: center; align-items: center; }
+.terminal-footer { display: flex; justify-content: space-between; padding: 1rem 2rem; }
+
+@media (max-width: 768px) {
+  .terminal-footer { flex-direction: column; gap: 0.5rem; }
+  .footer-left, .footer-right { justify-content: center; }
+}
+
+/* Demo mode active indicator */
+.demo-active .demo-btn {
+  border-color: var(--warning);
+  color: var(--warning);
+  animation: neonPulse 2s infinite;
+}
+
 /* Print styles - clean terminal output */
 @media print {
   body { background: white; color: black; }

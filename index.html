@@ -16,7 +16,7 @@
     <h1 class="glitch" data-text="Chaitanya Kumar" aria-label="Chaitanya Kumar - Terminal Portfolio">Chaitanya Kumar</h1>
     <p class="subtitle">Full Stack Engineer | Kubernetes Enthusiast</p>
     <button id="audio-toggle" class="hidden-btn" aria-label="Toggle keystroke sounds" role="switch" aria-checked="false">
-      <span class="audio-icon" aria-hidden="true">🔇</span>
+      <span class="audio-icon" aria-hidden="true">\u{1f507}</span>
       <span class="sr-only">Sound effects</span>
     </button>
   </header>
@@ -27,10 +27,21 @@
       <input type="text" id="command-input" class="terminal-input" autocomplete="off" autofocus aria-label="Command input" placeholder="Type a command...">
     </div>
   </main>
-  <footer class="terminal-footer">
-    <p>Type <span class="command">help</span> to see available commands</p>
+  <footer class="terminal-footer" role="contentinfo">
+    <div class="footer-left">
+      <p>Type <span class="command">help</span> to see available commands</p>
+    </div>
+    <div class="footer-right">
+      <button id="demo-start-btn" class="demo-btn" aria-label="Start career fair demo mode">
+        \u{1f3ae} Start Demo Mode
+      </button>
+      <span id="online-status" class="status-indicator" aria-live="polite" aria-label="Network status"></span>
+    </div>
   </footer>
   <script type="module" src="js/terminal.js"></script>
+  <script type="module" src="js/project-catalog.js"></script>
+  <script type="module" src="js/meshwatch-api.js"></script>
+  <script type="module" src="js/ai-assistant.js"></script>
   <script type="module" src="js/command-parser.js"></script>
   <script type="module" src="js/github-api.js"></script>
   <script type="module" src="js/audio.js"></script>
