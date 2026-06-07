@@ -136,55 +136,56 @@ class Terminal {
   }
 
   executeCommand(command) {
-    const parts = command.split(' ');
-    const cmd = parts[0].toLowerCase();
-    const args = parts.slice(1).join(' ');
+    try {
+      const parts = command.split(' ');
+      const cmd = parts[0].toLowerCase();
+      const args = parts.slice(1).join(' ');
 
-    switch (cmd) {
-      case 'help':
-        this.showHelp();
-        break;
-      case 'projects':
-        this.showProjects(args);
-        break;
-      case 'project':
-        this.showProjectDetail(args);
-        break;
-      case 'skills':
-        this.showSkills(args);
-        break;
-      case 'about':
-        this.showAbout();
-        break;
-      case 'contact':
-        this.showContact();
-        break;
-      case 'clear':
-        if (typeof document !== 'undefined' && this.output) {
-          this.output.innerHTML = '';
-        }
-        break;
-      case 'theme':
-        this.toggleTheme();
-        break;
-      case 'experience':
-        this.showExperience(args);
-        break;
-      case 'education':
-        this.showEducation(args);
-        break;
-      case 'resume':
-        this.showResume();
-        break;
-      case 'status':
-        this.showStatus();
-        break;
-      case 'minecraft':
-        this.showMinecraft();
-        break;
-      case 'ai':
-        this.askAI(args);
-        break;
+      switch (cmd) {
+        case 'help':
+          this.showHelp();
+          break;
+        case 'projects':
+          this.showProjects(args);
+          break;
+        case 'project':
+          this.showProjectDetail(args);
+          break;
+        case 'skills':
+          this.showSkills(args);
+          break;
+        case 'about':
+          this.showAbout();
+          break;
+        case 'contact':
+          this.showContact();
+          break;
+        case 'clear':
+          if (typeof document !== 'undefined' && this.output) {
+            this.output.innerHTML = '';
+          }
+          break;
+        case 'theme':
+          this.toggleTheme();
+          break;
+        case 'experience':
+          this.showExperience(args);
+          break;
+        case 'education':
+          this.showEducation(args);
+          break;
+        case 'resume':
+          this.showResume();
+          break;
+        case 'status':
+          this.showStatus();
+          break;
+        case 'minecraft':
+          this.showMinecraft();
+          break;
+        case 'ai':
+          this.askAI(args);
+          break;
       case 'demo':
         if (args === 'stop') {
           this.stopDemoMode();
@@ -194,6 +195,11 @@ class Terminal {
         break;
       default:
         this.log(`Unknown command: ${cmd}`, 'warning');
+      }
+    } catch (error) {
+      console.error('Terminal command error:', error);
+      this.log(`\n⚡ System error: ${error.message || 'An unexpected error occurred'}`, 'warning');
+      this.log('Command execution interrupted. Try "help" for available commands.', 'info');
     }
   }
 
@@ -654,36 +660,43 @@ Generated from chai-homelab.com portfolio terminal
     if (typeof document === 'undefined' || !this.output) return;
     this.log('\n=== SYSTEM STATUS ===\n', 'info');
 
-    // Show current online/offline status
-    const isOnline = navigator.onLine;
-    this.log(`Network: ${isOnline ? '\u2705 Online' : '\u274C Offline'}`, isOnline ? 'success' : 'warning');
+    try {
+      // Show current online/offline status
+      const isOnline = navigator.onLine;
+      this.log(`Network: ${isOnline ? '\u2705 Online' : '\u274C Offline'}`, isOnline ? 'success' : 'warning');
 
-    if (isOnline) {
-      // Try to fetch live metrics from Azure Functions
-      const status = await this.meshwatchAPI.getMetrics();
-      if (status.success) {
-        this.log(`MeshWatch: ${status.data || 'Metrics loaded via Azure Functions'}`, 'success');
-        this.log(`  Pods deployed: ${status.podsDeployed || 15} | Services: ${status.servicesMonitored || 5}`, 'info');
-        this.log(`  Cost: $${status.monthlyCost || '5.12'}/month (60% savings vs serverless)`, 'success');
-        this.log(`  AI Analysis: ${status.aiAnalysis || 'Ollama Phi-3 ready for incident analysis'}`, 'info');
+      if (isOnline) {
+        // Try to fetch live metrics from Azure Functions
+        const status = await this.meshwatchAPI.getMetrics();
+        if (status.success) {
+          this.log(`MeshWatch: ${status.data || 'Metrics loaded via Azure Functions'}`, 'success');
+          this.log(`  Pods deployed: ${status.podsDeployed || 15} | Services: ${status.servicesMonitored || 5}`, 'info');
+          this.log(`  Cost: $${status.monthlyCost || '5.12'}/month (60% savings vs serverless)`, 'success');
+          this.log(`  AI Analysis: ${status.aiAnalysis || 'Ollama Phi-3 ready for incident analysis'}`, 'info');
+        } else {
+          // Fallback to cached/demo metrics
+          this.log('Azure Functions not yet deployed, showing demo data...', 'warning');
+          this.log('MeshWatch: \u2705 Production (demo mode)', 'success');
+          this.log('  Pods deployed: 15 | Services monitored: 5', 'info');
+          this.log('  Monthly cost: $5.12 (60% savings vs serverless)', 'success');
+          this.log('  AI Analysis: Ollama Phi-3 ready (Tailscale pending)', 'info');
+        }
       } else {
-        // Fallback to cached/demo metrics
-        this.log('Azure Functions not yet deployed, showing demo data...', 'warning');
-        this.log('MeshWatch: \u2705 Production (demo mode)', 'success');
+        this.log('Offline mode - showing cached metrics', 'warning');
+        this.log('MeshWatch: \u2705 Production (offline cache)', 'success');
         this.log('  Pods deployed: 15 | Services monitored: 5', 'info');
-        this.log('  Monthly cost: $5.12 (60% savings vs serverless)', 'success');
-        this.log('  AI Analysis: Ollama Phi-3 ready (Tailscale pending)', 'info');
       }
-    } else {
-      this.log('Offline mode - showing cached metrics', 'warning');
-      this.log('MeshWatch: \u2705 Production (offline cache)', 'success');
+
+      // Show browser info for recruiter talk points
+      this.log(`\nBrowser: ${navigator.userAgent.split(' ').slice(-1)[0] || 'Modern'}`, 'info');
+      this.log(`Platform: ${navigator.platform || 'Unknown'}`, 'info');
+      this.log(`Memory API: ${performance.memory ? 'Available' : 'Not available'}`, 'info');
+    } catch (error) {
+      console.error('Status check error:', error);
+      this.log('Error fetching system status. Showing offline metrics.', 'warning');
+      this.log('MeshWatch: \u2705 Production (fallback)', 'success');
       this.log('  Pods deployed: 15 | Services monitored: 5', 'info');
     }
-
-    // Show browser info for recruiter talk points
-    this.log(`\nBrowser: ${navigator.userAgent.split(' ').slice(-1)[0] || 'Modern'}`, 'info');
-    this.log(`Platform: ${navigator.platform || 'Unknown'}`, 'info');
-    this.log(`Memory API: ${performance.memory ? 'Available' : 'Not available'}`, 'info');
 
     this.log('\n========================\n', 'info');
   }
@@ -692,23 +705,29 @@ Generated from chai-homelab.com portfolio terminal
     if (typeof document === 'undefined' || !this.output) return;
     this.log('\n=== MINECRAFT SERVER STATUS ===\n', 'info');
 
-    const isOnline = navigator.onLine;
+    try {
+      const isOnline = navigator.onLine;
 
-    if (isOnline) {
-      // Try to fetch live metrics from Azure Functions
-      const status = await this.meshwatchAPI.getMinecraftMetrics();
-      if (status.success) {
-        this.log(`Server: ${status.data || 'Minecraft Server 1.21.4'}`, 'success');
-        this.log(`TPS: ${status.tps || 20} | Players: ${status.players || 3}`, 'info');
-        this.log(`Uptime: ${status.uptime || '99.8%'}`, 'success');
-        this.log(`Discord Alerts Today: ${status.discordAlertsToday || 0}`, 'info');
-        this.log(`Last GC Pause: ${status.lastGcPause || '45ms'}`, 'info');
+      if (isOnline) {
+        // Try to fetch live metrics from Azure Functions
+        const status = await this.meshwatchAPI.getMinecraftMetrics();
+        if (status.success) {
+          this.log(`Server: ${status.data || 'Minecraft Server 1.21.4'}`, 'success');
+          this.log(`TPS: ${status.tps || 20} | Players: ${status.players || 3}`, 'info');
+          this.log(`Uptime: ${status.uptime || '99.8%'}`, 'success');
+          this.log(`Discord Alerts Today: ${status.discordAlertsToday || 0}`, 'info');
+          this.log(`Last GC Pause: ${status.lastGcPause || '45ms'}`, 'info');
+        } else {
+          this.log('Azure Functions not yet deployed, showing demo data...', 'warning');
+          this.showMinecraftDemo();
+        }
       } else {
-        this.log('Azure Functions not yet deployed, showing demo data...', 'warning');
+        this.log('Offline mode - showing cached Minecraft metrics', 'warning');
         this.showMinecraftDemo();
       }
-    } else {
-      this.log('Offline mode - showing cached Minecraft metrics', 'warning');
+    } catch (error) {
+      console.error('Minecraft status error:', error);
+      this.log('Error fetching Minecraft status. Showing cached data.', 'warning');
       this.showMinecraftDemo();
     }
 
@@ -745,30 +764,14 @@ Generated from chai-homelab.com portfolio terminal
     this.log('', 'default');
     this.log(`\u{1f916} AI thinking: ${question}`, 'info');
 
-    // Try to query Ollama via Azure Functions proxy
-    const response = await this.aiAssistant.query(question);
+    try {
+      // Try to query Ollama via Azure Functions proxy
+      const response = await this.aiAssistant.query(question);
 
-    if (response.success) {
-      this.log('\n\u{1f916} AI Response:', 'success');
-      // Wrap long responses nicely
-      const words = response.data.split(' ');
-      let line = '';
-      const maxLineLength = 80;
-      words.forEach(word => {
-        if ((line + word).length > maxLineLength) {
-          this.log(line, 'info');
-          line = word;
-        } else {
-          line += (line ? ' ' : '') + word;
-        }
-      });
-      if (line) this.log(line, 'info');
-    } else {
-      // Fallback: use cached knowledge (already returned in response.data)
-      this.log('\n\u{1f916} AI Response (cached knowledge):', 'success');
-      const answer = response.data;
-      if (answer) {
-        const words = answer.split(' ');
+      if (response.success) {
+        this.log('\n\u{1f916} AI Response:', 'success');
+        // Wrap long responses nicely
+        const words = response.data.split(' ');
         let line = '';
         const maxLineLength = 80;
         words.forEach(word => {
@@ -781,8 +784,31 @@ Generated from chai-homelab.com portfolio terminal
         });
         if (line) this.log(line, 'info');
       } else {
-        this.log('AI backend unavailable. Deploy Ollama via Tailscale or Azure Functions for live answers.', 'warning');
+        // Fallback: use cached knowledge (already returned in response.data)
+        this.log('\n\u{1f916} AI Response (cached knowledge):', 'success');
+        const answer = response.data;
+        if (answer) {
+          const words = answer.split(' ');
+          let line = '';
+          const maxLineLength = 80;
+          words.forEach(word => {
+            if ((line + word).length > maxLineLength) {
+              this.log(line, 'info');
+              line = word;
+            } else {
+              line += (line ? ' ' : '') + word;
+            }
+          });
+          if (line) this.log(line, 'info');
+        } else {
+          this.log('AI backend unavailable. Deploy Ollama via Tailscale or Azure Functions for live answers.', 'warning');
+        }
       }
+    } catch (error) {
+      console.error('AI query error:', error);
+      this.log('\n\u{1f916} AI Response (cached):', 'info');
+      this.log(`Could not connect to AI backend: ${error.message || 'network error'}`, 'warning');
+      this.log('Cached knowledge fallback may be limited. Deploy Ollama for full access.', 'info');
     }
 
     this.log('', 'default');
