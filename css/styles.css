@@ -8,7 +8,7 @@
   --text-secondary: #a0a0a0;
   --success: #00ff41;
   --warning: #ffcc00;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --crt-scanline: rgba(18, 16, 16, 0.1);
   --glow-pink: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
   --glow-purple: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);

@@ -1,0 +1,20 @@
+/*
+  Content-Security-Policy: default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
+  X-Content-Type: text/html
+*/
+
+/css/*
+  Cache-Control: public, max-age=31536000
+  Content-Type: text/css
+
+/js/*
+  Cache-Control: public, max-age=31536000
+  Content-Type: application/javascript
+
+/icons/*
+  Cache-Control: public, max-age=31536000
+  Content-Type: image/png
+
+/config/*
+  Cache-Control: public, max-age=86400
+  Content-Type: application/json
