@@ -427,7 +427,7 @@ body.theme-retro .terminal-output {
 .terminal-output {
   min-height: 400px;
   max-height: 65vh;
-  overflow-y: auto;
+  overflow: auto;
   padding: 1rem 1.25rem;
   margin-bottom: 0;
   background: var(--bg-darker);
@@ -751,7 +751,7 @@ body.theme-retro .terminal-footer {
 
 .palette-results {
   max-height: 400px;
-  overflow-y: auto;
+  overflow: auto;
   padding: 4px 8px;
 }
 
