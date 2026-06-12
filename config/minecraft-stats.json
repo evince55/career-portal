@@ -1,12 +1,12 @@
 {
   "server": {"name": "Eugene's Homelab MC", "version": "PaperMC 26.1.2", "javaVersion": "Java 25", "lastRestart": "2026-06-10T18:30:00Z"},
-  "metrics": {"tps": 20, "players": 3, "maxPlayers": 20, "uptime": "99.7%", "lastGcPause": "59ms", "heapUsedMB": 327, "heapMaxMB": 512},
-  "monitoring": {"discordAlertsToday": 0, "rconLatency": "12ms", "prometheusScrapes": 894384, "grafanaPanels": 5},
+  "metrics": {"tps": 20, "players": 3, "maxPlayers": 20, "uptime": "99.7%", "lastGcPause": "46ms", "heapUsedMB": 300, "heapMaxMB": 512},
+  "monitoring": {"discordAlertsToday": 2, "rconLatency": "23ms", "prometheusScrapes": 894001, "grafanaPanels": 5},
   "recentChanges": [
     "Upgraded to PaperMC 26.1.2 with Java 25 runtime",
     "Added new Grafana panel for GC pause monitoring",
     "Increased heap allocation from 256MB to 512MB",
     "Implemented RCON latency tracking dashboard"
   ],
-  "lastUpdated": "2026-06-12T23:00:01Z"
+  "lastUpdated": "2026-06-12T23:40:01Z"
 }

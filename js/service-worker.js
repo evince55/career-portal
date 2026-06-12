@@ -1,7 +1,9 @@
-const CACHE_NAME = 'career-portal-v5';
+const CACHE_NAME = 'career-portal-v6';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
+  '/project-explorer.html',
+  '/dashboard.html',
   '/offline.html',
   '/manifest.json',
   '/css/styles.css',
