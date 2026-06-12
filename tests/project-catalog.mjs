@@ -79,4 +79,14 @@ describe('Project Catalog Module', () => {
     assert.strictEqual(meshwatch.slug, 'meshwatch');
     assert.strictEqual(getProjects().length, 5);
   });
+
+  it('normalizeSlug preserves hyphens for hyphenated slugs', () => {
+    const minecraft = getProject('minecraft-monitoring');
+    assert.ok(minecraft, 'Should find project with hyphenated slug');
+    assert.strictEqual(minecraft.slug, 'minecraft-monitoring');
+    
+    const azure = getProject('azure-functions');
+    assert.ok(azure, 'Should find project with hyphenated slug');
+    assert.strictEqual(azure.slug, 'azure-functions');
+  });
 });

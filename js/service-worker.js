@@ -1,4 +1,4 @@
-const CACHE_NAME = 'career-portal-v4';
+const CACHE_NAME = 'career-portal-v5';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -19,7 +19,8 @@ const ASSETS_TO_CACHE = [
   '/icons/icon-96.png',
   '/icons/icon-128.png',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
+  '/screenshots/terminal-view.png'
 ];
 
 // Install event - cache assets with error handling for each asset

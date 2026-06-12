@@ -16,8 +16,8 @@ export function escapeHtml(str) {
     .replace(/\//g, '&#x2F;'); // Prevent </script> injection
 }
 
-/** Normalize a search slug: lowercase, collapse spaces/h dashes to single hyphen */
+/** Normalize a search slug: lowercase, convert spaces to hyphens, collapse multiple hyphens */
 export function normalizeSlug(str) {
   if (typeof str !== 'string') return '';
-  return str.toLowerCase().replace(/\s+/g, '-').replace(/-/g, '');
+  return str.toLowerCase().replace(/\s+/g, '-').replace(/-+/g, '-');
 }

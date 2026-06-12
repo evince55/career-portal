@@ -4,6 +4,7 @@
 import { getProjects, getProject, generateBadges } from './project-catalog.js';
 import MeshWatchAPI from './meshwatch-api.js';
 import AIAssistant from './ai-assistant.js';
+import Achievements from './achievements.js';
 import { escapeHtml, normalizeSlug } from './utils/helpers.js';
 
 // Lazy import VisualEffects for matrix Easter egg
@@ -35,9 +36,10 @@ class Terminal {
     this.history = [];
     this.historyIndex = -1;
     this.commandHistory = [
-      'help', 'projects', 'project', 'skills', 'experience', 'education',
-      'resume', 'about', 'contact', 'status', 'minecraft', 'ai',
-      'demo', 'clear', 'theme', 'matrix'
+      'help', 'projects', 'project', 'skills', 'skills-visual',
+      'experience', 'education', 'resume', 'about', 'contact',
+      'status', 'minecraft', 'ai', 'demo', 'clear', 'theme',
+      'matrix', 'timeline', 'neofetch', 'fortune', 'cowsay'
     ];
     this.announcementEl = null;
     this._announcementTimeout = null;
@@ -46,6 +48,7 @@ class Terminal {
     this.currentProjectIndex = 0;
     this._meshwatchAPI = null;
     this._aiAssistant = null;
+    this.achievements = new Achievements();
     this.config = { demoMode: { cycleIntervalMs: 4000 } }; // Default config
 
     // Load config in browser, skip in Node.js test environment
@@ -290,8 +293,34 @@ class Terminal {
       case 'matrix':
         this.toggleMatrix(args);
         break;
+      case 'skills-visual':
+        this.showSkillsVisual();
+        break;
+      case 'timeline':
+        this.showTimeline();
+        break;
+      case 'neofetch':
+        this.showNeofetch();
+        break;
+      case 'fortune':
+        this.showFortune();
+        break;
+      case 'cowsay':
+        this.showCowsay(args);
+        break;
+      case 'achievements':
+        this.showAchievements();
+        break;
       default:
         this.log(`Unknown command: ${cmd}`, 'warning');
+      }
+
+      // Track achievements for valid commands
+      if (typeof document !== 'undefined' && cmd !== 'clear' && cmd !== 'help') {
+        const newUnlocks = this.achievements.record(cmd, args);
+        newUnlocks.forEach(a => {
+          this.log(`\n${'\u{1f3af}'} Achievement Unlocked: ${a.icon} ${a.name} — ${a.desc}`, 'success');
+        });
       }
     } catch (error) {
       console.error('[Terminal] Command error:', error.name, '-', error.message);
@@ -306,9 +335,11 @@ class Terminal {
       { cmd: 'projects [category]', desc: 'List projects (optional: cloud, devops, iot, web)' },
       { cmd: 'project <name>', desc: 'Deep-dive into a specific project' },
       { cmd: 'skills [category]', desc: 'Show technical skills (optional: category)' },
+      { cmd: 'skills-visual', desc: 'Animated skill progress bars by category' },
+      { cmd: 'timeline', desc: 'Project timeline with active period chart' },
       { cmd: 'experience [level]', desc: 'Show work experience (senior/mid/junior)' },
       { cmd: 'education', desc: 'Show education background' },
-      { cmd: 'resume', desc: 'Download resume text format' },
+      { cmd: 'resume [--txt|--md]', desc: 'Display or download resume (text/markdown)' },
       { cmd: 'about', desc: 'About Eugene Vincent' },
       { cmd: 'contact', desc: 'Contact information' },
       { cmd: 'status', desc: 'Show system/live metrics status' },
@@ -317,7 +348,11 @@ class Terminal {
       { cmd: 'demo [stop]', desc: 'Start/stop auto-cycling project showcase' },
       { cmd: 'clear', desc: 'Clear terminal output' },
       { cmd: 'theme [retro|synthwave]', desc: 'Set or toggle theme (default: toggle)' },
-      { cmd: 'matrix [on|off]', desc: 'Toggle matrix rain animation (Easter egg)' }
+      { cmd: 'matrix [on|off]', desc: 'Toggle matrix rain animation' },
+      { cmd: 'neofetch', desc: 'System information display' },
+      { cmd: 'fortune', desc: 'Random tech/career fortune' },
+      { cmd: 'cowsay <text>', desc: 'ASCII cow says your text' },
+      { cmd: 'achievements', desc: 'View earned achievements' }
     ];
 
     const a11yShortcuts = [
@@ -687,13 +722,10 @@ class Terminal {
     this.log('\n========================\n', 'info');
   }
 
-  showResume() {
+  showResume(format = '') {
     if (typeof document === 'undefined' || !this.output) return;
-    this.divider();
-    this.log('\n=== RESUME ===\n', 'info');
 
-    const resumeText = `
-EUGENE VINCENT
+    const resumeText = `EUGENE VINCENT
 Full Stack Engineer | Azure DevOps | Software Reliability
 ${'\u{1f4cf}'} Aurora, IL, USA | ${'\u{1f4e7}'} eugene.vince55@gmail.com
 ${'\u{1f517}'} github.com/chaitea321  ${'\u{1f4bc}'} linkedin.com/in/eugene-vincent-42472024b
@@ -778,11 +810,87 @@ career-portal - Terminal portfolio (you are here)
   \u2022 PWA support with service worker offline caching
   \u2022 WCAG 2.1 accessible (ARIA, keyboard nav, screen reader)
 ${'='.repeat(40)}
-Generated from chai-homelab.com portfolio terminal
-    `.trim();
+Generated from chai-homelab.com portfolio terminal`;
 
+    const resumeMd = `# Eugene Vincent — Full Stack Engineer
+
+**Azure DevOps | Software Reliability | Cloud-Native Architectures**
+
+📍 Aurora, IL, USA | 📧 eugene.vince55@gmail.com | 🐙 github.com/chaitea321 | 💼 linkedin.com/in/eugene-vincent-42472024b
+
+## Education
+- **B.S. Computer Science** (2024–2028, Expected) — University of Illinois
+  - Full-stack web development | Data structures & algorithms
+  - Software engineering principles | Database systems | Cloud computing
+
+## Certifications
+- **AZ-900**: Microsoft Azure Fundamentals (Certified)
+- Self-Directed Learning (2022–Present): Cloud Architecture, DevOps, Istio, Linkerd
+
+## Homelab Projects
+
+### MeshWatch — Service Mesh Observability Platform
+- Cost-optimized platform on k3s Kubernetes with Istio mTLS
+- Integrated Ollama Phi-3 AI for automated incident analysis
+- Reduced monitoring costs by 60% ($5.12/mo vs $7+/mo serverless)
+- Full observability: Prometheus, Grafana, Loki, Tempo
+
+### Minecraft Server Monitoring — IoT / Gaming
+- Istio service mesh observability with JMX + RCON exporters
+- Prometheus metrics (TPS, heap, GC pauses) + Grafana dashboards
+- Discord bot with 10 slash commands for server control
+- AI-powered lag analysis via Ollama Phi-3
+
+### Monitoring Stack — DevOps
+- ArgoCD App of Apps pattern for multi-namespace management
+- External Secrets Operator with Azure Key Vault backend
+- cert-manager with Let's Encrypt TLS auto-provisioning
+- 20-panel Grafana dashboard with Loki log aggregation
+
+### Azure Functions — Serverless
+- Health checker function with 15-minute cron interval
+- Service Bus trigger for incident event processing
+- Deduplication windows to prevent alert storms
+
+## Skills
+- **Cloud**: Azure, Cloudflare, Docker, Kubernetes
+- **Frontend**: React.js, Next.js, TypeScript, CSS3, Tailwind, PWA
+- **Backend**: Node.js, Express, Python, FastAPI, GraphQL, REST APIs
+- **DevOps**: GitHub Actions, Terraform, Prometheus, Grafana, Loki, Istio
+- **Reliability**: Distributed Tracing, SLO Monitoring, Incident Response
+
+---
+Generated from chai-homelab.com portfolio terminal`;
+
+    if (format === '--txt' || format === '-t') {
+      this.downloadFile(resumeText, 'Eugene_Vincent_Resume.txt', 'text/plain');
+      this.log(`\n${'\u2705'} Downloading resume as .txt...`, 'success');
+      return;
+    }
+
+    if (format === '--md' || format === '-m') {
+      this.downloadFile(resumeMd, 'Eugene_Vincent_Resume.md', 'text/markdown');
+      this.log(`\n${'\u2705'} Downloading resume as .md...`, 'success');
+      return;
+    }
+
+    this.divider();
+    this.log('\n=== RESUME ===\n', 'info');
     this.log(resumeText, 'default');
-    this.log('\n💠 Tip: Copy this text or visit github.com/chaitea321 for PDF', 'info');
+    this.log('\n💠 Tip: Use "resume --txt" or "resume --md" to download.', 'info');
+  }
+
+  downloadFile(content, filename, mimeType) {
+    if (typeof document === 'undefined') return;
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   async showStatus() {
@@ -1054,6 +1162,221 @@ Generated from chai-homelab.com portfolio terminal
 
     this.log('\n=== DEMO MODE STOPPED ===', 'warning');
     this.log('Demo mode deactivated. Resume normal terminal interaction.\n', 'info');
+  }
+
+  // ---- Skills Visual ---
+
+  showSkillsVisual() {
+    if (typeof document === 'undefined' || !this.output) return;
+    this.divider();
+    this.log('\n=== SKILLS VISUALIZATION ===\n', 'info');
+
+    const skills = {
+      cloud: { label: '[Cloud]', items: ['Azure (Blob Storage, Functions, AKS)', 'Cloudflare (DNS, CDN, Workers)', 'Docker & Kubernetes (k3s, Istio)'], level: 50 },
+      frontend: { label: '[Frontend]', items: ['React.js / Next.js', 'TypeScript / JavaScript (ES6+)', 'CSS3 / Tailwind / Material UI', 'Progressive Web Apps'], level: 40 },
+      backend: { label: '[Backend]', items: ['Node.js / Express / NestJS', 'Python (FastAPI, Django)', 'GraphQL / REST APIs', 'PostgreSQL / MongoDB / Redis'], level: 60 },
+      devops: { label: '[DevOps]', items: ['GitHub Actions / CI/CD Pipelines', 'Terraform / Infrastructure as Code', 'Prometheus / Grafana / Loki', 'OpenTelemetry / Distributed Tracing'], level: 70 }
+    };
+
+    Object.entries(skills).forEach(([key, data]) => {
+      this.log(`${data.label}`, 'success');
+      const bar = '\u2588'.repeat(Math.round(data.level / 10)) + '\u2591'.repeat(10 - Math.round(data.level / 10));
+      this.log(`  ${bar} ${data.level}%`);
+      data.items.forEach(item => {
+        this.log(`    \u2022 ${item}`, 'info');
+      });
+      this.log('');
+    });
+
+    this.divider();
+  }
+
+  // ---- Timeline ---
+
+  showTimeline() {
+    if (typeof document === 'undefined' || !this.output) return;
+    this.divider();
+    this.log('\n=== PROJECT TIMELINE ===\n', 'info');
+
+    const projects = [
+      { name: 'Monitoring Stack', start: 2022, end: null, active: true },
+      { name: 'MeshWatch', start: 2023, end: null, active: true },
+      { name: 'Minecraft Monitor', start: 2023, end: 2024, active: false },
+      { name: 'Career Portal', start: 2024, end: null, active: true },
+      { name: 'Azure Functions', start: 2024, end: null, active: true }
+    ];
+
+    const years = [2022, 2023, 2024, 2025];
+    const maxYear = 2025;
+
+    // Header row
+    const header = 'Year   '.padEnd(8) + projects.map(p => p.name.substring(0, 12).padEnd(14)).join('');
+    this.log(header, 'info');
+    this.log('─'.repeat(header.length), 'info');
+
+    // Draw timeline bars for each project
+    projects.forEach(project => {
+      const prefix = `${project.start}─`.padEnd(8);
+      let bar = '';
+      for (const year of years) {
+        if (year < project.start) {
+          bar += ' '.repeat(14);
+        } else if (project.end && year > project.end) {
+          bar += ' '.repeat(14);
+        } else if (year === project.start && year === (project.end || maxYear)) {
+          bar += '\u2500'.repeat(14);
+        } else if (year === project.start) {
+          bar += '\u2500' + '\u2500'.repeat(13);
+        } else if (project.end && year === project.end) {
+          bar += '\u2500'.repeat(14);
+        } else if (year > project.start && (!project.end || year <= project.end)) {
+          bar += '\u2500'.repeat(14);
+        } else {
+          bar += ' '.repeat(14);
+        }
+      }
+
+      const activeTag = project.active ? ' [CURRENT]' : '';
+      this.log(`${prefix}${bar}${activeTag}`);
+    });
+
+    this.log('');
+    this.log('Key: \u2500 = Active period  |  [CURRENT] = Still maintained', 'info');
+    this.divider();
+  }
+
+  // ---- Easter Eggs ---
+
+  showNeofetch() {
+    if (typeof document === 'undefined' || !this.output) return;
+    const isOnline = navigator.onLine;
+    const browser = navigator.userAgent.split(' ').slice(-1)[0] || 'Modern';
+    const platform = navigator.platform || 'Unknown';
+
+    this.divider();
+    this.log(`       _/.-~-.        eugene@homelab`, 'cyan');
+    this.log(`      |   '._.'       ------------------`);
+    this.log(`      |  '-.  .-'     OS: Ubuntu 24.04 LTS`);
+    this.log(`      |  '-.  .-'     Kernel: AMD Ryzen 7 5700U`);
+    this.log(`      |    '-.'       Uptime: ${isOnline ? 'Online' : 'Offline'}`);
+    this.log(`    .'   '    '.      Shell: bash 5.5.1`);
+    this.log(`   '._   '._'   _.  Memory: 14GB RAM`);
+    this.log(`    '.___.'__.'     Cluster: k3s (Istio + Flagger)`);
+    this.log(`                   AI: Ollama Phi-3 (Tailscale)`);
+    this.log(`                   Browser: ${browser}`);
+    this.log(`                   Network: ${isOnline ? '108.233.139.113' : 'offline'}`);
+    this.divider();
+  }
+
+  showFortune() {
+    if (typeof document === 'undefined' || !this.output) return;
+
+    const fortunes = [
+      '"The best way to learn is by building things that might break." - Unknown Engineer',
+      '"If it works in production, it was never really broken." - Senior Dev',
+      '"Kubernetes: because managing containers one at a time was too easy."',
+      '"Always code as if you will live forever. The code will remain." - Ancient Programming Proverb',
+      '"CI/CD pipelines exist so that redeploying at 5pm on Friday doesn\'t feel like Russian roulette."',
+      '"The best error message is the one you never see because it was caught before reaching users."',
+      '"Infrastructure as Code: because copy-pasting config files is so 2019."',
+      '"Your code works on your machine. That\'s not a bug, that\'s a feature." - Every Developer',
+      '"The cloud is just someone else\'s computer. But at least their computer costs $5/month."',
+      '"Git commit messages are the diary entries of developers who regret their past decisions."',
+      '"Microservices: because monoliths were making you too comfortable."',
+      '"A loaded gun does not cause gun violence. An untested API endpoint causes production incidents."',
+      '"The secret to great software is shipping it, breaking it, fixing it, and repeating."',
+      '"Docker containers are like suitcases: everything fits if you just fold enough."',
+      '"The most dangerous line of code is the one that says // TODO: fix this later."',
+      '"Observability: because \"it works\" is not a valid incident response."',
+      '"Edge computing: because making users wait 50ms longer is unacceptable."',
+      '"Service mesh mTLS: because plaintext HTTP in production is a personality trait."',
+      '"Zero-downtime deployment: proving that humans are still the biggest source of outages."',
+      '"The true cost of cloud computing: what your AWS bill looks like at end of month."'
+    ];
+
+    const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+    this.divider();
+    this.log('\n   \u{1f3ae} FORTUNE\n', 'success');
+    this.log(`   ${fortune}`, 'info');
+    this.log('\n   Type "fortune" again for another.\n', 'info');
+    this.divider();
+  }
+
+  showCowsay(text) {
+    if (typeof document === 'undefined' || !this.output) return;
+
+    if (!text) {
+      this.log('\nUsage: cowsay <your text here>', 'warning');
+      this.log('Example: cowsay Hello World\n', 'info');
+      return;
+    }
+
+    const wrapped = [];
+    const maxLineLen = 38;
+    const words = text.split(' ');
+    let currentLine = '';
+
+    words.forEach(word => {
+      if ((currentLine + word).length <= maxLineLen) {
+        currentLine += (currentLine ? ' ' : '') + word;
+      } else {
+        if (currentLine) wrapped.push(currentLine);
+        currentLine = word;
+      }
+    });
+    if (currentLine) wrapped.push(currentLine);
+
+    const bubbleWidth = Math.max(...wrapped.map(l => l.length)) + 2;
+    const topBorder = '/'.padEnd(bubbleWidth, '-').replace(/[/-]$/, '\\');
+    const bottomBorder = '\\'.padStart(bubbleWidth, '-').replace(/[/\\]$/, '/');
+
+    this.divider();
+    this.log('', 'default');
+
+    if (wrapped.length === 1) {
+      this.log(` ${' '.repeat(bubbleWidth - 2)} `, 'info');
+      this.log(` <${wrapped[0]}>`, 'info');
+      this.log(` ${' '.repeat(bubbleWidth - 2)} `, 'info');
+    } else {
+      this.log(` ${' '.repeat(bubbleWidth - 2)} `, 'info');
+      wrapped.forEach((line, i) => {
+        const padded = line.padEnd(bubbleWidth - 2);
+        const isLast = i === wrapped.length - 1;
+        if (isLast) {
+          this.log(` \\${padded}/`, 'info');
+        } else {
+          this.log(` |${padded}|`, 'info');
+        }
+      });
+      this.log(` ${' '.repeat(bubbleWidth - 2)} `, 'info');
+    }
+
+    this.log('        \\   ^__^', 'info');
+    this.log('         \\  (oo)\\', 'info');
+    this.log('          (xx)\\', 'info');
+    this.log('', 'default');
+    this.divider();
+  }
+
+  // ---- Achievements ---
+
+  showAchievements() {
+    if (typeof document === 'undefined' || !this.output) return;
+    this.divider();
+    this.log('\n=== ACHIEVEMENTS ===\n', 'info');
+
+    const total = this.achievements.getAll().length;
+    const unlocked = this.achievements.getCount();
+    this.log(`Progress: ${unlocked}/${total} unlocked`, unlocked >= total ? 'success' : 'info');
+    this.log('');
+
+    this.achievements.getAll().forEach(a => {
+      const isUnlocked = this.achievements.state[`unlocked_${a.id}`];
+      const status = isUnlocked ? ('\u2705 UNLOCKED') : ('\u25CF LOCKED');
+      this.log(`  ${a.icon} ${a.name.padEnd(20)} — ${a.desc.padEnd(35)} ${status}`, isUnlocked ? 'success' : 'warning');
+    });
+
+    this.divider();
   }
 
   // ---- Core Methods ---
