@@ -28,7 +28,7 @@ class Terminal {
       'experience', 'education', 'resume', 'about', 'contact',
       'status', 'minecraft', 'ai', 'demo', 'clear', 'theme',
       'matrix', 'timeline', 'neofetch', 'fortune', 'cowsay',
-      'achievements', 'perf'
+      'achievements', 'perf', 'explorer', 'dashboard'
     ];
     this.announcementEl = null;
     this._announcementTimeout = null;
@@ -303,10 +303,16 @@ class Terminal {
         case 'achievements':
           this.showAchievements();
           break;
-        case 'perf':
-          this.showPerf();
-          break;
-        default:
+  case 'perf':
+           this.showPerf();
+           break;
+         case 'explorer':
+           this.openPage('/project-explorer.html', 'Project Explorer');
+           break;
+         case 'dashboard':
+           this.openPage('/dashboard.html', 'Live Dashboard');
+           break;
+         default:
           this.log(`Unknown command: ${cmd}`, 'warning');
       }
 
@@ -349,7 +355,9 @@ class Terminal {
       { cmd: 'cowsay <text>', desc: 'ASCII cow says your text' },
       { cmd: 'achievements', desc: 'View earned achievements' },
       { cmd: 'perf', desc: 'Performance dashboard (A-F grading)' },
-      { cmd: 'contact --email', desc: 'Interactive email form' }
+      { cmd: 'contact --email', desc: 'Interactive email form' },
+      { cmd: 'explorer', desc: 'Open Project Explorer page' },
+      { cmd: 'dashboard', desc: 'Open Live Dashboard page' }
     ];
 
     const a11yShortcuts = [
@@ -1703,6 +1711,19 @@ Generated from chai-homelab.com portfolio terminal`;
     this.output.appendChild(card);
     this.scrollToBottom();
     return card;
+  }
+
+  /** Open a new page in a new tab with confirmation */
+  openPage(url, title) {
+    if (this._guard()) return;
+    this.log(`\n📂 Opening ${title}...`, 'info');
+    const newTab = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!newTab) {
+      this.log('⚠ Popup blocked! Please allow popups for this site.', 'warning');
+      this.log(`  Direct link: ${url}`, 'info');
+    } else {
+      this.log(`✅ ${title} opened in new tab.`, 'success');
+    }
   }
 
   log(message, type = 'default') {

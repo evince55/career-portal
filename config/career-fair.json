@@ -19,7 +19,7 @@
       "aiAnalysisReady": true,
       "uptime": "99.9%"
     },
-   "minecraft": {
+    "minecraft": {
       "tps": 20,
       "players": 3,
       "maxPlayers": 20,

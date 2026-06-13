@@ -157,10 +157,6 @@ class AudioController {
         icon.textContent = this.enabled ? '🔊' : '🔇';
       }
       
-      if (this.enabled && this.audioContext) {
-        this.audioContext.resume();
-      }
-      
       void document.body?.classList.toggle('audio-enabled', this.enabled);
     }
     

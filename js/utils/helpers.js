@@ -41,7 +41,8 @@ export const COMMAND_ICONS = Object.freeze({
   education: '\u{1f393}', resume: '\u{1f4c4}', about: '\u{1f464}', contact: '\u{1f4e7}',
   status: '\u{1f504}', minecraft: '\u{1f3ae}', ai: '\u{1f916}', demo: '\u{1f3ac}',
   clear: '\u274c', theme: '\u{1f3b3}', matrix: '\u25a0', neofetch: '\u{1f5a1}',
-  fortune: '\u{1f3ae}', cowsay: '\u{1f42e}', achievements: '\u{1f3af}', perf: '\u2699'
+  fortune: '\u{1f3ae}', cowsay: '\u{1f42e}', achievements: '\u{1f3af}', perf: '\u2699',
+  explorer: '\u{1f4b1}', dashboard: '\u{1f4ca}'
 });
 
 export const COMMAND_DESCS = Object.freeze({
@@ -52,7 +53,8 @@ export const COMMAND_DESCS = Object.freeze({
   minecraft: 'Minecraft server stats', ai: 'AI assistant', demo: 'Auto showcase',
   clear: 'Clear terminal', theme: 'Toggle theme', matrix: 'Matrix rain',
   neofetch: 'System info display', fortune: 'Random fortune', cowsay: 'ASCII cow',
-  achievements: 'Earned badges', perf: 'Performance dashboard'
+  achievements: 'Earned badges', perf: 'Performance dashboard',
+  explorer: 'Open Project Explorer page', dashboard: 'Open Live Dashboard page'
 });
 
 /** Highlight a query match within text, returning escaped HTML string */

@@ -68,9 +68,9 @@ const PROJECT_CATALOG = {
       'Automated alerting with incident responder pipeline'
     ],
     demoNote: 'Demo mode shows cached metrics. Live data requires Azure Functions + Tailscale deployment.'
-  },
- 
-  'career-portal': {
+   },
+
+   'career-portal': {
     name: 'Career Portal',
     slug: 'career-portal',
     description: 'FAANG-quality terminal-themed portfolio with synthwave aesthetic, PWA support, accessibility (WCAG 2.1), and dynamic Azure Functions integration.',
@@ -85,8 +85,8 @@ const PROJECT_CATALOG = {
       { name: 'GitHub OAuth', level: 'API Authentication' }
     ],
     metrics: {
-      testsPassing: 7,
-      commandsAvailable: 14,
+      testsPassing: 102,
+      commandsAvailable: 25,
       lighthouseScore: '95+',
       accessibilityScore: 'WCAG 2.1 Compliant'
     },
