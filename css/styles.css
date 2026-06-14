@@ -17,15 +17,29 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--bg-darker);
   color: var(--text-primary);
   font-family: var(--font-mono);
   line-height: 1.6;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
+
+/* Fluid typography - scales between mobile (320px) and desktop (1200px) */
+.glitch { font-size: clamp(1.4rem, 5vw, 2.5rem); }
+.subtitle { font-size: clamp(0.8rem, 2.5vw, 1.1rem); }
+.terminal-output { font-size: clamp(0.8rem, 2.5vw, 0.9rem); }
+.terminal-input { font-size: clamp(0.85rem, 2.5vw, 1rem); }
+.project-badge { font-size: clamp(0.6rem, 2vw, 0.7rem); }
 
 /* Make main content grow to push footer to bottom */
 body > main {
@@ -282,12 +296,7 @@ body.theme-retro .terminal-output {
   z-index: -1;
 }
 
-@media (max-width: 768px) {
-  .glitch { font-size: 1.8rem; }
-  .subtitle { font-size: 0.95rem; }
-  .terminal-container { padding: 1rem; margin: 1rem; }
-  .terminal-output { min-height: 300px; max-height: 400px; font-size: 0.85rem; }
-}
+
 
 /* ---- Mobile Optimizations (fluid typography, touch targets, keyboard handling) ---- */
 
@@ -307,19 +316,23 @@ body.theme-retro .terminal-output {
   position: relative;
 }
 
-.ct-hamburger::before,
-.ct-hamburger::after {
-  content: '';
+.ct-hamburger .bar {
   position: absolute;
   width: 18px;
   height: 2px;
   background: var(--neon-cyan);
   border-radius: 1px;
-  transition: all 0.2s;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.ct-hamburger::before {
-  box-shadow: 0 -6px 0 var(--neon-cyan), 0 6px 0 var(--neon-cyan);
+.ct-hamburger .bar-1 {
+  top: 50%;
+  transform: translateY(-6px);
+}
+
+.ct-hamburger .bar-2 {
+  top: 50%;
+  transform: translateY(4px);
 }
 
 .ct-hamburger:hover {
@@ -331,188 +344,19 @@ body.theme-retro .terminal-output {
   border-color: var(--neon-pink);
 }
 
-.ct-hamburger.active::before,
-.ct-hamburger.active::after {
+.ct-hamburger.active .bar {
   background: var(--neon-pink);
-  box-shadow: 0 -6px 0 var(--neon-pink), 0 6px 0 var(--neon-pink);
 }
 
-/* Fluid typography: scales between mobile (320px) and desktop (1200px) */
-@media (min-width: 320px) {
-  .glitch { font-size: clamp(1.5rem, 4vw, 2.5rem); }
-  .subtitle { font-size: clamp(0.8rem, 2vw, 1.1rem); }
-  .terminal-output { font-size: clamp(0.75rem, 1.5vw, 0.9rem); }
-  .terminal-input { font-size: clamp(0.85rem, 2vw, 1rem); }
-  .project-badge { font-size: clamp(0.6rem, 1.2vw, 0.7rem); }
-}
 
-/* Minimum touch target sizes (44x44px) for accessibility */
-@media (max-width: 768px) {
-  .demo-btn,
-  .pe-filter-btn,
-  .wp-filter-btn,
-  .pe-nav a,
-  .wp-nav a,
-  .db-nav a,
-  .hidden-btn,
-  .pe-modal-close,
-  .wp-modal-close,
-  .terminal-input {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem 1rem;
-  }
 
-  /* Show hamburger, hide nav buttons on mobile */
-  .ct-hamburger { display: flex; }
-  .mobile-nav { display: none; }
-  .mobile-nav.open { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; padding: 0.75rem 0; border-top: 1px solid rgba(188, 19, 254, 0.15); }
 
-  /* Increase tap targets for filter buttons */
-  .pe-filter-btn,
-  .wp-filter-btn {
-    padding: 0.5rem 1.2rem;
-    font-size: 0.8rem;
-  }
 
-  /* Improve terminal input on mobile */
-  .terminal-input {
-    padding: 0.5rem 0;
-  }
 
-  /* Prevent zoom on iOS when focusing inputs */
-  .terminal-input,
-  .pe-search,
-  .wp-search,
-  #palette-search {
-    font-size: 16px;
-    -webkit-appearance: none;
-  }
 
-  /* Better footer layout on mobile */
-  .terminal-footer {
-    flex-direction: column;
-    gap: 0.25rem;
-    text-align: center;
-    padding: 0.75rem 1rem;
-  }
 
-  .footer-right {
-    justify-content: center;
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-  }
 
-  /* Mobile nav container - full width, separate row */
-  .mobile-nav {
-    display: none !important;
-  }
 
-  .mobile-nav.open {
-    display: flex !important;
-    flex-direction: column;
-    gap: 0.4rem;
-    width: 100%;
-    padding: 0.5rem 0;
-    border-top: 1px solid rgba(188, 19, 254, 0.15);
-    margin-top: 0.25rem;
-  }
-
-  .mobile-nav.open a {
-    display: block;
-    text-align: center;
-    min-height: 44px;
-    line-height: 44px;
-    padding: 0 1rem;
-  }
-
-  /* Hide CRT overlay on mobile for performance */
-  #crt-overlay { display: none; }
-
-  /* Reduce matrix rain columns on mobile */
-  .matrix-column { display: none !important; }
-
-  /* Wider modal on small screens */
-  .pe-modal,
-  .wp-modal {
-    max-width: 95vw;
-    padding: 1.25rem;
-  }
-
-  /* Stack dashboard panels vertically on mobile */
-  .db-panels {
-    grid-template-columns: 1fr;
-  }
-
-  .db-panel.full {
-    grid-column: 1;
-  }
-
-  /* Make project cards full-width on mobile */
-  .pe-grid,
-  .wp-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Ensure status bar fits on small screens */
-  .status-indicator {
-    font-size: 0.7rem;
-    white-space: nowrap;
-  }
-
-  /* Adjust terminal window margins on very small screens */
-  .terminal-container {
-    margin: 0.5rem;
-    padding: 0;
-  }
-
-  .terminal-titlebar {
-    padding: 0.5rem 0.75rem;
-  }
-
-  .title-text {
-    font-size: 0.65rem;
-  }
-
-  /* Keyboard handling: adjust viewport on mobile keyboard open */
-  @supports (height: 100dvh) {
-    body {
-      min-height: 100dvh;
-    }
-    .terminal-body {
-      min-height: calc(100dvh - 200px);
-    }
-  }
-
-  /* Prevent horizontal scroll on mobile */
-  html, body {
-    overflow-x: hidden;
-  }
-}
-
-/* Small phone optimization (≤400px) */
-@media (max-width: 400px) {
-  .terminal-header { padding: 1rem 0.5rem; }
-  .terminal-output { padding: 0.75rem; }
-  .command-line { padding: 0.5rem 0.75rem; }
-  .footer-right { flex-direction: column; gap: 0.3rem; }
-  .status-indicator { display: none; }
-}
-
-/* Tablet breakpoint (769px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .terminal-container { max-width: 900px; }
-  .pe-grid,
-  .wp-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Large desktop optimization */
-@media (min-width: 1400px) {
-  .terminal-container { max-width: 1400px; }
-  .glitch { font-size: 3rem; }
-}
 
 /* Touch feedback for mobile devices */
 @media (hover: none) {
@@ -531,41 +375,7 @@ body.theme-retro .terminal-output {
   }
 }
 
-/* Scroll behavior improvements */
-html {
-  scroll-behavior: smooth;
-  overscroll-behavior: contain;
-}
 
-body {
-  overscroll-behavior-y: contain;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-.terminal-output {
-  scroll-behavior: smooth;
-  overscroll-behavior: contain;
-}
-
-/* Keyboard-aware viewport on mobile */
-@supports (height: 100dvh) {
-  body {
-    min-height: 100dvh;
-  }
-  .terminal-body {
-    min-height: calc(100dvh - 200px);
-  }
-}
-
-/* Ensure footer stays visible when keyboard is open */
-@media (max-width: 768px) {
-  @supports (height: 100dvh) {
-    .terminal-container {
-      min-height: calc(100dvh - 40px);
-    }
-  }
-}
 
 /* Audio enabled state - subtle visual feedback */
 .audio-enabled .hidden-btn {
@@ -971,14 +781,262 @@ body.theme-retro .terminal-footer {
   background: linear-gradient(180deg, #0f0d0a, #0a0908);
 }
 
-/* Responsive adjustments */
+
+
+/* ---- Consolidated Mobile Styles (≤768px) ---- */
+
 @media (max-width: 768px) {
-  .glitch { font-size: 1.8rem; }
-  .subtitle { font-size: 0.95rem; }
-  .terminal-container { margin: 0.5rem; }
-  .terminal-output { min-height: 300px; max-height: 50vh; font-size: 0.85rem; padding: 0.75rem; }
-  .terminal-footer { flex-direction: column; gap: 0.3rem; text-align: center; }
-  .footer-right { justify-content: center; }
+  /* Fluid typography - readable on all mobile screens */
+  .glitch { font-size: clamp(1.4rem, 5vw, 2rem); }
+  .subtitle { font-size: clamp(0.8rem, 2.5vw, 1rem); }
+  .terminal-output { font-size: clamp(0.8rem, 2.5vw, 0.9rem); }
+  .terminal-input { font-size: clamp(0.85rem, 2.5vw, 1rem); }
+  .project-badge { font-size: clamp(0.6rem, 2vw, 0.7rem); }
+
+  /* Hide heavy visual effects on mobile for performance */
+  #crt-overlay { display: none; }
+  .matrix-column { display: none !important; }
+
+  /* Terminal container - full width with safe margins */
+  .terminal-container {
+    margin: 0.5rem;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  /* Terminal output - better sizing for mobile */
+  .terminal-output {
+    min-height: 250px;
+    max-height: 60vh;
+    padding: 0.75rem;
+  }
+
+  /* Terminal title bar - compact on mobile */
+  .terminal-titlebar {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .title-text {
+    font-size: 0.6rem;
+  }
+
+  /* Command line - compact input area */
+  .command-line {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Header - tighter spacing */
+  .terminal-header {
+    padding: 1rem 0.75rem;
+  }
+
+  /* Footer - stacked layout on mobile */
+  .terminal-footer {
+    flex-direction: column;
+    gap: 0.3rem;
+    text-align: center;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .footer-left,
+  .footer-right {
+    justify-content: center;
+  }
+
+  .footer-right {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+
+  /* Status indicator - smaller on mobile */
+  .status-indicator {
+    font-size: 0.65rem;
+    white-space: nowrap;
+  }
+
+  /* Hide status indicator on very small screens */
+  @media (max-width: 400px) {
+    .status-indicator { display: none; }
+  }
+
+  /* Hamburger menu - show on mobile, hide on desktop */
+  .ct-hamburger {
+    display: flex;
+  }
+
+  /* Mobile nav - hidden by default, shown when open */
+  .mobile-nav {
+    display: none;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.5rem;
+    border-top: 1px solid rgba(188, 19, 254, 0.15);
+    margin-top: 0.25rem;
+  }
+
+  .mobile-nav.open {
+    display: flex;
+  }
+
+  .mobile-nav.open a {
+    display: block;
+    text-align: center;
+    min-height: 44px;
+    line-height: 44px;
+    padding: 0 1rem;
+  }
+
+  /* Ensure all interactive elements have proper touch targets */
+  .demo-btn,
+  .pe-filter-btn,
+  .wp-filter-btn,
+  .pe-nav a,
+  .wp-nav a,
+  .db-nav a,
+  .hidden-btn,
+  .pe-modal-close,
+  .wp-modal-close,
+  .terminal-input,
+  .ct-submit,
+  .theme-toggle-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 1rem;
+  }
+
+  /* Filter buttons - wider tap targets */
+  .pe-filter-btn,
+  .wp-filter-btn {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.8rem;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  .terminal-input,
+  .pe-search,
+  .wp-search,
+  #palette-search,
+  .ct-input,
+  .ct-textarea {
+    font-size: 16px;
+    -webkit-appearance: none;
+  }
+
+  /* Modals - full width on mobile */
+  .pe-modal,
+  .wp-modal,
+  .help-overlay-content {
+    max-width: 95vw;
+    padding: 1.25rem;
+    margin: 0.5rem;
+  }
+
+  .help-overlay-title {
+    font-size: 1.1rem;
+  }
+
+  /* Dashboard panels - stack vertically */
+  .db-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .db-panel.full {
+    grid-column: 1;
+  }
+
+  /* Server info - single column on mobile */
+  .db-server-info {
+    grid-template-columns: 1fr;
+  }
+
+  /* Overview stats - 2 columns on mobile */
+  .db-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Cost section - stack vertically */
+  .db-cost {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Project/explorer grids - single column */
+  .pe-grid,
+  .wp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Wrapper padding - tighter on mobile */
+  .pe-wrapper,
+  .db-wrapper,
+  .wp-wrapper,
+  .ct-wrapper {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* Header wrapping on mobile */
+  .pe-header,
+  .db-header,
+  .wp-header,
+  .ct-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Search inputs - full width on mobile */
+  .pe-search,
+  .wp-search {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* Keyboard-aware viewport - adjust when keyboard opens */
+  @supports (height: 100dvh) {
+    body {
+      min-height: 100dvh;
+    }
+    .terminal-body {
+      min-height: calc(100dvh - 180px);
+    }
+    .terminal-container {
+      min-height: calc(100dvh - 40px);
+    }
+  }
+
+  /* iOS safe area support for notched devices */
+  @supports (padding: max(0px)) {
+    .terminal-header {
+      padding-top: max(1rem, env(safe-area-inset-top));
+    }
+    .terminal-container {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* ---- Small Phone Optimization (≤400px) ---- */
+@media (max-width: 400px) {
+  .terminal-header { padding: 0.75rem 0.5rem; }
+  .terminal-output { padding: 0.6rem; }
+  .command-line { padding: 0.4rem 0.6rem; }
+  .footer-right { flex-direction: column; gap: 0.2rem; }
+}
+
+/* ---- Tablet Breakpoint (769px - 1024px) ---- */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .terminal-container { max-width: 900px; }
+  .pe-grid,
+  .wp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---- Large Desktop Optimization (≥1400px) ---- */
+@media (min-width: 1400px) {
+  .terminal-container { max-width: 1400px; }
+  .glitch { font-size: 3rem; }
 }
 
 /* Print styles - clean terminal output */
@@ -1094,4 +1152,215 @@ body.theme-retro .command-palette {
   .command-palette { animation: none; }
   .palette-item { transition: none; }
 }
+
+/* ---- Three.js 3D Canvas — Fixed background layer ---- */
+
+.three-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: auto;
+}
+
+/* Hide 3D canvas on mobile and reduced motion */
+@media (max-width: 1024px) {
+  .three-canvas { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .three-canvas { display: none !important; }
+}
+
+/* ---- Help Overlay ---- */
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: help-overlay-in 0.2s ease-out;
+}
+
+@keyframes help-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.help-overlay-content {
+  background: var(--bg-dark);
+  border: 1px solid rgba(188, 19, 254, 0.25);
+  border-radius: 12px;
+  max-width: 680px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: auto;
+  padding: 2rem;
+  position: relative;
+  animation: help-content-in 0.25s ease-out;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes help-content-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.help-overlay-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: 1px solid rgba(188, 19, 254, 0.2);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.help-overlay-close:hover {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
+}
+
+.help-overlay-title {
+  color: var(--neon-cyan);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.25rem;
+  padding-right: 2rem;
+}
+
+.help-section {
+  margin-bottom: 1.25rem;
+}
+
+.help-section-title {
+  color: var(--neon-pink);
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.help-command-list,
+.help-shortcut-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.help-command-list li,
+.help-shortcut-list li {
+  padding: 0.2rem 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.help-command-list code {
+  background: rgba(188, 19, 254, 0.1);
+  border: 1px solid rgba(188, 19, 254, 0.15);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  color: var(--neon-purple);
+  font-family: var(--font-mono);
+}
+
+.help-shortcut-list kbd {
+  background: rgba(0, 240, 252, 0.1);
+  border: 1px solid rgba(0, 240, 252, 0.15);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  color: var(--neon-cyan);
+  font-family: var(--font-mono);
+}
+
+.help-hint {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(188, 19, 254, 0.1);
+  opacity: 0.6;
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+  .help-overlay, .help-overlay-content { animation: none; }
+}
+
+/* ---- Theme Toggle Button ---- */
+
+.theme-toggle-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(188, 19, 254, 0.1);
+  border: 1px solid rgba(188, 19, 254, 0.2);
+  color: var(--neon-purple);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 240, 252, 0.2);
+}
+
+body.theme-retro .theme-toggle-btn {
+  background: rgba(255, 140, 0, 0.1);
+  border-color: rgba(255, 140, 0, 0.3);
+  color: #ffaa00;
+}
+
+body.theme-retro .theme-toggle-btn:hover {
+  border-color: #ff8c00;
+  color: #ff8c00;
+  box-shadow: 0 0 12px rgba(255, 140, 0, 0.2);
+}
+
+/* ---- Retro Theme Overrides ---- */
+
+body.theme-retro .terminal-header {
+  border-bottom-color: rgba(255, 140, 0, 0.2);
+}
+
+body.theme-retro .terminal-header h1 {
+  color: #ffaa00;
+}
+
+body.theme-retro .subtitle {
+  color: #9a8050;
+}
+
+
 

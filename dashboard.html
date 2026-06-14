@@ -15,6 +15,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+ <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/2014-09-07/schema.jsonld",
+      "@type": "Person",
+      "name": "Eugene Vincent",
+      "url": "https://chai-homelab.com/dashboard.html",
+      "jobTitle": "Full Stack Engineer",
+      "knowsAbout": ["Kubernetes", "Azure", "DevOps", "SRE", "Monitoring"],
+      "sameAs": ["https://github.com/chaitea321"]
+    }
+  </script>
   <style>
     :root {
       --db-bg: #0c0c14;
@@ -409,6 +420,10 @@
   <header class="terminal-header" role="banner">
     <h1 class="glitch" data-text="Eugene Vincent">Eugene Vincent</h1>
     <p class="subtitle">Full Stack Engineer | Azure DevOps | SRE</p>
+    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+      <span class="theme-icon-synthwave">&#x260c;</span>
+      <span class="theme-icon-retro" style="display:none;">&#x2630;</span>
+    </button>
   </header>
   <main class="terminal-container" style="flex:1;display:flex;flex-direction:column;">
     <div class="terminal-window" style="display:flex;flex-direction:column;flex:1;">
@@ -424,11 +439,14 @@
             <h2>📊 <span>Live Dashboard</span></h2>
             <nav class="db-nav">
               <a href="/">⌂ Terminal</a>
-              <a href="/project-explorer">📂 Projects</a>
-              <a href="/writeups">✎ Writeups</a>
-              <a href="/contact">✉ Contact</a>
+              <a href="/project-explorer.html">📂 Projects</a>
+              <a href="/writeups.html">✎ Writeups</a>
+              <a href="/contact.html">✉ Contact</a>
             </nav>
           </div>
+
+          <!-- ARIA live region for screen reader announcements -->
+          <div class="sr-only" id="db-live-region" aria-live="polite" aria-atomic="true"></div>
 
           <div class="db-stats" id="db-stats" role="list" aria-label="Overview statistics"></div>
 
@@ -472,10 +490,10 @@
     </div>
   </footer>
   <nav class="mobile-nav" id="mobile-nav">
-    <a href="/project-explorer" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
-    <a href="/dashboard" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
-    <a href="/writeups" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
-    <a href="/contact" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
+    <a href="/project-explorer.html" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
+    <a href="/dashboard.html" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
+    <a href="/writeups.html" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
+    <a href="/contact.html" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
   </nav>
   <button class="ct-hamburger" id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false"></button>
 
@@ -485,6 +503,42 @@
     import PROJECT_CATALOG from '/js/project-catalog.js';
 
     initMobileNav();
+
+    // Skip link focus management
+    document.querySelectorAll('.skip-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+        }
+      });
+    });
+
+    // Theme toggle button
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('theme-retro');
+        const isRetro = document.body.classList.contains('theme-retro');
+        localStorage.setItem('portfolio-theme', isRetro ? 'retro' : 'synthwave');
+        updateThemeIcon(isRetro);
+      });
+
+      const currentTheme = localStorage.getItem('portfolio-theme');
+      updateThemeIcon(currentTheme === 'retro');
+    }
+
+    function updateThemeIcon(isRetro) {
+      const synthwaveIcon = themeBtn.querySelector('.theme-icon-synthwave');
+      const retroIcon = themeBtn.querySelector('.theme-icon-retro');
+      if (synthwaveIcon && retroIcon) {
+        synthwaveIcon.style.display = isRetro ? 'none' : 'inline';
+        retroIcon.style.display = isRetro ? 'inline' : 'none';
+      }
+    }
 
     const MINECRAFT_DEFAULTS = {
       server: { name: "Eugene's Homelab MC", version: "PaperMC 26.1.2", javaVersion: "Java 25" },
@@ -500,6 +554,14 @@
 
     // === RENDER FUNCTIONS ===
 
+    function announceDashboard(message) {
+      const liveRegion = document.getElementById('db-live-region');
+      if (liveRegion) {
+        liveRegion.textContent = message;
+        setTimeout(() => { liveRegion.textContent = ''; }, 3000);
+      }
+    }
+
     function renderStats() {
       const projectCount = Object.keys(PROJECT_CATALOG).length;
       document.getElementById('db-stats').innerHTML = [
@@ -507,7 +569,7 @@
         { icon: '⚡', value: String(COMMAND_COUNT), label: 'Terminal Commands' },
         { icon: '💰', value: '$5.12', label: 'Monthly Cost' },
         { icon: '📈', value: '99.9%', label: 'Infra Uptime' },
-        { icon: '🧪', value: '123', label: 'Tests Passing' }
+        { icon: '🧪', value: '277', label: 'Tests Passing' }
       ].map(s => `
         <div class="db-stat-card">
           <div class="db-stat-icon">${s.icon}</div>
@@ -517,57 +579,74 @@
       `).join('');
     }
 
-    function renderMinecraft(stats) {
+    function renderMinecraft(stats, animate = false) {
       const tps = stats.metrics.tps;
-      const tpsPct = Math.min(100, (tps / 20) * 100);
       const players = stats.metrics.players;
       const maxPlayers = stats.metrics.maxPlayers;
-      const playersPct = Math.min(100, (players / Math.max(maxPlayers, 1)) * 100);
-      const heapPct = Math.min(100, (stats.metrics.heapUsedMB / Math.max(stats.metrics.heapMaxMB, 1)) * 100);
+      const heapUsedMB = stats.metrics.heapUsedMB;
+      const heapMaxMB = stats.metrics.heapMaxMB;
 
-      document.getElementById('db-minecraft').innerHTML = `
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div class="db-gauge-group">
-            <div class="db-gauge-label">TPS</div>
-            <div class="db-gauge"><div class="db-gauge-fill" style="width:${tpsPct}%"></div></div>
-            <div class="db-gauge-value">${tps}<span class="db-gauge-sub">/20</span></div>
-          </div>
-          <div class="db-gauge-group">
-            <div class="db-gauge-label">Players</div>
-            <div class="db-gauge"><div class="db-gauge-fill" style="width:${playersPct}%"></div></div>
-            <div class="db-gauge-value">${players}<span class="db-gauge-sub">/${maxPlayers}</span></div>
-          </div>
-          <div class="db-gauge-group">
-            <div class="db-gauge-label">Heap Usage</div>
-            <div class="db-gauge"><div class="db-gauge-fill" style="width:${heapPct}%"></div></div>
-            <div class="db-gauge-value">${stats.metrics.heapUsedMB}<span class="db-gauge-sub">/${stats.metrics.heapMaxMB} MB</span></div>
-          </div>
-        </div>
-        <div class="db-server-meta" style="grid-column:1/-1;margin-top:0.5rem;">
-          <div class="db-meta-row">
-            <span class="db-meta-label">Server</span>
-            <span class="db-meta-value info">${stats.server.name}</span>
-          </div>
-          <div class="db-meta-row">
-            <span class="db-meta-label">Version</span>
-            <span class="db-meta-value">${stats.server.version} (${stats.server.javaVersion})</span>
-          </div>
-          <div class="db-meta-row">
-            <span class="db-meta-label">Uptime</span>
-            <span class="db-meta-value success">${stats.metrics.uptime}</span>
-          </div>
-          <div class="db-meta-row">
-            <span class="db-meta-label">RCON Latency</span>
-            <span class="db-meta-value info">${stats.monitoring.rconLatency}</span>
-          </div>
-          <div class="db-meta-row">
-            <span class="db-meta-label">Alerts Today</span>
-            <span class="db-meta-value ${stats.monitoring.discordAlertsToday > 0 ? 'warning' : 'success'}">${stats.monitoring.discordAlertsToday}</span>
-          </div>
-        </div>
-      `;
+      // Smooth gauge transitions (update widths via JS to trigger CSS transitions)
+      if (animate) {
+        const tpsFill = document.querySelector('#db-minecraft .db-gauge-group:nth-child(1) .db-gauge-fill');
+        const playersFill = document.querySelector('#db-minecraft .db-gauge-group:nth-child(2) .db-gauge-fill');
+        const heapFill = document.querySelector('#db-minecraft .db-gauge-group:nth-child(3) .db-gauge-fill');
 
-      // Changes
+        if (tpsFill) tpsFill.style.width = Math.min(100, (tps / 20) * 100) + '%';
+        if (playersFill) playersFill.style.width = Math.min(100, (players / Math.max(maxPlayers, 1)) * 100) + '%';
+        if (heapFill) heapFill.style.width = Math.min(100, (heapUsedMB / Math.max(heapMaxMB, 1)) * 100) + '%';
+
+        // Update gauge values with subtle fade effect
+        const gauges = document.querySelectorAll('#db-minecraft .db-gauge-value');
+        if (gauges[0]) gauges[0].innerHTML = tps + '<span class="db-gauge-sub">/20</span>';
+        if (gauges[1]) gauges[1].innerHTML = players + '<span class="db-gauge-sub">/' + maxPlayers + '</span>';
+        if (gauges[2]) gauges[2].innerHTML = heapUsedMB + '<span class="db-gauge-sub">/' + heapMaxMB + ' MB</span>';
+      } else {
+        // Full render for initial load
+        document.getElementById('db-minecraft').innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="db-gauge-group">
+              <div class="db-gauge-label">TPS</div>
+              <div class="db-gauge"><div class="db-gauge-fill" style="width:${Math.min(100, (tps / 20) * 100)}%"></div></div>
+              <div class="db-gauge-value">${tps}<span class="db-gauge-sub">/20</span></div>
+            </div>
+            <div class="db-gauge-group">
+              <div class="db-gauge-label">Players</div>
+              <div class="db-gauge"><div class="db-gauge-fill" style="width:${Math.min(100, (players / Math.max(maxPlayers, 1)) * 100)}%"></div></div>
+              <div class="db-gauge-value">${players}<span class="db-gauge-sub">/${maxPlayers}</span></div>
+            </div>
+            <div class="db-gauge-group">
+              <div class="db-gauge-label">Heap Usage</div>
+              <div class="db-gauge"><div class="db-gauge-fill" style="width:${Math.min(100, (heapUsedMB / Math.max(heapMaxMB, 1)) * 100)}%"></div></div>
+              <div class="db-gauge-value">${heapUsedMB}<span class="db-gauge-sub">/${heapMaxMB} MB</span></div>
+            </div>
+          </div>
+          <div class="db-server-meta" style="grid-column:1/-1;margin-top:0.5rem;">
+            <div class="db-meta-row">
+              <span class="db-meta-label">Server</span>
+              <span class="db-meta-value info">${stats.server.name}</span>
+            </div>
+            <div class="db-meta-row">
+              <span class="db-meta-label">Version</span>
+              <span class="db-meta-value">${stats.server.version} (${stats.server.javaVersion})</span>
+            </div>
+            <div class="db-meta-row">
+              <span class="db-meta-label">Uptime</span>
+              <span class="db-meta-value success">${stats.metrics.uptime}</span>
+            </div>
+            <div class="db-meta-row">
+              <span class="db-meta-label">RCON Latency</span>
+              <span class="db-meta-value info">${stats.monitoring.rconLatency}</span>
+            </div>
+            <div class="db-meta-row">
+              <span class="db-meta-label">Alerts Today</span>
+              <span class="db-meta-value ${stats.monitoring.discordAlertsToday > 0 ? 'warning' : 'success'}">${stats.monitoring.discordAlertsToday}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Changes (always re-render, no transition needed)
       const changesHtml = stats.recentChanges && stats.recentChanges.length > 0
         ? stats.recentChanges.map(c => `
           <div class="db-change-item">
@@ -649,7 +728,8 @@
 
     async function refreshDashboard() {
       const stats = await loadMinecraftStats();
-      renderMinecraft(stats);
+      renderMinecraft(stats, true);
+      announceDashboard('Dashboard refreshed. Minecraft server: ' + stats.metrics.tps + ' TPS, ' + stats.metrics.players + ' players online.');
     }
 
     // Online status handled by pwa.js globally
@@ -662,11 +742,20 @@
       renderCost();
       renderSysStatus();
 
+      // Announce dashboard loaded to screen readers
+      announceDashboard('Dashboard loaded. 5 projects deployed, 277 terminal commands available. Monthly infrastructure cost $5.12 with 99.9% uptime.');
+
       // Try to load live data
       refreshDashboard();
 
-      // Auto-refresh every 60 seconds
-      setInterval(refreshDashboard, 60000);
+      // Auto-refresh: respect data saver / slow connections
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const isSlowConnection = conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g');
+      const refreshInterval = isSlowConnection ? 300000 : 60000; // 5 min on slow, 1 min normal
+
+      if (!isSlowConnection) {
+        setInterval(refreshDashboard, refreshInterval);
+      }
     }
 
     // Theme persistence
@@ -675,6 +764,27 @@
     }
 
     init();
+  </script>
+  <script type="module">
+    import ThreeManager from '/js/three-manager.js';
+    import createShapes from '/js/three-shapes.js';
+
+    try {
+      const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
+      if (!three.disabled) {
+        const { scene } = three.init();
+
+        const shapes = createShapes({ count: 2, gpuTier: three.gpuTier, time: 0 });
+        for (const s of shapes.components) {
+          scene.add(s.object);
+        }
+        three.addComponent(shapes);
+
+        window.addEventListener('beforeunload', () => three.dispose());
+      }
+    } catch (e) {
+      console.warn('[Three.js] Initialization failed:', e.message);
+    }
   </script>
 </body>
 </html>

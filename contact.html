@@ -15,6 +15,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/2014-09-07/schema.jsonld",
+      "@type": "Person",
+      "name": "Eugene Vincent",
+      "url": "https://chai-homelab.com/contact.html",
+      "jobTitle": "Full Stack Engineer",
+      "knowsAbout": ["Kubernetes", "Azure", "DevOps", "SRE"],
+      "sameAs": ["https://github.com/chaitea321"]
+    }
+  </script>
   <style>
     :root {
       --ct-bg: #0c0c14;
@@ -223,6 +234,10 @@
   <header class="terminal-header" role="banner">
     <h1 class="glitch" data-text="Eugene Vincent">Eugene Vincent</h1>
     <p class="subtitle">Full Stack Engineer | Azure DevOps | SRE</p>
+    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+      <span class="theme-icon-synthwave">&#x260c;</span>
+      <span class="theme-icon-retro" style="display:none;">&#x2630;</span>
+    </button>
   </header>
   <main class="terminal-container" style="flex:1;display:flex;flex-direction:column;">
     <div class="terminal-window" style="display:flex;flex-direction:column;flex:1;">
@@ -238,9 +253,9 @@
             <h2>&#x1f4e7; <span>Contact</span></h2>
             <nav class="ct-nav">
               <a href="/">⌂ Terminal</a>
-              <a href="/project-explorer">📂 Projects</a>
-              <a href="/dashboard">📊 Dashboard</a>
-              <a href="/writeups">✎ Writeups</a>
+              <a href="/project-explorer.html">📂 Projects</a>
+              <a href="/dashboard.html">📊 Dashboard</a>
+              <a href="/writeups.html">✎ Writeups</a>
             </nav>
           </div>
 
@@ -286,10 +301,10 @@
     </div>
   </footer>
   <nav class="mobile-nav" id="mobile-nav">
-    <a href="/project-explorer" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
-    <a href="/dashboard" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
-    <a href="/writeups" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
-    <a href="/contact" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
+    <a href="/project-explorer.html" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
+    <a href="/dashboard.html" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
+    <a href="/writeups.html" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
+    <a href="/contact.html" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
   </nav>
   <button class="ct-hamburger" id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false"></button>
 
@@ -298,6 +313,42 @@
     import ContactAPI from '/js/contact-api.js';
 
     initMobileNav();
+
+    // Skip link focus management
+    document.querySelectorAll('.skip-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+        }
+      });
+    });
+
+    // Theme toggle button
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('theme-retro');
+        const isRetro = document.body.classList.contains('theme-retro');
+        localStorage.setItem('portfolio-theme', isRetro ? 'retro' : 'synthwave');
+        updateThemeIcon(isRetro);
+      });
+
+      const currentTheme = localStorage.getItem('portfolio-theme');
+      updateThemeIcon(currentTheme === 'retro');
+    }
+
+    function updateThemeIcon(isRetro) {
+      const synthwaveIcon = themeBtn.querySelector('.theme-icon-synthwave');
+      const retroIcon = themeBtn.querySelector('.theme-icon-retro');
+      if (synthwaveIcon && retroIcon) {
+        synthwaveIcon.style.display = isRetro ? 'none' : 'inline';
+        retroIcon.style.display = isRetro ? 'inline' : 'none';
+      }
+    }
 
     const form = document.getElementById('contact-form');
     const submitBtn = document.getElementById('ct-submit-btn');
@@ -359,6 +410,27 @@
     // Theme persistence
     if (localStorage.getItem('portfolio-theme') === 'retro') {
       document.body.classList.add('theme-retro');
+    }
+  </script>
+  <script type="module">
+    import ThreeManager from '/js/three-manager.js';
+    import createShapes from '/js/three-shapes.js';
+
+    try {
+      const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
+      if (!three.disabled) {
+        const { scene } = three.init();
+
+        const shapes = createShapes({ count: 2, gpuTier: three.gpuTier, time: 0 });
+        for (const s of shapes.components) {
+          scene.add(s.object);
+        }
+        three.addComponent(shapes);
+
+        window.addEventListener('beforeunload', () => three.dispose());
+      }
+    } catch (e) {
+      console.warn('[Three.js] Initialization failed:', e.message);
     }
   </script>
 </body>

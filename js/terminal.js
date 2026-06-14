@@ -29,8 +29,9 @@ class Terminal {
       'experience', 'education', 'resume', 'about', 'contact',
       'status', 'minecraft', 'ai', 'demo', 'clear', 'theme',
       'matrix', 'timeline', 'neofetch', 'fortune', 'cowsay',
-      'achievements', 'perf', 'explorer', 'dashboard', 'writeups'
+      'achievements', 'perf', 'explorer', 'dashboard', 'writeups', 'git'
     ];
+    this._executionHistory = [];
     this.announcementEl = null;
     this._announcementTimeout = null;
     this.isDemoMode = false;
@@ -48,6 +49,63 @@ class Terminal {
       // In Node.js, init immediately without config
       this.init();
     }
+  }
+
+  _saveCommandHistory() {
+    try {
+      localStorage.setItem('terminal-command-history', JSON.stringify(this.commandHistory));
+    } catch (e) { /* storage unavailable */ }
+  }
+
+  _saveExecutionHistory() {
+    try {
+      localStorage.setItem('terminal-execution-history', JSON.stringify(this._executionHistory.slice(-100)));
+    } catch (e) { /* storage unavailable */ }
+  }
+
+  _loadCommandHistory() {
+    try {
+      const saved = localStorage.getItem('terminal-command-history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existing = new Set(this.commandHistory);
+          for (const cmd of parsed) {
+            if (typeof cmd === 'string' && cmd.trim()) {
+              existing.add(cmd.trim().toLowerCase().split(/\s+/)[0]);
+            }
+          }
+          this.commandHistory = Array.from(existing);
+        }
+      }
+    } catch (e) { /* storage unavailable */ }
+
+    // Load execution history
+    try {
+      const savedExec = localStorage.getItem('terminal-execution-history');
+      if (savedExec) {
+        const parsed = JSON.parse(savedExec);
+        if (Array.isArray(parsed)) {
+          this._executionHistory = parsed.slice(-100);
+        }
+      }
+    } catch (e) { /* storage unavailable */ }
+  }
+
+  _recordCommand(cmd) {
+    if (!cmd || typeof cmd !== 'string') return;
+    const trimmed = cmd.trim().toLowerCase();
+    if (!trimmed) return;
+
+    // Remove duplicate if exists
+    this._executionHistory = this._executionHistory.filter(c => c !== trimmed);
+    // Add to front (most recent first)
+    this._executionHistory.unshift(trimmed);
+    // Keep max 100 entries
+    if (this._executionHistory.length > 100) {
+      this._executionHistory = this._executionHistory.slice(0, 100);
+    }
+    this._saveExecutionHistory();
   }
 
   async loadConfig() {
@@ -81,6 +139,8 @@ class Terminal {
   }
 
   init() {
+    this._loadCommandHistory();
+
     if (this.output) {
       while (this.output.firstChild) {
         this.output.removeChild(this.output.firstChild);
@@ -155,6 +215,14 @@ class Terminal {
         this.input.addEventListener('keydown', (e) => this.handleInput(e));
         this.input.addEventListener('focus', () => this.input.scrollIntoView({ behavior: 'smooth' }));
 
+        // iOS keyboard dismiss handling — scroll to bottom when keyboard closes
+        this.input.addEventListener('blur', () => {
+          setTimeout(() => {
+            this.scrollToBottom();
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          }, 150);
+        });
+
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && document.activeElement !== this.input) {
             e.preventDefault();
@@ -166,6 +234,9 @@ class Terminal {
           } else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             this.toggleCommandPalette();
+          } else if (e.key === '?' && document.activeElement !== this.input) {
+            e.preventDefault();
+            this.showHelpOverlay();
           } else if (e.key === 'Escape' && document.activeElement !== this.input && !this.isDemoMode) {
             e.preventDefault();
             this.input.focus();
@@ -225,6 +296,8 @@ class Terminal {
   }
 
   executeCommand(command) {
+    this._recordCommand(command);
+
     try {
       const parts = command.split(' ');
       const cmd = parts[0].toLowerCase();
@@ -320,11 +393,14 @@ class Terminal {
         case 'dashboard':
             this.openPage('/dashboard.html', 'Live Dashboard');
             break;
-          case 'writeups':
-            this.openPage('/writeups.html', 'Writeups');
+case 'writeups':
+             this.openPage('/writeups.html', 'Writeups');
+             break;
+          case 'git':
+            this.showGitHubStats();
             break;
-          default:
-          this.log(`Unknown command: ${cmd}`, 'warning');
+           default:
+           this.log(`Unknown command: ${cmd}`, 'warning');
       }
 
       // Track achievements for valid commands only
@@ -341,7 +417,7 @@ class Terminal {
     }
   }
 
-  showHelp() {
+ showHelp() {
     const helpText = [
       { cmd: 'help', desc: 'Show this help message' },
       { cmd: 'projects [category]', desc: 'List projects (optional: cloud, devops, iot, web)' },
@@ -369,13 +445,15 @@ class Terminal {
       { cmd: 'contact --email', desc: 'Interactive email form' },
       { cmd: 'explorer', desc: 'Open Project Explorer page' },
       { cmd: 'dashboard', desc: 'Open Live Dashboard page' },
-      { cmd: 'writeups', desc: 'Open Writeups/blog page' }
+      { cmd: 'writeups', desc: 'Open Writeups/blog page' },
+      { cmd: 'git', desc: 'GitHub profile stats' }
     ];
 
     const a11yShortcuts = [
       { key: 'Tab', desc: 'Autocomplete command' },
       { key: '\u2190/\u2191', desc: 'Command history' },
       { key: 'Ctrl+K', desc: 'Command palette overlay' },
+      { key: '?', desc: 'Help overlay' },
       { key: 'Esc', desc: 'Focus input field' }
     ];
 
@@ -400,6 +478,93 @@ class Terminal {
       this.log(`  ${cat.padEnd(10)} - Projects in "${cat}" category`, 'info');
     });
     this.log('===========================\n', 'info');
+  }
+
+  showHelpOverlay() {
+    if (typeof document === 'undefined') return;
+
+    // Remove existing overlay if present
+    const existing = document.getElementById('help-overlay');
+    if (existing) { existing.remove(); return; }
+
+    const helpText = [
+      { cmd: 'help', desc: 'Show this help message' },
+      { cmd: 'projects [category]', desc: 'List projects (optional: cloud, devops, iot, web)' },
+      { cmd: 'project <name>', desc: 'Deep-dive into a specific project' },
+      { cmd: 'skills [category]', desc: 'Show technical skills (optional: category)' },
+      { cmd: 'skills-visual', desc: 'Animated skill progress bars by category' },
+      { cmd: 'timeline', desc: 'Project timeline with active period chart' },
+      { cmd: 'experience [level]', desc: 'Show work experience (senior/mid/junior)' },
+      { cmd: 'education', desc: 'Show education background' },
+      { cmd: 'resume [--txt|--md]', desc: 'Display or download resume (text/markdown)' },
+      { cmd: 'about', desc: 'About Eugene Vincent' },
+      { cmd: 'contact', desc: 'Contact information' },
+      { cmd: 'status', desc: 'Show system/live metrics status' },
+      { cmd: 'minecraft', desc: 'Show Minecraft server live stats' },
+      { cmd: 'ai <question>', desc: 'Ask AI about your portfolio' },
+      { cmd: 'demo [stop]', desc: 'Start/stop auto-cycling project showcase' },
+      { cmd: 'clear', desc: 'Clear terminal output' },
+      { cmd: 'theme [retro|synthwave]', desc: 'Set or toggle theme (default: toggle)' },
+      { cmd: 'matrix [on|off]', desc: 'Toggle matrix rain animation' },
+      { cmd: 'neofetch', desc: 'System information display' },
+      { cmd: 'fortune', desc: 'Random tech/career fortune' },
+      { cmd: 'cowsay <text>', desc: 'ASCII cow says your text' },
+      { cmd: 'achievements', desc: 'View earned achievements' },
+      { cmd: 'perf', desc: 'Performance dashboard (A-F grading)' },
+      { cmd: 'contact --email', desc: 'Interactive email form' },
+      { cmd: 'explorer', desc: 'Open Project Explorer page' },
+      { cmd: 'dashboard', desc: 'Open Live Dashboard page' },
+      { cmd: 'writeups', desc: 'Open Writeups/blog page' },
+      { cmd: 'git', desc: 'GitHub profile stats' }
+    ];
+
+    const shortcuts = [
+      { key: 'Tab', desc: 'Autocomplete command' },
+      { key: '\u2190/\u2191', desc: 'Command history' },
+      { key: 'Ctrl+K', desc: 'Command palette overlay' },
+      { key: '?', desc: 'Toggle help overlay' },
+      { key: 'Esc', desc: 'Close overlay / Focus input' }
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.id = 'help-overlay';
+    overlay.className = 'help-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-label', 'Help overlay');
+    overlay.innerHTML = `
+      <div class="help-overlay-content">
+        <button class="help-overlay-close" aria-label="Close help">&times;</button>
+        <h3 class="help-overlay-title">&#x1f507; Help</h3>
+        <div class="help-section">
+          <h4 class="help-section-title">Commands</h4>
+          <ul class="help-command-list">
+            ${helpText.map(({ cmd, desc }) => `<li><code>${escapeHtml(cmd)}</code> — ${escapeHtml(desc)}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="help-section">
+          <h4 class="help-section-title">Shortcuts</h4>
+          <ul class="help-shortcut-list">
+            ${shortcuts.map(({ key, desc }) => `<li><kbd>${escapeHtml(key)}</kbd> — ${escapeHtml(desc)}</li>`).join('')}
+          </ul>
+        </div>
+        <p class="help-hint">Press ? or Esc to close</p>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Close handlers
+    const closeHandler = () => overlay.remove();
+    overlay.querySelector('.help-overlay-close').addEventListener('click', closeHandler);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeHandler(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.body.contains(overlay)) {
+        closeHandler();
+      }
+    }, { once: true });
+
+    // Focus trap
+    overlay.querySelector('.help-overlay-close').focus();
   }
 
   showProjects(filter = '') {
@@ -1820,6 +1985,39 @@ Generated from chai-homelab.com portfolio terminal`;
     } else {
       this.log('\nNo matches for "' + value + '". Try Tab to see available commands.', 'warning');
     }
+  }
+
+  async showGitHubStats() {
+    this.divider();
+    this.log('\n=== GitHub Profile Stats ===', 'info');
+
+    try {
+      const resp = await fetch('https://api.github.com/users/chaitea321');
+      if (!resp.ok) throw new Error('GitHub API unavailable');
+
+      const data = await resp.json();
+
+      this.log(`  Username: ${data.login}`, 'success');
+      this.log(`  Name: ${data.name || 'N/A'}`, 'info');
+      this.log(`  Location: ${data.location || 'N/A'}`, 'info');
+      this.log(`  Bio: ${data.bio || 'No bio set'}`, 'info');
+      this.log('  ───────────────────────────────────────────────', 'info');
+      this.log(`  Repositories: ${data.public_repos}`, 'success');
+      this.log(`  Followers: ${data.followers_count}`, 'success');
+      this.log(`  Stars Received: ${data.total_repositories_stars_received || 'N/A'}`, 'success');
+      this.log(`  Joined: ${new Date(data.created_at).getFullYear()}`, 'info');
+
+      if (data.url) {
+        this.log(`  Profile: ${data.url}`, 'info');
+      }
+    } catch (err) {
+      this.log('  GitHub API unavailable — showing cached stats', 'warning');
+      this.log('  Username: chaitea321', 'info');
+      this.log('  Repositories: 5+', 'success');
+      this.log('  Profile: github.com/chaitea321', 'info');
+    }
+
+    this.divider();
   }
 }
 

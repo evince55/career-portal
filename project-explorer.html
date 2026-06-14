@@ -15,6 +15,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+ <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/2014-09-07/schema.jsonld",
+      "@type": "Person",
+      "name": "Eugene Vincent",
+      "url": "https://chai-homelab.com/project-explorer.html",
+      "jobTitle": "Full Stack Engineer",
+      "knowsAbout": ["Kubernetes", "Azure", "DevOps", "SRE", "Service Mesh"],
+      "sameAs": ["https://github.com/chaitea321"]
+    }
+  </script>
   <style>
     :root {
       --pe-bg: #0c0c14;
@@ -35,6 +46,35 @@
       --pe-filter-bg: rgba(255, 140, 0, 0.08);
       --pe-filter-active: linear-gradient(135deg, rgba(255, 140, 0, 0.3), rgba(255, 200, 0, 0.15));
       --pe-text-muted: rgba(232, 198, 122, 0.4);
+    }
+
+    /* Retro theme: wireframe shape colors */
+    body.theme-retro .pe-card[data-category="cloud"] .pe-card-3d-shape svg line,
+    body.theme-retro .pe-card[data-category="cloud"] .pe-card-3d-shape svg circle,
+    body.theme-retro .pe-card[data-category="cloud"] .pe-card-3d-shape svg ellipse {
+      stroke: #ffaa00;
+    }
+    body.theme-retro .pe-card[data-category="cloud"] .pe-card-3d-shape svg circle[fill] {
+      fill: #ffaa00;
+    }
+    body.theme-retro .pe-card[data-category="devops"] .pe-card-3d-shape svg line,
+    body.theme-retro .pe-card[data-category="devops"] .pe-card-3d-shape svg rect {
+      stroke: #ff8c00;
+    }
+    body.theme-retro .pe-card[data-category="iot"] .pe-card-3d-shape svg polygon,
+    body.theme-retro .pe-card[data-category="iot"] .pe-card-3d-shape svg line,
+    body.theme-retro .pe-card[data-category="iot"] .pe-card-3d-shape svg circle {
+      stroke: #ff8c00;
+    }
+    body.theme-retro .pe-card[data-category="iot"] .pe-card-3d-shape svg circle[fill] {
+      fill: #ff8c00;
+    }
+    body.theme-retro .pe-card[data-category="web"] .pe-card-3d-shape svg circle,
+    body.theme-retro .pe-card[data-category="web"] .pe-card-3d-shape svg line {
+      stroke: #9a8050;
+    }
+    body.theme-retro .pe-card[data-category="web"] .pe-card-3d-shape svg circle[fill] {
+      fill: #9a8050;
     }
 
     .pe-wrapper {
@@ -158,6 +198,7 @@
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
       gap: 1rem;
       flex: 1;
+      perspective: 800px;
     }
 
     .pe-card {
@@ -167,10 +208,12 @@
       border-radius: 8px;
       padding: 1.25rem;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.15s ease-out, box-shadow 0.3s ease-out;
       position: relative;
       overflow: hidden;
       animation: pe-card-in 0.4s ease-out both;
+      transform-style: preserve-3d;
+      will-change: transform;
     }
 
     @keyframes pe-card-in {
@@ -178,21 +221,163 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ---- Wireframe shape keyframe animations (continuous idle rotation) ---- */
+
+    /* Sphere: circle with inner cross — rotates in X+Y plane */
+    @keyframes wireframe-sphere {
+      0%   { transform: translateY(-50%) translateZ(20px) rotateX(0deg) rotateY(0deg); }
+      25%  { transform: translateY(-50%) translateZ(20px) rotateX(90deg) rotateY(45deg); }
+      50%  { transform: translateY(-50%) translateZ(20px) rotateX(180deg) rotateY(90deg); }
+      75%  { transform: translateY(-50%) translateZ(20px) rotateX(270deg) rotateY(135deg); }
+      100% { transform: translateY(-50%) translateZ(20px) rotateX(360deg) rotateY(180deg); }
+    }
+
+    /* Cube: square with inner lines — rotates in X+Z plane */
+    @keyframes wireframe-cube {
+      0%   { transform: translateY(-50%) translateZ(20px) rotateX(0deg) rotateZ(0deg); }
+      25%  { transform: translateY(-50%) translateZ(20px) rotateX(90deg) rotateZ(45deg); }
+      50%  { transform: translateY(-50%) translateZ(20px) rotateX(180deg) rotateZ(90deg); }
+      75%  { transform: translateY(-50%) translateZ(20px) rotateX(270deg) rotateZ(135deg); }
+      100% { transform: translateY(-50%) translateZ(20px) rotateX(360deg) rotateZ(180deg); }
+    }
+
+    /* Pentagon: pentagon with inner star — rotates in Y+Z plane */
+    @keyframes wireframe-pentagon {
+      0%   { transform: translateY(-50%) translateZ(20px) rotateY(0deg) rotateZ(0deg); }
+      25%  { transform: translateY(-50%) translateZ(20px) rotateY(90deg) rotateZ(45deg); }
+      50%  { transform: translateY(-50%) translateZ(20px) rotateY(180deg) rotateZ(90deg); }
+      75%  { transform: translateY(-50%) translateZ(20px) rotateY(270deg) rotateZ(135deg); }
+      100% { transform: translateY(-50%) translateZ(20px) rotateY(360deg) rotateZ(180deg); }
+    }
+
+    /* Orbital: dashed ring with crosshair — spins in Z */
+    @keyframes wireframe-orbital {
+      0%   { transform: translateY(-50%) translateZ(20px) rotateZ(0deg); }
+      100% { transform: translateY(-50%) translateZ(20px) rotateZ(360deg); }
+    }
+
     .pe-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background: linear-gradient(135deg, rgba(188, 19, 254, 0.03), transparent 60%);
       pointer-events: none;
+      z-index: 1;
     }
 
-    .pe-card:hover {
-      border-color: var(--pe-card-hover-border);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(188, 19, 254, 0.08);
+    /* ---- 3D wireframe shape container (SVG) ---- */
+
+    .pe-card-3d-shape {
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 96px;
+      height: 96px;
+      transform: translateY(-50%) translateZ(20px);
+      opacity: 0;
+      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .pe-card-3d-shape svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Category-specific wireframe shapes — animated rotation on hover */
+
+    /* Cloud → sphere (circle wireframe) — rotates X+Y */
+    .pe-card[data-category="cloud"] {
+      border-left-color: var(--neon-cyan);
+    }
+    .pe-card[data-category="cloud"] .pe-card-3d-shape svg line,
+    .pe-card[data-category="cloud"] .pe-card-3d-shape svg circle,
+    .pe-card[data-category="cloud"] .pe-card-3d-shape svg ellipse {
+      stroke: #00f0fc;
+    }
+    .pe-card[data-category="cloud"] .pe-card-3d-shape svg circle[fill] {
+      fill: #00f0fc;
+    }
+    .pe-card[data-category="cloud"] .pe-card-3d-shape {
+      animation: wireframe-sphere 8s linear infinite;
+    }
+
+    /* DevOps → cube (square wireframe) — rotates X+Z */
+    .pe-card[data-category="devops"] {
+      border-left-color: var(--neon-purple);
+    }
+    .pe-card[data-category="devops"] .pe-card-3d-shape svg line,
+    .pe-card[data-category="devops"] .pe-card-3d-shape svg rect {
+      stroke: #bc13fe;
+    }
+    .pe-card[data-category="devops"] .pe-card-3d-shape {
+      animation: wireframe-cube 10s linear infinite;
+    }
+
+    /* IoT → pentagon — rotates Y+Z */
+    .pe-card[data-category="iot"] {
+      border-left-color: var(--neon-pink);
+    }
+    .pe-card[data-category="iot"] .pe-card-3d-shape svg polygon,
+    .pe-card[data-category="iot"] .pe-card-3d-shape svg line,
+    .pe-card[data-category="iot"] .pe-card-3d-shape svg circle {
+      stroke: #ff00ff;
+    }
+    .pe-card[data-category="iot"] .pe-card-3d-shape svg circle[fill] {
+      fill: #ff00ff;
+    }
+    .pe-card[data-category="iot"] .pe-card-3d-shape {
+      animation: wireframe-pentagon 12s linear infinite;
+    }
+
+    /* Web → orbital (dashed ring) — spins Z */
+    .pe-card[data-category="web"] {
+      border-left-color: var(--success);
+    }
+    .pe-card[data-category="web"] .pe-card-3d-shape svg circle,
+    .pe-card[data-category="web"] .pe-card-3d-shape svg line {
+      stroke: #00ff41;
+    }
+    .pe-card[data-category="web"] .pe-card-3d-shape svg circle[fill] {
+      fill: #00ff41;
+    }
+    .pe-card[data-category="web"] .pe-card-3d-shape {
+      animation: wireframe-orbital 6s linear infinite;
+    }
+
+    /* Hover: card tilt + shape reveal + glow */
+    .pe-card[data-category="cloud"]:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 25px rgba(0, 240, 252, 0.2);
+    }
+    .pe-card[data-category="cloud"]:hover .pe-card-3d-shape {
+      opacity: 0.7;
+      transform: translateY(-50%) translateZ(40px) scale(1.15);
+    }
+
+    .pe-card[data-category="devops"]:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 25px rgba(188, 19, 254, 0.2);
+    }
+    .pe-card[data-category="devops"]:hover .pe-card-3d-shape {
+      opacity: 0.7;
+      transform: translateY(-50%) translateZ(40px) scale(1.15);
+    }
+
+    .pe-card[data-category="iot"]:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 25px rgba(255, 0, 255, 0.2);
+    }
+    .pe-card[data-category="iot"]:hover .pe-card-3d-shape {
+      opacity: 0.7;
+      transform: translateY(-50%) translateZ(40px) scale(1.15);
+    }
+
+    .pe-card[data-category="web"]:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 25px rgba(0, 255, 65, 0.2);
+    }
+    .pe-card[data-category="web"]:hover .pe-card-3d-shape {
+      opacity: 0.7;
+      transform: translateY(-50%) translateZ(40px) scale(1.15);
     }
 
     .pe-card-top {
@@ -490,7 +675,10 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .pe-card { animation: none; }
+      .pe-card { animation: none; transform-style: flat; }
+      .pe-card:hover { transform: translateY(-3px); }
+      .pe-card::after { display: none; }
+      .pe-card-3d-shape { display: none !important; }
       .pe-modal, .pe-modal-overlay { animation: none; }
     }
   </style>
@@ -501,6 +689,10 @@
   <header class="terminal-header" role="banner">
     <h1 class="glitch" data-text="Eugene Vincent">Eugene Vincent</h1>
     <p class="subtitle">Full Stack Engineer | Azure DevOps | SRE</p>
+    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+      <span class="theme-icon-synthwave">&#x260c;</span>
+      <span class="theme-icon-retro" style="display:none;">&#x2630;</span>
+    </button>
   </header>
   <main class="terminal-container" style="flex:1;display:flex;flex-direction:column;">
     <div class="terminal-window" style="display:flex;flex-direction:column;flex:1;">
@@ -516,9 +708,9 @@
             <h2>📂 <span>Project Explorer</span></h2>
             <nav class="pe-nav">
               <a href="/">⌂ Terminal</a>
-              <a href="/dashboard">📊 Dashboard</a>
-              <a href="/writeups">✎ Writeups</a>
-              <a href="/contact">✉ Contact</a>
+              <a href="/dashboard.html">📊 Dashboard</a>
+              <a href="/writeups.html">✎ Writeups</a>
+              <a href="/contact.html">✉ Contact</a>
             </nav>
           </div>
 
@@ -534,6 +726,7 @@
           </div>
 
           <div class="pe-grid" id="pe-grid" role="list" aria-label="Project cards"></div>
+      <div class="sr-only" id="pe-live-region" aria-live="polite" aria-atomic="true"></div>
         </div>
       </div>
     </div>
@@ -547,10 +740,10 @@
     </div>
   </footer>
   <nav class="mobile-nav" id="mobile-nav">
-    <a href="/project-explorer" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
-    <a href="/dashboard" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
-    <a href="/writeups" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
-    <a href="/contact" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
+    <a href="/project-explorer.html" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
+    <a href="/dashboard.html" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
+    <a href="/writeups.html" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
+    <a href="/contact.html" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
   </nav>
   <button class="ct-hamburger" id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false"></button>
 
@@ -560,6 +753,42 @@
     import { escapeHtml } from '/js/utils/helpers.js';
 
     initMobileNav();
+
+    // Skip link focus management
+    document.querySelectorAll('.skip-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+        }
+      });
+    });
+
+    // Theme toggle button
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('theme-retro');
+        const isRetro = document.body.classList.contains('theme-retro');
+        localStorage.setItem('portfolio-theme', isRetro ? 'retro' : 'synthwave');
+        updateThemeIcon(isRetro);
+      });
+
+      const currentTheme = localStorage.getItem('portfolio-theme');
+      updateThemeIcon(currentTheme === 'retro');
+    }
+
+    function updateThemeIcon(isRetro) {
+      const synthwaveIcon = themeBtn.querySelector('.theme-icon-synthwave');
+      const retroIcon = themeBtn.querySelector('.theme-icon-retro');
+      if (synthwaveIcon && retroIcon) {
+        synthwaveIcon.style.display = isRetro ? 'none' : 'inline';
+        retroIcon.style.display = isRetro ? 'inline' : 'none';
+      }
+    }
 
     // Mobile tap-to-focus for terminal input on pages with terminal
     const commandInput = document.getElementById('command-input');
@@ -605,6 +834,76 @@
     let activeFilter = '';
     let activeQuery = '';
 
+    // ---- Category-specific SVG wireframe shapes ----
+
+    function getWireframeSVG(category) {
+      const svgs = {
+        cloud: `
+          <svg viewBox="0 0 100 100" fill="none" stroke-width="1.2" stroke-linecap="round">
+            <circle cx="50" cy="50" r="40" opacity="0.6"/>
+            <line x1="10" y1="50" x2="90" y2="50" opacity="0.3"/>
+            <line x1="50" y1="10" x2="50" y2="90" opacity="0.3"/>
+            <ellipse cx="50" cy="50" rx="40" ry="15" opacity="0.25" transform="rotate(30 50 50)"/>
+            <ellipse cx="50" cy="50" rx="40" ry="15" opacity="0.25" transform="rotate(-30 50 50)"/>
+          </svg>`,
+        devops: `
+          <svg viewBox="0 0 100 100" fill="none" stroke-width="1.2" stroke-linecap="round">
+            <rect x="18" y="18" width="64" height="64" rx="3" opacity="0.7"/>
+            <rect x="30" y="30" width="40" height="40" rx="2" opacity="0.4"/>
+            <line x1="18" y1="18" x2="30" y2="30" opacity="0.3"/>
+            <line x1="82" y1="18" x2="70" y2="30" opacity="0.3"/>
+            <line x1="18" y1="82" x2="30" y2="70" opacity="0.3"/>
+            <line x1="82" y1="82" x2="70" y2="70" opacity="0.3"/>
+          </svg>`,
+        iot: `
+          <svg viewBox="0 0 100 100" fill="none" stroke-width="1.2" stroke-linecap="round">
+            <polygon points="50,8 90,35 78,85 22,85 10,35" opacity="0.7"/>
+            <line x1="50" y1="8" x2="50" y2="85" opacity="0.25"/>
+            <line x1="10" y1="35" x2="90" y2="35" opacity="0.25"/>
+            <line x1="10" y1="35" x2="78" y2="85" opacity="0.2"/>
+            <line x1="90" y1="35" x2="22" y2="85" opacity="0.2"/>
+            <circle cx="50" cy="50" r="12" opacity="0.3"/>
+          </svg>`,
+        web: `
+          <svg viewBox="0 0 100 100" fill="none" stroke-width="1.2" stroke-linecap="round">
+            <circle cx="50" cy="50" r="40" opacity="0.5" stroke-dasharray="6 4"/>
+            <circle cx="50" cy="50" r="28" opacity="0.35"/>
+            <circle cx="50" cy="50" r="16" opacity="0.25"/>
+            <line x1="50" y1="10" x2="50" y2="90" opacity="0.25"/>
+            <line x1="10" y1="50" x2="90" y2="50" opacity="0.25"/>
+            <circle cx="50" cy="10" r="3" fill="currentColor" stroke="none" opacity="0.6"/>
+            <circle cx="50" cy="90" r="3" fill="currentColor" stroke="none" opacity="0.6"/>
+            <circle cx="10" cy="50" r="3" fill="currentColor" stroke="none" opacity="0.6"/>
+            <circle cx="90" cy="50" r="3" fill="currentColor" stroke="none" opacity="0.6"/>
+          </svg>`
+      };
+      return svgs[category] || svgs.cloud;
+    }
+
+    // ---- Interactive 3D tilt on mouse move ----
+
+    function initCardTilt() {
+      const cards = document.querySelectorAll('.pe-card');
+      if (!cards.length) return;
+
+      cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5 to 0.5
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+          const rotateY = x * 12;   // max ±6deg
+          const rotateX = -y * 12;  // max ±6deg
+
+          card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = '';
+        });
+      });
+    }
+
     function renderProjects() {
       const filtered = PROJECTS.filter(p => {
         const matchFilter = !activeFilter || p.category === activeFilter || p.tags.includes(activeFilter);
@@ -614,6 +913,18 @@
           p.tags.some(t => t.includes(activeQuery));
         return matchFilter && matchQuery;
       });
+
+      // ARIA live region: announce filtered count to screen readers
+      const liveRegion = document.getElementById('pe-live-region');
+      if (liveRegion) {
+        if (filtered.length === 0) {
+          liveRegion.textContent = `No projects match your search. Try a different filter or keyword.`;
+        } else if (PROJECTS.length > 0) {
+          liveRegion.textContent = `${filtered.length} of ${PROJECTS.length} projects shown.`;
+        } else {
+          liveRegion.textContent = `${filtered.length} projects found.`;
+        }
+      }
 
       if (filtered.length === 0) {
         grid.innerHTML = `
@@ -625,7 +936,10 @@
       }
 
       grid.innerHTML = filtered.map(p => `
-        <div class="pe-card" data-slug="${escapeHtml(p.slug)}" tabindex="0" role="button" aria-label="View details for ${escapeHtml(p.name)}">
+        <div class="pe-card" data-slug="${escapeHtml(p.slug)}" data-category="${escapeHtml(p.category)}" tabindex="0" role="button" aria-label="View details for ${escapeHtml(p.name)}">
+          <div class="pe-card-3d-shape" aria-hidden="true">
+            ${getWireframeSVG(p.category)}
+          </div>
           <div class="pe-card-top">
             <span class="pe-card-name">${escapeHtml(p.name)}</span>
             <span class="pe-card-category">${escapeHtml(p.category.toUpperCase())}</span>
@@ -660,6 +974,9 @@
           }
         });
       });
+
+      // Re-init 3D tilt on the new cards
+      initCardTilt();
     }
 
     function openModal(project) {
@@ -755,6 +1072,43 @@
     }
 
     renderProjects();
+  </script>
+  <script type="module">
+    import ThreeManager from '/js/three-manager.js';
+    import createGrid from '/js/three-grid.js';
+    import createShapes from '/js/three-shapes.js';
+    import createInteraction from '/js/three-interaction.js';
+
+    try {
+      const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
+      if (!three.disabled) {
+        const { scene } = three.init();
+
+        const grid = createGrid({ opacity: 0.25, time: 0 });
+        scene.add(grid.object);
+        three.addComponent(grid);
+
+        const shapes = createShapes({ count: 4, gpuTier: three.gpuTier, time: 0 });
+        for (const s of shapes.components) {
+          scene.add(s.object);
+        }
+        three.addComponent(shapes);
+
+        const interactiveMeshes = shapes.objects;
+        const interaction = createInteraction({
+          interactiveObjects: interactiveMeshes,
+          hoverScale: 1.4,
+          time: 0
+        });
+        three.addComponent(interaction);
+
+        window.addEventListener('beforeunload', () => {
+          three.dispose();
+        });
+      }
+    } catch (e) {
+      console.warn('[Three.js] Initialization failed:', e.message);
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,62 @@
+[
+  {
+    "title": "Reducing Kubernetes Monitoring Costs by 60% with k3s and Istio",
+    "slug": "k8s-monitoring-cost-reduction",
+    "category": "kubernetes",
+    "excerpt": "How I built a cost-optimized observability stack on a $5/month k3s cluster, achieving full metrics, traces, and logs without the serverless price tag.",
+    "tags": ["kubernetes", "istio", "cost-optimization", "prometheus"],
+    "date": "2026-05-15",
+    "readTime": "8 min read",
+    "content": "<p>Most Kubernetes monitoring guides recommend managed cloud solutions — and they work great until you see the bill. After deploying MeshWatch, I reduced monitoring costs by <strong>60% compared to serverless alternatives</strong>.</p>\n\n<p>The key insight: <strong>you don't need a full EKS/AKS cluster for homelab-scale observability</strong>. A single k3s node (1 CPU, 2GB RAM) running Istio service mesh handles all my microservices with zero-downtime canary deployments.</p>\n\n<p><strong>The stack:</strong></p>\n<ul>\n<li><strong>Istio</strong> — Service mesh with mTLS, traffic splitting, and circuit breaking</li>\n<li><strong>Prometheus + Grafana</strong> — Metrics collection and 20-panel dashboards</li>\n<li><strong>Loki</strong> — Log aggregation with 7-day retention</li>\n<li><strong>Tempo</strong> — Distributed tracing for request lifecycle visibility</li>\n<li><strong>Ollama Phi-3</strong> — AI-powered incident analysis via Tailscale tunnel</li>\n</ul>\n\n<p>Total monthly cost: <strong>$5.12</strong> vs $12.80 for a comparable serverless setup. That's $92.16 in annual savings from a homelab that fits on my HP laptop desk.</p>"
+  },
+  {
+    "title": "Building a Discord Bot for Minecraft Server Management with Slash Commands",
+    "slug": "discord-bot-minecraft-management",
+    "category": "devops",
+    "excerpt": "A full-stack Discord.py bot with 10 slash commands for real-time Minecraft server control, monitoring, and automated alerting via RCON protocol.",
+    "tags": ["discord", "minecraft", "automation", "rcon"],
+    "date": "2026-04-22",
+    "readTime": "6 min read",
+    "content": "<p>Managing a Minecraft server from the terminal is fine. Managing it <strong>from Discord</strong> with slash commands and real-time metrics is better. Here's how I built a full-stack bot that bridges my Minecraft server with my monitoring pipeline.</p>\n\n<p><strong>The architecture:</strong></p>\n<ul>\n<li><strong>Discord.py</strong> — Bot framework with 10 slash commands (/status, /players, /tps, /tps-graph, /restart, /whitelist, /ban, /tpo, /gamerules, /help)</li>\n<li><strong>RCON Protocol</strong> — Direct server control for restarts, player management, and config changes</li>\n<li><strong>JMX Exporter</strong> — Real-time Java metrics (TPS, heap usage, GC pauses) exposed to Prometheus</li>\n<li><strong>Prometheus + Grafana</strong> — Dashboards that the bot queries for /status output</li>\n</ul>\n\n<p>The bot runs as a sidecar in the k3s cluster alongside the Minecraft server. When TPS drops below 18 or heap usage exceeds 400MB, it fires an alert to Discord via webhook — no Grafana dashboard needed.</p>"
+  },
+  {
+    "title": "Integrating Ollama Phi-3 for Automated Incident Analysis in Kubernetes",
+    "slug": "ollama-phi-3-incident-analysis",
+    "category": "ai",
+    "excerpt": "Using local LLM inference via Tailscale to automatically analyze Prometheus alerts, suggest root causes, and generate remediation steps — all on a $5/month cluster.",
+    "tags": ["ollama", "llm", "incident-response", "ai-ops"],
+    "date": "2026-06-01",
+    "readTime": "10 min read",
+    "content": "<p>When alerts fire at 3am, you don't want to wait for a human to debug. What if your monitoring stack could <strong>analyze the alert and suggest root causes</strong> before you even open Grafana?</p>\n\n<p>I deployed <strong>Ollama Phi-3</strong> on my k3s cluster and connected it via Tailscale (outbound-only tunnel, no firewall holes). When Prometheus detects an anomaly, the incident pipeline:</p>\n\n<ol>\n<li>Captures relevant metrics from the last 5 minutes</li>\n<li>Queries Grafana for the affected dashboard panels</li>\n<li>Sends structured data to Ollama Phi-3 via a Tailscale tunnel (100.65.214.138:11434)</li>\n<li>Returns a natural-language root cause analysis with remediation steps</li>\n</ol>\n\n<p><strong>Why local LLMs?</strong></p>\n<ul>\n<li><strong>Cost:</strong> $0 per query vs $0.002/query for cloud APIs (adds up fast with 50+ alerts/day)</li>\n<li><strong>Privacy:</strong> No metrics data leaves your network — everything stays on the Tailscale mesh</li>\n<li><strong>Latency:</strong> ~2s response time on a 1-thread Phi-3 model vs 5-10s for cloud APIs</li>\n</ul>\n\n<p>The system is still in beta, but it has already caught a memory leak in one of my Istio sidecars that Prometheus alone would have missed.</p>"
+  },
+  {
+    "title": "Zero-Downtime Deployments with ArgoCD and Flagger on k3s",
+    "slug": "argocd-flagger-zero-downtime",
+    "category": "devops",
+    "excerpt": "Implementing canary deployments with automated rollback using Flagger's traffic splitting, Prometheus-based SLO checks, and Istio gateways.",
+    "tags": ["argocd", "flagger", "canary", "zero-downtime"],
+    "date": "2026-03-10",
+    "readTime": "7 min read",
+    "content": "<p>Deploying to production without downtime isn't about having the biggest cluster — it's about having the <strong>right deployment strategy</strong>. After months of trial and error on my k3s homelab, I've settled on a reliable canary deployment pipeline.</p>\n\n<p><strong>The pipeline:</strong></p>\n<ul>\n<li><strong>ArgoCD</strong> — GitOps-driven deployments using the App of Apps pattern across multiple namespaces</li>\n<li><strong>Flagger</strong> — Canary analysis with traffic splitting (10% → 25% → 50% → 100%)</li>\n<li><strong>Prometheus SLO checks</strong> — Automatic rollback if error rate exceeds 0.5% during canary</li>\n<li><strong>Istio gateways</strong> — Traffic splitting at the service mesh level</li>\n</ul>\n\n<p>The result: <strong>zero downtime deployments</strong> with automated rollback on failure. If a canary fails the SLO checks, Flagger automatically reverts traffic to the stable version within 30 seconds.</p>"
+  },
+  {
+    "title": "Cloudflare Pages Deployment Pipeline for Static Portfolio Sites",
+    "slug": "cloudflare-pages-deployment-pipeline",
+    "category": "cloud",
+    "excerpt": "Setting up automated CI/CD with GitHub Actions, Cloudflare Pages, custom domain, SSL, and PWA support — all on a free tier.",
+    "tags": ["cloudflare", "github-actions", "pwa", "ci-cd"],
+    "date": "2026-02-18",
+    "readTime": "5 min read",
+    "content": "<p>After evaluating Azure Blob Storage, Netlify, and Vercel for hosting this portfolio, I chose <strong>Cloudflare Pages</strong> for its free tier, automatic SSL, and built-in CDN.</p>\n\n<p><strong>The deployment pipeline:</strong></p>\n<ul>\n<li><strong>GitHub Actions</strong> — <code>pages.yml</code> workflow triggers on push to master</li>\n<li><strong>cloudflare/pages-action@v1</strong> — Builds and deploys the static site</li>\n<li><strong>Cloudflare DNS</strong> — Custom domain (chai-homelab.com) with automatic SSL via Let's Encrypt</li>\n<li><strong>PWA Service Worker</strong> — Offline caching with v6 cache strategy</li>\n<li><strong>_headers</strong> — Cache-Control: 31536000s for static assets, 600s for config files</li>\n</ul>\n\n<p>Total cost: <strong>$0.50/month</strong> (Azure Blob for API gateway). The portfolio itself is completely free to host on Cloudflare Pages with unlimited bandwidth.</p>"
+  },
+  {
+    "title": "Istio mTLS Service Mesh Security: A Practical Guide for Homelabs",
+    "slug": "istio-mtls-service-mesh-security",
+    "category": "kubernetes",
+    "excerpt": "Implementing mutual TLS authentication between microservices using Istio's built-in certificate management, with practical lessons from a production-grade homelab.",
+    "tags": ["istio", "mtls", "security", "service-mesh"],
+    "date": "2026-01-25",
+    "readTime": "9 min read",
+    "content": "<p>Plaintext HTTP between services in a Kubernetes cluster is the easiest attack vector you're not protecting against. <strong>mTLS (mutual TLS)</strong> solves this by requiring every service to present a valid certificate before accepting connections.</p>\n\n<p>Istio makes mTLS straightforward with its built-in certificate management:</p>\n\n<ol>\n<li><strong>Trust domain</strong> — Define which CA certificates are trusted for incoming connections</li>\n<li><strong>Secrets domain</strong> — Configure automatic certificate generation and rotation</li>\n<li><strong>TLS policy</strong> — Set STRICT mode to enforce mTLS on all service-to-service communication</li>\n</ol>\n\n<p><strong>Key lessons from production:</strong></p>\n<ul>\n<li>Rotate certificates every 30 days (Istio handles this automatically)</li>\n<li>Use separate trust domains for internal vs. external services</li>\n<li>Monitor certificate expiry with Grafana alerts — expired certs cause cascade failures</li>\n<li>Test mTLS enforcement by temporarily removing a service's certificate</li>\n</ul>"
+  }
+]

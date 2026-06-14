@@ -5,7 +5,8 @@ const resendApiKey = process.env.RESEND_API_KEY || null;
 const recipientEmail = process.env.RECIPIENT_EMAIL || 'eugene.vince55@gmail.com';
 const domain = process.env.RESEND_DOMAIN || 'chai-homelab.com';
 
-module.exports = async function (context, req) {
+async function main(context, req) {
+async function main(context, req) {
   // Only allow POST requests
   if (req.method === 'OPTIONS') {
     context.res.writeHead(204, { 'Content-Type': 'application/json' });
@@ -88,7 +89,9 @@ module.exports = async function (context, req) {
       ? 'Email sent successfully'
       : 'Message received (Resend API not configured — email logged to console)'
   }));
-};
+}
+
+module.exports = { main };
 
 // Send email via Resend API
 async function sendViaResend(name, subject, message) {

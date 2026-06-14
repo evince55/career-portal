@@ -6,7 +6,7 @@ Terminal-themed portfolio with synthwave aesthetic, PWA support, and career fair
 
 ```bash
 npm run dev        # serve on :3000
-npm test           # run full suite (123 tests)
+npm test           # run full suite (277 tests)
 npm run lint       # ESLint check
 npm run build      # lint + test, copy to ../dist/
 ```
@@ -122,7 +122,7 @@ Cloudflare Pages (auto-deploy on push to master)
 ## Testing
 
 ```bash
-npm test                    # run all (123 tests)
+npm test                    # run all (277 tests)
 node --test tests/terminal.mjs   # single file
 ```
 

@@ -15,6 +15,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/2014-09-07/schema.jsonld",
+      "@type": "Person",
+      "name": "Eugene Vincent",
+      "url": "https://chai-homelab.com",
+      "jobTitle": "Full Stack Engineer",
+      "description": "Full Stack Engineer specializing in Azure DevOps, cloud-native architectures, and software reliability engineering.",
+      "email": "eugene.vince55@gmail.com",
+      "alumniOf": {
+        "@type": "CollegeOrUniversity",
+        "name": "University of Illinois"
+      },
+      "knowsAbout": ["Kubernetes", "Azure", "DevOps", "SRE", "Service Mesh", "Prometheus", "Istio", "React", "Node.js"],
+      "sameAs": ["https://github.com/chaitea321", "https://linkedin.com/in/eugene-vincent-42472024b"]
+    }
+  </script>
 </head>
 <body>
   <a href="#terminal-output" class="skip-link">Skip to terminal</a>
@@ -25,6 +42,10 @@
     <button id="audio-toggle" class="hidden-btn" aria-label="Toggle keystroke sounds" role="switch" aria-checked="false">
       <span class="audio-icon" aria-hidden="true">🔇</span>
       <span class="sr-only">Sound effects</span>
+    </button>
+    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+      <span class="theme-icon-synthwave">&#x260c;</span>
+      <span class="theme-icon-retro" style="display:none;">&#x2630;</span>
     </button>
   </header>
   <main class="terminal-container">
@@ -54,10 +75,10 @@
     </div>
   </footer>
   <nav class="mobile-nav" id="mobile-nav">
-    <a href="/project-explorer" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
-    <a href="/dashboard" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
-    <a href="/writeups" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
-    <a href="/contact" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
+    <a href="/project-explorer.html" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
+    <a href="/dashboard.html" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
+    <a href="/writeups.html" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
+    <a href="/contact.html" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
   </nav>
   <button class="ct-hamburger" id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false"></button>
   <script type="module" src="js/terminal.js"></script>
@@ -68,6 +89,19 @@
   <script type="module">
     import { initMobileNav } from '/js/mobile-nav.js';
     initMobileNav();
+
+    // Skip link focus management — move focus to target on click
+    document.querySelectorAll('.skip-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+        }
+      });
+    });
 
     // Direct focus handler on command input — works reliably on mobile
     const cmdInput = document.getElementById('command-input');
@@ -81,6 +115,57 @@
     if (body && cmdInput) {
       body.addEventListener('click', () => cmdInput.focus());
       body.addEventListener('touchstart', () => cmdInput.focus(), { passive: true });
+    }
+
+    // Theme toggle button
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('theme-retro');
+        const isRetro = document.body.classList.contains('theme-retro');
+        localStorage.setItem('portfolio-theme', isRetro ? 'retro' : 'synthwave');
+        updateThemeIcon(isRetro);
+      });
+
+      // Initialize icon visibility based on current theme
+      const currentTheme = localStorage.getItem('portfolio-theme');
+      updateThemeIcon(currentTheme === 'retro');
+    }
+
+    function updateThemeIcon(isRetro) {
+      const synthwaveIcon = themeBtn.querySelector('.theme-icon-synthwave');
+      const retroIcon = themeBtn.querySelector('.theme-icon-retro');
+      if (synthwaveIcon && retroIcon) {
+        synthwaveIcon.style.display = isRetro ? 'none' : 'inline';
+        retroIcon.style.display = isRetro ? 'inline' : 'none';
+      }
+    }
+  </script>
+  <script type="module">
+    import ThreeManager from '/js/three-manager.js';
+    import createGrid from '/js/three-grid.js';
+    import createParticles from '/js/three-particles.js';
+
+    try {
+      const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
+      if (!three.disabled) {
+        const { scene, animate } = three.init();
+
+        const grid = createGrid({ opacity: 0.35, time: 0 });
+        scene.add(grid.object);
+        three.addComponent(grid);
+
+        const particleCount = three.gpuTier >= 2 ? 400 : 200;
+        const particles = createParticles({ count: particleCount, speed: 0.3, time: 0 });
+        scene.add(particles.object);
+        three.addComponent(particles);
+
+        three.animate = animate;
+
+        window.addEventListener('beforeunload', () => three.dispose());
+      }
+    } catch (e) {
+      console.warn('[Three.js] Initialization failed:', e.message);
     }
   </script>
 </body>
