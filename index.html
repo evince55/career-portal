@@ -69,16 +69,18 @@
     import { initMobileNav } from '/js/mobile-nav.js';
     initMobileNav();
 
-    // Mobile tap-to-focus: tap anywhere in terminal area to focus input
-    const terminalOutput = document.getElementById('terminal-output');
-    const commandInput = document.getElementById('command-input');
-    if (terminalOutput && commandInput) {
-      terminalOutput.addEventListener('click', () => {
-        commandInput.focus();
-      });
-      terminalOutput.addEventListener('touchstart', () => {
-        commandInput.focus();
-      }, { passive: true });
+    // Direct focus handler on command input — works reliably on mobile
+    const cmdInput = document.getElementById('command-input');
+    if (cmdInput) {
+      cmdInput.addEventListener('click', () => cmdInput.focus());
+      cmdInput.addEventListener('touchstart', () => cmdInput.focus(), { passive: true });
+    }
+
+    // Also handle taps on terminal-body to focus input (wider click target)
+    const body = document.querySelector('.terminal-body');
+    if (body && cmdInput) {
+      body.addEventListener('click', () => cmdInput.focus());
+      body.addEventListener('touchstart', () => cmdInput.focus(), { passive: true });
     }
   </script>
 </body>

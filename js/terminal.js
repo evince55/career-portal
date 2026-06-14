@@ -182,7 +182,9 @@ class Terminal {
   }
 
   handleInput(e) {
-    if (e.key === 'Enter') {
+    // Handle Enter key: supports both modern (key='Enter') and legacy/mobile (keyCode/charCode=13)
+    const isEnter = e.key === 'Enter' || e.keyCode === 13 || e.charCode === 13;
+    if (isEnter) {
       const command = this.input.value.trim();
       if (command) {
         this.history.push(command);
