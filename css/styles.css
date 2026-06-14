@@ -156,18 +156,20 @@ body.theme-retro .terminal-output {
 /* Skip to content link for keyboard navigation */
 .skip-link {
   position: absolute;
-  top: -50px;
+  top: -100px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 0);
   background: var(--neon-pink);
   color: var(--bg-darker);
   padding: 0.5rem 1rem;
   z-index: 1001;
   transition: top 0.3s;
+  pointer-events: none;
 }
 
 .skip-link:focus {
   top: 1rem;
+  pointer-events: auto;
 }
 
 /* Focus visible styles for keyboard navigation */
@@ -294,15 +296,30 @@ body.theme-retro .terminal-output {
   display: none;
   background: transparent;
   border: 1px solid rgba(188, 19, 254, 0.3);
-  color: var(--neon-cyan);
   width: 44px;
   height: 44px;
   border-radius: 6px;
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  padding: 0;
   transition: all 0.2s;
+  position: relative;
+}
+
+.ct-hamburger::before,
+.ct-hamburger::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 2px;
+  background: var(--neon-cyan);
+  border-radius: 1px;
+  transition: all 0.2s;
+}
+
+.ct-hamburger::before {
+  box-shadow: 0 -6px 0 var(--neon-cyan), 0 6px 0 var(--neon-cyan);
 }
 
 .ct-hamburger:hover {
@@ -312,7 +329,12 @@ body.theme-retro .terminal-output {
 
 .ct-hamburger.active {
   border-color: var(--neon-pink);
-  color: var(--neon-pink);
+}
+
+.ct-hamburger.active::before,
+.ct-hamburger.active::after {
+  background: var(--neon-pink);
+  box-shadow: 0 -6px 0 var(--neon-pink), 0 6px 0 var(--neon-pink);
 }
 
 /* Fluid typography: scales between mobile (320px) and desktop (1200px) */
@@ -370,15 +392,38 @@ body.theme-retro .terminal-output {
   /* Better footer layout on mobile */
   .terminal-footer {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
     text-align: center;
     padding: 0.75rem 1rem;
   }
 
   .footer-right {
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
+  }
+
+  /* Mobile nav container - full width, separate row */
+  .mobile-nav {
+    display: none !important;
+  }
+
+  .mobile-nav.open {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.5rem 0;
+    border-top: 1px solid rgba(188, 19, 254, 0.15);
+    margin-top: 0.25rem;
+  }
+
+  .mobile-nav.open a {
+    display: block;
+    text-align: center;
+    min-height: 44px;
+    line-height: 44px;
+    padding: 0 1rem;
   }
 
   /* Hide CRT overlay on mobile for performance */
