@@ -747,6 +747,32 @@
   </nav>
   <button class="ct-hamburger" id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false"></button>
 
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
+    <ul class="bottom-nav-items">
+      <li><a href="/" class="bottom-nav-item" aria-label="Terminal">
+        <span class="nav-icon">⌨️</span>
+        <span class="nav-label">Terminal</span>
+      </a></li>
+      <li><a href="/project-explorer.html" class="bottom-nav-item active" aria-current="page" aria-label="Projects">
+        <span class="nav-icon">📂</span>
+        <span class="nav-label">Projects</span>
+      </a></li>
+      <li><a href="/dashboard.html" class="bottom-nav-item" aria-label="Dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </a></li>
+      <li><a href="/writeups.html" class="bottom-nav-item" aria-label="Writeups">
+        <span class="nav-icon">✎</span>
+        <span class="nav-label">Writeups</span>
+      </a></li>
+      <li><a href="/contact.html" class="bottom-nav-item" aria-label="Contact">
+        <span class="nav-icon">✉️</span>
+        <span class="nav-label">Contact</span>
+      </a></li>
+    </ul>
+  </nav>
+
   <script type="module">
     import { initMobileNav } from '/js/mobile-nav.js';
     import PROJECT_CATALOG from '/js/project-catalog.js';
