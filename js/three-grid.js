@@ -38,7 +38,7 @@ const GRID_FRAG = `
 
     // Combine with depth-based color gradient
     vec3 lineColor = mix(uColor1, uColor2, vUv.y);
-    float grid = max(hLine, vLine) * lineColor;
+    vec3 grid = max(hLine, vLine) * lineColor;
 
     // Fade toward horizon (top of UV space)
     float hf = 1.0 - clamp((vUv.y - 0.88) / 0.12, 0.0, 1.0);
@@ -80,7 +80,7 @@ const MOBILE_GRID_FRAG = `
     vLine = 1.0 - step(0.01, vLine);
 
     vec3 lineColor = mix(uColor1, uColor2, vUv.y);
-    float grid = max(hLine, vLine) * lineColor * 0.8;
+    vec3 grid = max(hLine, vLine) * lineColor * 0.8;
 
     // Fade toward horizon
     float hf = 1.0 - clamp((vUv.y - 0.85) / 0.15, 0.0, 1.0);
