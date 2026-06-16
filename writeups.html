@@ -802,22 +802,17 @@
   </script>
   <script type="module">
     import ThreeManager from '/js/three-manager.js';
-    import createGrid from '/js/three-grid.js';
-    import createParticles from '/js/three-particles.js';
+    import { buildWriteupsScene } from '/js/three-geometries.js';
 
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
         const { scene } = three.init();
 
-        const grid = createGrid({ opacity: 0.2, time: 0, isMobile: three.isMobile });
-        scene.add(grid.object);
-        three.addComponent(grid);
-
-        const particleCount = three.gpuTier >= 2 ? 250 : three.isMobile ? 60 : 120;
-        const particles = createParticles({ count: particleCount, speed: 0.25, time: 0, isMobile: three.isMobile });
-        scene.add(particles.object);
-        three.addComponent(particles);
+        const writeupsScene = buildWriteupsScene(three);
+        for (const comp of writeupsScene.components) {
+          three.addComponent(comp);
+        }
 
         window.addEventListener('beforeunload', () => three.dispose());
       }

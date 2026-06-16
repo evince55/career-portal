@@ -1101,33 +1101,17 @@
   </script>
   <script type="module">
     import ThreeManager from '/js/three-manager.js';
-    import createGrid from '/js/three-grid.js';
-    import createShapes from '/js/three-shapes.js';
-    import createInteraction from '/js/three-interaction.js';
+    import { buildProjectExplorerScene } from '/js/three-geometries.js';
 
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
         const { scene } = three.init();
 
-        const grid = createGrid({ opacity: 0.25, time: 0, isMobile: three.isMobile });
-        scene.add(grid.object);
-        three.addComponent(grid);
-
-        const shapes = createShapes({ count: 4, gpuTier: three.gpuTier, time: 0, isMobile: three.isMobile });
-        for (const s of shapes.components) {
-          scene.add(s.object);
+        const projectsScene = buildProjectExplorerScene(three);
+        for (const comp of projectsScene.components) {
+          three.addComponent(comp);
         }
-        three.addComponent(shapes);
-
-        const interactiveMeshes = shapes.objects;
-        const interaction = createInteraction({
-          interactiveObjects: interactiveMeshes,
-          hoverScale: 1.4,
-          time: 0,
-          isMobile: three.isMobile
-        });
-        three.addComponent(interaction);
 
         window.addEventListener('beforeunload', () => {
           three.dispose();

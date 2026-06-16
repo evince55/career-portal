@@ -12,13 +12,14 @@ const ROOT = process.cwd();
 
 describe('Three.js 3D Integration', () => {
   describe('File Structure', () => {
-    it('has all five 3D modules', () => {
+    it('has all six 3D modules', () => {
       const expected = [
         'three-manager.js',
         'three-grid.js',
         'three-particles.js',
         'three-shapes.js',
-        'three-interaction.js'
+        'three-interaction.js',
+        'three-geometries.js'
       ];
       for (const file of expected) {
         const fullPath = path.join(JS_DIR, file);
@@ -38,45 +39,42 @@ describe('Three.js 3D Integration', () => {
       assert.ok(content.includes('three-interaction.js'), 'SW missing three-interaction.js');
     });
 
-    it('CSS includes three-canvas styles', () => {
+    it('CSS includes three-canvas styles with correct z-index', () => {
       const cssPath = path.join(ROOT, 'css', 'styles.css');
       const content = fs.readFileSync(cssPath, 'utf8');
       assert.ok(content.includes('.three-canvas'), 'CSS missing .three-canvas selector');
-      assert.ok(content.includes('z-index: -1'), 'CSS missing z-index: -1 for canvas');
+      assert.ok(content.includes('z-index: 1'), 'Canvas should have z-index: 1 (above CRT overlay)');
     });
 
     it('index.html includes 3D integration script', () => {
       const htmlPath = path.join(ROOT, 'index.html');
       const content = fs.readFileSync(htmlPath, 'utf8');
       assert.ok(content.includes('three-manager.js'), 'index.html missing three-manager import');
-      assert.ok(content.includes('three-grid.js'), 'index.html missing three-grid import');
-      assert.ok(content.includes('three-particles.js'), 'index.html missing three-particles import');
+      assert.ok(content.includes('three-geometries.js'), 'index.html should use page-specific scene builder');
     });
 
     it('project-explorer.html includes 3D integration', () => {
       const htmlPath = path.join(ROOT, 'project-explorer.html');
       const content = fs.readFileSync(htmlPath, 'utf8');
-      assert.ok(content.includes('three-shapes.js'), 'explorer missing three-shapes import');
-      assert.ok(content.includes('three-interaction.js'), 'explorer missing three-interaction import');
+      assert.ok(content.includes('three-geometries.js'), 'explorer should use page-specific scene builder');
     });
 
     it('dashboard.html includes 3D integration', () => {
       const htmlPath = path.join(ROOT, 'dashboard.html');
       const content = fs.readFileSync(htmlPath, 'utf8');
-      assert.ok(content.includes('three-shapes.js'), 'dashboard missing three-shapes import');
+      assert.ok(content.includes('three-geometries.js'), 'dashboard should use page-specific scene builder');
     });
 
     it('writeups.html includes 3D integration', () => {
       const htmlPath = path.join(ROOT, 'writeups.html');
       const content = fs.readFileSync(htmlPath, 'utf8');
-      assert.ok(content.includes('three-grid.js'), 'writeups missing three-grid import');
-      assert.ok(content.includes('three-particles.js'), 'writeups missing three-particles import');
+      assert.ok(content.includes('three-geometries.js'), 'writeups should use page-specific scene builder');
     });
 
     it('contact.html includes 3D integration', () => {
       const htmlPath = path.join(ROOT, 'contact.html');
       const content = fs.readFileSync(htmlPath, 'utf8');
-      assert.ok(content.includes('three-shapes.js'), 'contact missing three-shapes import');
+      assert.ok(content.includes('three-geometries.js'), 'contact should use page-specific scene builder');
     });
   });
 
@@ -575,33 +573,30 @@ describe('Three.js 3D Integration', () => {
   });
 
   describe('Page Integration Completeness', () => {
-    it('index.html has grid + particles (full synthwave scene)', () => {
+    it('index.html has terminal scene (grid + crystals + neural)', () => {
       const content = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-      assert.ok(content.includes('createGrid'), 'Index should create grid');
-      assert.ok(content.includes('createParticles'), 'Index should create particles');
+      assert.ok(content.includes('buildTerminalScene'), 'Index should use terminal scene builder');
+      assert.ok(content.includes('three-geometries.js'), 'Index should import geometries module');
     });
 
-    it('project-explorer.html has shapes + interaction', () => {
+    it('project-explorer.html has project scene (unique shapes per category)', () => {
       const content = fs.readFileSync(path.join(ROOT, 'project-explorer.html'), 'utf8');
-      assert.ok(content.includes('createShapes'), 'Explorer should create shapes');
-      assert.ok(content.includes('createInteraction'), 'Explorer should create interaction');
+      assert.ok(content.includes('buildProjectExplorerScene'), 'Explorer should use project scene builder');
     });
 
-    it('dashboard.html has minimal shapes (subtle background)', () => {
+    it('dashboard.html has data viz scene (orbitals + waveform)', () => {
       const content = fs.readFileSync(path.join(ROOT, 'dashboard.html'), 'utf8');
-      assert.ok(content.includes('createShapes'), 'Dashboard should create shapes');
-      assert.ok(!content.includes('createGrid'), 'Dashboard should NOT have grid (kept subtle)');
+      assert.ok(content.includes('buildDashboardScene'), 'Dashboard should use dashboard scene builder');
     });
 
-    it('writeups.html has grid + particles (subtle)', () => {
+    it('writeups.html has ambient scene (star + metaball + orbital)', () => {
       const content = fs.readFileSync(path.join(ROOT, 'writeups.html'), 'utf8');
-      assert.ok(content.includes('createGrid'), 'Writeups should create grid');
-      assert.ok(content.includes('createParticles'), 'Writeups should create particles');
+      assert.ok(content.includes('buildWriteupsScene'), 'Writeups should use writeups scene builder');
     });
 
-    it('contact.html has shapes (decorative)', () => {
+    it('contact.html has contact scene (mobius + neural + waveform)', () => {
       const content = fs.readFileSync(path.join(ROOT, 'contact.html'), 'utf8');
-      assert.ok(content.includes('createShapes'), 'Contact should create shapes');
+      assert.ok(content.includes('buildContactScene'), 'Contact should use contact scene builder');
     });
 
     it('all pages with 3D have beforeunload cleanup', () => {
@@ -613,9 +608,10 @@ describe('Three.js 3D Integration', () => {
       }
     });
 
-    it('index.html passes gpuTier to particle count', () => {
+    it('index.html uses ThreeManager with gpuTier detection', () => {
       const content = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-      assert.ok(content.includes('gpuTier'), 'Index should check GPU tier for particle count');
+      assert.ok(content.includes('ThreeManager'), 'Index should use ThreeManager');
+      assert.ok(content.includes('three-geometries.js'), 'Index should import geometries module');
     });
   });
 });

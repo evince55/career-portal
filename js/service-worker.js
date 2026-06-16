@@ -22,6 +22,7 @@ const ASSETS_TO_CACHE = [
   '/js/three-particles.js',
   '/js/three-shapes.js',
   '/js/three-interaction.js',
+  '/js/three-geometries.js',
   '/js/mobile-nav.js',
   '/js/utils/helpers.js',
   '/js/pwa.js',

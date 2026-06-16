@@ -84,7 +84,7 @@ body.theme-retro .terminal-output {
   background: linear-gradient(rgba(18, 16, 16, 0) 50%, var(--crt-scanline) 50%);
   background-size: 100% 4px;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
   opacity: 0.6;
 }
 
@@ -1162,15 +1162,15 @@ body.theme-retro .command-palette {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
-  pointer-events: auto;
+  z-index: 1;
+  pointer-events: none; /* Don't block clicks on page content below */
+  -webkit-transform: translateZ(0); /* Force GPU compositing layer on iOS Safari so z-index works */
 }
 
-/* Mobile: show canvas but subtler to not distract */
+/* Mobile: subtler, no pointer events needed either */
 @media (max-width: 1024px) {
   .three-canvas {
     opacity: 0.5;
-    pointer-events: none;
   }
 }
 

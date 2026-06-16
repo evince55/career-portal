@@ -836,18 +836,17 @@
   </script>
   <script type="module">
     import ThreeManager from '/js/three-manager.js';
-    import createShapes from '/js/three-shapes.js';
+    import { buildDashboardScene } from '/js/three-geometries.js';
 
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
         const { scene } = three.init();
 
-        const shapes = createShapes({ count: 2, gpuTier: three.gpuTier, time: 0, isMobile: three.isMobile });
-        for (const s of shapes.components) {
-          scene.add(s.object);
+        const dashboardScene = buildDashboardScene(three);
+        for (const comp of dashboardScene.components) {
+          three.addComponent(comp);
         }
-        three.addComponent(shapes);
 
         window.addEventListener('beforeunload', () => three.dispose());
       }

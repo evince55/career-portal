@@ -440,18 +440,17 @@
   </script>
   <script type="module">
     import ThreeManager from '/js/three-manager.js';
-    import createShapes from '/js/three-shapes.js';
+    import { buildContactScene } from '/js/three-geometries.js';
 
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
         const { scene } = three.init();
 
-        const shapes = createShapes({ count: 2, gpuTier: three.gpuTier, time: 0, isMobile: three.isMobile });
-        for (const s of shapes.components) {
-          scene.add(s.object);
+        const contactScene = buildContactScene(three);
+        for (const comp of contactScene.components) {
+          three.addComponent(comp);
         }
-        three.addComponent(shapes);
 
         window.addEventListener('beforeunload', () => three.dispose());
       }

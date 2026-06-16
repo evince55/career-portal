@@ -169,22 +169,17 @@
   </script>
   <script type="module">
     import ThreeManager from '/js/three-manager.js';
-    import createGrid from '/js/three-grid.js';
-    import createParticles from '/js/three-particles.js';
+    import { buildTerminalScene } from '/js/three-geometries.js';
 
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
         const { scene, animate } = three.init();
 
-        const grid = createGrid({ opacity: 0.35, time: 0, isMobile: three.isMobile });
-        scene.add(grid.object);
-        three.addComponent(grid);
-
-        const particleCount = three.gpuTier >= 2 ? 400 : three.isMobile ? 80 : 200;
-        const particles = createParticles({ count: particleCount, speed: 0.3, time: 0, isMobile: three.isMobile });
-        scene.add(particles.object);
-        three.addComponent(particles);
+        const terminalScene = buildTerminalScene(three);
+        for (const comp of terminalScene.components) {
+          three.addComponent(comp);
+        }
 
         three.animate = animate;
 
