@@ -111,6 +111,14 @@ class ThreeManager {
     // Pointer events controlled by CSS (.three-canvas has pointer-events: none by default)
     // Do NOT set inline pointer-events here — it would override the CSS class rule.
 
+    // Mouse tracking — normalized coords [-1..1] for all components to read
+    this.mouse = { x: 0, y: 0 };
+    this._onPointerMove = (e) => {
+      this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener('pointermove', this._onPointerMove);
+
     this.scene = new THREE.Scene();
 
     // Slightly wider FOV on mobile for more immersion on small screens
@@ -204,6 +212,10 @@ class ThreeManager {
     if (this._onResize) {
       window.removeEventListener('resize', this._onResize);
       this._onResize = null;
+    }
+    if (this._onPointerMove) {
+      window.removeEventListener('pointermove', this._onPointerMove);
+      this._onPointerMove = null;
     }
     for (const comp of this.components) {
       if (comp.dispose) comp.dispose();
