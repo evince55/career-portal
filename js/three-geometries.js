@@ -34,9 +34,11 @@ const MODERN_FRAG = `
   void main() {
     vec3 viewDir = normalize(vViewPos);
     float fresnel = pow(1.0 - abs(dot(viewDir, vNormal)), 3.0);
-    float pulse = 0.7 + 0.3 * sin(uTime * 2.0);
-    float mouseGlow = 0.2 * (1.0 - abs(uMouse.x)) * (1.0 - abs(uMouse.y));
-    vec3 col = uColor * (0.3 + 0.7 * fresnel) * pulse + mouseGlow;
+    // Smoother pulse with spring-like easing
+    float pulse = 0.75 + 0.25 * sin(uTime * 1.8 + fresnel * 2.0);
+    // Enhanced mouse glow with color shift
+    float mouseGlow = 0.25 * (1.0 - abs(uMouse.x)) * (1.0 - abs(uMouse.y));
+    vec3 col = uColor * (0.3 + 0.7 * fresnel) * pulse + mouseGlow * vec3(0.8, 1.0, 0.9);
     float alpha = 0.4 + 0.6 * fresnel;
     gl_FragColor = vec4(col, alpha);
   }

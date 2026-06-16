@@ -19,6 +19,32 @@ class PerformanceMonitor {
     this.metrics.set('DOMContentLoaded', nav.domContentLoadedEventEnd - nav.navigationStart);
     this.metrics.set('FullLoad', nav.loadEventEnd - nav.navigationStart);
     
+    // Additional performance metrics
+    if (nav.transferSize) {
+      this.metrics.set('TransferSize', nav.transferSize);
+    }
+    if (nav.domContentLoadedEventEnd && nav.responseEnd) {
+      this.metrics.set('TTFB', Math.min(nav.responseEnd - nav.requestStart, 1000)); // Cap at 1s
+    }
+    
+    // Monitor first paint if available
+    if (typeof PerformanceObserver !== 'undefined') {
+      try {
+        const observer = new PerformanceObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.name === 'first-paint') {
+              this.metrics.set('FP', entry.startTime);
+            } else if (entry.name === 'first-contentful-paint') {
+              this.metrics.set('FCP', entry.startTime);
+            }
+          }
+        });
+        observer.observe({ entryTypes: ['paint'] });
+      } catch (e) {
+        // Ignore observer errors
+      }
+    }
+    
     this.reportMetrics();
   }
   
@@ -27,10 +53,12 @@ class PerformanceMonitor {
     
     const metrics = [];
     this.metrics.forEach((value, key) => {
-      if (key === 'CLS') {
-        metrics.push(`${key}: ${value.toFixed(3)}`);
+      if (key === 'CLS' || key === 'FP' || key === 'FCP') {
+        metrics.push(`${key}: ${value.toFixed(3)}ms`);
+      } else if (key === 'TransferSize') {
+        metrics.push(`${key}: ${(value / 1024).toFixed(1)}KB`);
       } else {
-        metrics.push(`${key}: ${value.toFixed(2)}ms`);
+        metrics.push(`${key}: ${Math.min(value, 5000).toFixed(2)}ms`); // Cap at 5s
       }
     });
     
