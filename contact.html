@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script defer src="js/scroll-reveal.js?v=2"></script>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org/2014-09-07/schema.jsonld",
@@ -252,7 +253,7 @@
       </div>
       <div class="terminal-body" style="flex:1;display:flex;flex-direction:column;">
         <div class="ct-wrapper">
-          <div class="ct-header">
+          <div class="ct-header reveal">
             <h2>&#x1f4e7; <span>Contact</span></h2>
             <nav class="ct-nav">
               <a href="/">⌂ Terminal</a>
@@ -262,7 +263,7 @@
             </nav>
           </div>
 
-          <div class="ct-card">
+          <div class="ct-card reveal reveal-delay-1">
             <form id="contact-form" novalidate>
               <div class="ct-form-group">
                 <label class="ct-label" for="ct-name">Your Name *</label>
@@ -289,7 +290,7 @@
               <div class="ct-status" id="ct-status" role="status" aria-live="polite"></div>
             </form>
 
-            <div class="ct-info">
+            <div class="ct-info reveal reveal-delay-2">
               <p>Or reach me directly:</p>
               <p>&#x1f4e7; <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></p>
               <p>&#x1f517; <a href="https://github.com/chaitea321" target="_blank" rel="noopener noreferrer">github.com/chaitea321</a></p>
@@ -344,9 +345,11 @@
 
   <script type="module">
     import { initMobileNav } from '/js/mobile-nav.js?v=2';
+    import { initScrollReveal } from '/js/scroll-reveal.js?v=2';
     import ContactAPI from '/js/contact-api.js?v=2';
 
     initMobileNav();
+    initScrollReveal();
 
     // Skip link focus management
     document.querySelectorAll('.skip-link').forEach(link => {

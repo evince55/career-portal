@@ -22,6 +22,7 @@ const ASSETS_TO_CACHE = [
   '/js/mobile-nav.js',
   '/js/utils/helpers.js',
   '/js/pwa.js',
+  '/js/scroll-reveal.js',
   '/config/career-fair.json',
   '/config/minecraft-stats.json',
   '/config/writeups.json',

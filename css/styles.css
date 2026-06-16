@@ -93,6 +93,28 @@ body.theme-retro .terminal-output {
   opacity: 0.6;
 }
 
+/* ── Scroll-triggered reveal animations (Motion-Driven style #15 from UI/UX Pro Max) ──── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
 /* Subtle grain/noise texture — adds organic feel per Reddit "Use Grain Texture to make Site feel Organic" */
 #grain-overlay {
   position: fixed;
