@@ -247,9 +247,8 @@ describe('Three.js 3D Integration', () => {
     it('exports all geometry factories and scene builders', () => {
       const content = fs.readFileSync(path.join(JS_DIR, 'three-geometries.js'), 'utf8');
       const exports = [
-        'createStarBurst', 'createMetaballCluster', 'createDNAHelix',
-        'createCrystalFormation', 'createOrbitalSystem', 'createWaveformRing',
-        'createNeuralNetwork', 'createMobiusStrip', 'createTerminalNebula',
+        'createFlowField', 'createHoneycombLattice', 'createDataStream',
+        'createPrismMatrix', 'createWaveSurface',
         'buildTerminalScene', 'buildProjectExplorerScene',
         'buildDashboardScene', 'buildWriteupsScene', 'buildContactScene'
       ];
@@ -269,13 +268,13 @@ describe('Three.js 3D Integration', () => {
       const content = fs.readFileSync(path.join(JS_DIR, 'three-geometries.js'), 'utf8');
       const pattern = 'init(manager) { this.manager = manager; }';
       const matches = content.split(pattern).length - 1;
-      assert.ok(matches >= 8, `Should have init(manager) on at least 8 geometries, got ${matches}`);
+      assert.ok(matches >= 5, `Should have init(manager) on at least 5 geometries, got ${matches}`);
     });
 
-    it('has SHAPE_VERT and SHAPE_FRAG shared shaders', () => {
+    it('has MODERN_VERT and MODERN_FRAG shared shaders', () => {
       const content = fs.readFileSync(path.join(JS_DIR, 'three-geometries.js'), 'utf8');
-      assert.ok(content.includes('SHAPE_VERT'), 'Should have shared vertex shader');
-      assert.ok(content.includes('SHAPE_FRAG'), 'Should have shared fragment shader');
+      assert.ok(content.includes('MODERN_VERT'), 'Should have shared vertex shader');
+      assert.ok(content.includes('MODERN_FRAG'), 'Should have shared fragment shader');
     });
 
     it('imports createGrid from three-grid.js', () => {
