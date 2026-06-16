@@ -810,7 +810,7 @@
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
-        const { scene } = three.init();
+        three.init();
 
         const writeupsScene = buildWriteupsScene(three);
         for (const comp of writeupsScene.components) {

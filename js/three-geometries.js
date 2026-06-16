@@ -275,7 +275,10 @@ function createCrystalFormation(options = {}) {
 
   return {
     name: 'crystal', object: group, uniforms: { uTime: { value: time } }, crystals,
-    frame(delta) { for (const c of crystals) c.uniforms.uTime.value += delta; },
+    frame(delta) {
+      for (const c of crystals) c.uniforms.uTime.value += delta;
+      this.uniforms.uTime.value += delta;
+    },
     animate(delta) {
       const mx = this.manager ? this.manager.mouse.x : 0;
       const my = this.manager ? this.manager.mouse.y : 0;
@@ -358,6 +361,7 @@ function createOrbitalSystem(options = {}) {
     frame(delta) {
       const mx = this.manager ? this.manager.mouse.x : 0;
       coreUniforms.uTime.value += delta * (1 + 0.5 * Math.abs(mx));
+      this.uniforms.uTime.value += delta;
     },
     animate(delta) {
       const mx = this.manager ? this.manager.mouse.x : 0;

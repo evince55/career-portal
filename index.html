@@ -176,14 +176,12 @@
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
-        const { scene, animate } = three.init();
+        three.init();
 
         const terminalScene = buildTerminalScene(three);
         for (const comp of terminalScene.components) {
           three.addComponent(comp);
         }
-
-        three.animate = animate;
 
         window.addEventListener('beforeunload', () => three.dispose());
       }

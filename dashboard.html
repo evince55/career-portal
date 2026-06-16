@@ -844,7 +844,7 @@
     try {
       const three = new ThreeManager({ width: window.innerWidth, height: window.innerHeight });
       if (!three.disabled) {
-        const { scene } = three.init();
+        three.init();
 
         const dashboardScene = buildDashboardScene(three);
         for (const comp of dashboardScene.components) {

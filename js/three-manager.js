@@ -127,11 +127,8 @@ class ThreeManager {
     const near = 0.1;
     const far = 500;
     this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-
-    // Adjust camera position for mobile — bring objects closer on small screens
-    if (this.isMobile) {
-      this.camera.position.z = 2;
-    }
+    // Camera at origin looks down -Z; scene builders place objects at z=-12..-20
+    // for background decoration. No camera position adjustment needed here.
 
     document.body.insertBefore(this.canvas, document.body.firstChild);
 
@@ -144,7 +141,6 @@ class ThreeManager {
       this.camera.updateProjectionMatrix();
 
       // Re-detect mobile on resize (orientation change)
-      const wasMobile = this.isMobile;
       this.isMobile = w < 1024;
     };
 
@@ -160,7 +156,6 @@ class ThreeManager {
       renderer: this.renderer,
       scene: this.scene,
       camera: this.camera,
-      animate: (frame) => this._render(frame),
       dispose: () => this.dispose()
     };
   }
@@ -180,13 +175,13 @@ class ThreeManager {
           comp.animate(delta);
         }
       }
-      this._render(time);
+      this._render();
       this._rafId = requestAnimationFrame(loop);
     };
     this._rafId = requestAnimationFrame(loop);
   }
 
-  _render(_time) {
+  _render() {
     if (!this.renderer || !this.scene || !this.camera) return;
     this.renderer.render(this.scene, this.camera);
   }

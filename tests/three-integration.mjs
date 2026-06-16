@@ -406,7 +406,7 @@ describe('Three.js 3D Integration', () => {
       const content = fs.readFileSync(path.join(JS_DIR, 'three-manager.js'), 'utf8');
       assert.ok(content.includes('for (const comp of this.components)'), 'Should iterate components');
       assert.ok(content.includes('comp.animate(delta)'), 'Should call component animate');
-      assert.ok(content.includes('this._render(time)'), 'Should call render');
+      assert.ok(content.includes('this._render()'), 'Should call render');
     });
 
     it('ThreeManager disposes event listeners on cleanup', () => {
