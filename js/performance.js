@@ -30,7 +30,8 @@ class PerformanceMonitor {
     // Monitor first paint if available
     if (typeof PerformanceObserver !== 'undefined') {
       try {
-        const observer = new PerformanceObserver((entries) => {
+        const observer = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
           for (const entry of entries) {
             if (entry.name === 'first-paint') {
               this.metrics.set('FP', entry.startTime);
