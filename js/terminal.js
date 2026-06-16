@@ -6,7 +6,7 @@ import MeshWatchAPI from './meshwatch-api.js';
 import AIAssistant from './ai-assistant.js';
 import Achievements from './achievements.js';
 import ContactAPI from './contact-api.js';
-import { escapeHtml, normalizeSlug, validateUrl, COMMAND_ICONS, COMMAND_DESCS, highlightMatch, createPaletteItem, filterCommands, SKILLS_DATA, PERF_THRESHOLDS, gradePerf, computeOverallGrade } from './utils/helpers.js';
+import { escapeHtml, normalizeSlug, validateUrl, COMMAND_ICONS, COMMAND_DESCS, highlightMatch, createPaletteItem, filterCommands, SKILLS_DATA, PERF_THRESHOLDS, gradePerf, computeOverallGrade } from './utils/helpers.js?v=2';
 
 // Lazy import VisualEffects for matrix Easter egg
 let _visualEffects = null;

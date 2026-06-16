@@ -1,6 +1,6 @@
 // Project Catalog - Centralized project metadata for portfolio showcase
 
-import { escapeHtml, normalizeSlug, COMMAND_COUNT } from './utils/helpers.js';
+import { escapeHtml, normalizeSlug, COMMAND_COUNT } from './utils/helpers.js?v=2';
 
 const PROJECT_CATALOG = {
   'meshwatch': {
