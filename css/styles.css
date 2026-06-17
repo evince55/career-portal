@@ -730,6 +730,15 @@ input:focus, textarea:focus, select:focus {
   color: var(--neon-cyan);
 }
 
+/* Welcome message on init */
+.output-line.welcome {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 0.5rem 0;
+  opacity: 0.8;
+  font-size: 0.85rem;
+}
+
 /* Enhanced project cards with full border and gradient */
 .output-line.project-card {
   background: rgba(26, 22, 35, 0.65);
@@ -1821,6 +1830,197 @@ body.theme-retro .bottom-nav-item.active::after {
 
   body.theme-retro .terminal-window {
     background: #0a0805;
+  }
+}
+
+/* ── Autocomplete Dropdown (FAANG-style terminal autocomplete) ──── */
+
+.autocomplete-popup {
+  position: absolute;
+  background: var(--bg-darker);
+  border: 1px solid rgba(188, 19, 254, 0.25);
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(188, 19, 254, 0.08);
+  z-index: 10000;
+  max-height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(188, 19, 254, 0.3) transparent;
+  animation: autocomplete-pop-in 0.1s ease-out;
+  transform-origin: top center;
+}
+
+@keyframes autocomplete-pop-in {
+  from { opacity: 0; transform: scale(0.98) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.autocomplete-popup::-webkit-scrollbar {
+  width: 4px;
+}
+
+.autocomplete-popup::-webkit-scrollbar-thumb {
+  background: rgba(188, 19, 254, 0.3);
+  border-radius: 2px;
+}
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 2.2vw, 0.82rem);
+  color: var(--text-primary);
+  transition: background 0.08s ease;
+  border-left: 2px solid transparent;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.focused {
+  background: rgba(188, 19, 254, 0.12);
+  border-left-color: var(--neon-cyan);
+}
+
+.autocomplete-item .ac-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.autocomplete-item .ac-cmd {
+  color: var(--neon-cyan);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.autocomplete-item .ac-desc {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  opacity: 0.6;
+  margin-left: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+  padding-left: 0.5rem;
+}
+
+.autocomplete-item .ac-highlight {
+  color: var(--neon-pink);
+  text-shadow: 0 0 4px rgba(255, 0, 255, 0.3);
+}
+
+.autocomplete-item.ac-arg {
+  border-left-color: rgba(0, 255, 65, 0.3);
+}
+
+.autocomplete-item.ac-arg .ac-cmd {
+  color: var(--success);
+  font-weight: 400;
+}
+
+.autocomplete-item .ac-arg-label {
+  font-size: 0.6rem;
+  color: var(--success);
+  opacity: 0.4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 0.15rem;
+  flex-shrink: 0;
+}
+
+/* Terminal help button — integrated in titlebar */
+.terminal-help-btn {
+  background: rgba(188, 19, 254, 0.1);
+  border: 1px solid rgba(188, 19, 254, 0.25);
+  color: var(--neon-cyan);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  margin-left: 0.75rem;
+  flex-shrink: 0;
+}
+
+.terminal-help-btn:hover,
+.terminal-help-btn:focus-visible {
+  background: rgba(188, 19, 254, 0.2);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 240, 252, 0.2);
+  outline: none;
+}
+
+body.theme-retro .terminal-help-btn {
+  background: rgba(255, 140, 0, 0.1);
+  border-color: rgba(255, 140, 0, 0.25);
+  color: #ffaa00;
+}
+
+body.theme-retro .terminal-help-btn:hover,
+body.theme-retro .terminal-help-btn:focus-visible {
+  background: rgba(255, 140, 0, 0.2);
+  border-color: #ffaa00;
+  box-shadow: 0 0 12px rgba(255, 170, 0, 0.2);
+}
+
+/* Retro theme overrides */
+body.theme-retro .autocomplete-popup {
+  border-color: rgba(255, 140, 0, 0.2);
+  scrollbar-color: rgba(255, 140, 0, 0.3) transparent;
+}
+
+body.theme-retro .autocomplete-item:hover,
+body.theme-retro .autocomplete-item.focused {
+  background: rgba(255, 140, 0, 0.08);
+  border-left-color: #ffaa00;
+}
+
+body.theme-retro .autocomplete-item .ac-cmd {
+  color: #ffaa00;
+}
+
+body.theme-retro .autocomplete-item .ac-highlight {
+  color: #ff8c00;
+  text-shadow: 0 0 4px rgba(255, 140, 0, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .autocomplete-popup { animation: none; }
+}
+
+/* Mobile: larger help button for touch */
+@media (max-width: 768px) {
+  .terminal-help-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+  }
+}
+
+/* Mobile: autocomplete dropdown full width with safe margins */
+@media (max-width: 768px) {
+  .autocomplete-popup {
+    max-height: 220px;
+    border-radius: 8px;
+  }
+
+  .autocomplete-item {
+    padding: 0.55rem 0.9rem;
   }
 }
 

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-// Main terminal UI controller with new API integrations.
+// Main terminal UI controller — FAANG-quality terminal autocomplete & polished UX.
 
 import { getProjects, getProject, generateBadges } from './project-catalog.js';
 import MeshWatchAPI from './meshwatch-api.js';
@@ -7,6 +7,21 @@ import AIAssistant from './ai-assistant.js';
 import Achievements from './achievements.js';
 import ContactAPI from './contact-api.js';
 import { escapeHtml, normalizeSlug, validateUrl, COMMAND_ICONS, COMMAND_DESCS, highlightMatch, createPaletteItem, filterCommands, SKILLS_DATA, PERF_THRESHOLDS, gradePerf, computeOverallGrade } from './utils/helpers.js?v=3';
+
+// Argument suggestions for commands that accept sub-arguments.
+const ARG_SUGGESTIONS = {
+  theme:  [{ value: 'retro', label: 'set retro theme' }, { value: 'synthwave', label: 'set synthwave theme' }],
+  resume: [{ value: '--txt', label: 'download as text' }, { value: '--md', label: 'download as markdown' }],
+  contact: [{ value: '--email', label: 'interactive email form' }, { value: '-e', label: 'interactive email form' }],
+  demo:   [{ value: 'stop', label: 'stop demo mode' }],
+  project:[],
+  projects:[]
+};
+
+// Populate project names as argument suggestions lazily.
+function _projectNames() {
+  return getProjects().map(p => ({ value: p.slug, label: p.name }));
+}
 
 class Terminal {
   constructor() {
@@ -30,13 +45,15 @@ class Terminal {
     this._meshwatchAPI = null;
     this._aiAssistant = null;
     this.achievements = new Achievements();
-    this.config = { demoMode: { cycleIntervalMs: 4000 } }; // Default config
+    this.config = { demoMode: { cycleIntervalMs: 4000 } };
+    this._autocompletePopup = null;
+    this._autocompleteSelectedIndex = -1;
+    // Debounce timer for autocomplete input
+    this._autocompleteTimer = null;
 
-    // Load config in browser, skip in Node.js test environment
     if (typeof window !== 'undefined') {
       this.loadConfig().then(() => this.init());
     } else {
-      // In Node.js, init immediately without config
       this.init();
     }
   }
@@ -70,7 +87,6 @@ class Terminal {
       }
     } catch (e) { /* storage unavailable */ }
 
-    // Load execution history
     try {
       const savedExec = localStorage.getItem('terminal-execution-history');
       if (savedExec) {
@@ -87,11 +103,8 @@ class Terminal {
     const trimmed = cmd.trim().toLowerCase();
     if (!trimmed) return;
 
-    // Remove duplicate if exists
     this._executionHistory = this._executionHistory.filter(c => c !== trimmed);
-    // Add to front (most recent first)
     this._executionHistory.unshift(trimmed);
-    // Keep max 100 entries
     if (this._executionHistory.length > 100) {
       this._executionHistory = this._executionHistory.slice(0, 100);
     }
@@ -104,7 +117,6 @@ class Terminal {
       if (resp.ok) {
         const cfg = await resp.json();
         this.config = cfg;
-        // Merge demoMode defaults
         if (cfg.demoMode?.cycleIntervalMs) {
           this.config.demoMode.cycleIntervalMs = cfg.demoMode.cycleIntervalMs;
         }
@@ -138,28 +150,17 @@ class Terminal {
     }
     this.setupAccessibility();
 
-    // Render welcome box instantly (no typewriter for box borders - they'd misalign during animation)
+    // Clean welcome — no ASCII box art, no typewriter
     if (typeof document !== 'undefined' && this.output) {
-      const welcomeLines = [
-        '╔══════════════════════════════════════════════════════╗',
-        '║   Welcome to Eugene Vincent\'s Portfolio Terminal     ║',
-        '║   Full Stack Engineer | Azure DevOps | SRE          ║',
-        '╚══════════════════════════════════════════════════════╝'
-      ];
-
-      welcomeLines.forEach(line => {
-        const div = document.createElement('div');
-        div.className = 'output-line';
-        div.textContent = line;
-        this.output.appendChild(div);
-      });
-
+      const welcome = document.createElement('div');
+      welcome.className = 'output-line welcome';
+      welcome.textContent = 'Welcome to Eugene Vincent\'s Portfolio Terminal. Type "help" to get started.';
+      this.output.appendChild(welcome);
       this.scrollToBottom();
     }
 
-    // Now typewriter the prompt (only in browser)
     if (typeof document !== 'undefined') {
-      this.typewriterEffect('> Type "help" to see available commands\n', () => this.bindEvents());
+      this.bindEvents();
     }
   }
 
@@ -181,8 +182,7 @@ class Terminal {
   handleTerminalKeydown(e) {
     if (e.key === 'Tab') return;
     if (document.activeElement === this.input) return;
-    
-    // Arrow navigation for command history when terminal output area has focus
+
     if (e.key === 'ArrowUp' && this.history.length > 0) {
       e.preventDefault();
       this.historyIndex = Math.min(this.historyIndex + 1, this.history.length - 1);
@@ -204,9 +204,12 @@ class Terminal {
       if (this.input) {
         this.input.addEventListener('keydown', (e) => this.handleInput(e));
         this.input.addEventListener('focus', () => this.input.scrollIntoView({ behavior: 'smooth' }));
+        // Trigger autocomplete suggestions on each keystroke
+        this.input.addEventListener('input', () => this._onInputChange());
 
-        // iOS keyboard dismiss handling — scroll to bottom when keyboard closes
         this.input.addEventListener('blur', () => {
+          // Hide autocomplete on blur with a small delay to allow click on item
+          setTimeout(() => this._hideAutocompletePopup(), 200);
           setTimeout(() => {
             this.scrollToBottom();
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -214,39 +217,300 @@ class Terminal {
         });
 
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && document.activeElement !== this.input) {
-            e.preventDefault();
-            this.input.focus();
-            this.announceMessage('Command input focused');
+          const isInputFocused = document.activeElement === this.input;
+          const isQuestion = e.key === '?' || (e.shiftKey && e.key === '?');
+
+          if (e.key === 'Escape') {
+            if (this._autocompletePopup && this._autocompletePopup.style.display !== 'none') {
+              this._hideAutocompletePopup();
+              return;
+            }
+            if (!isInputFocused) {
+              e.preventDefault();
+              this.input.focus();
+              this.announceMessage('Command input focused');
+            }
           } else if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
             e.preventDefault();
             this.clearTerminal();
           } else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
-            this.toggleCommandPalette();
-          } else if (e.key === '?' && document.activeElement !== this.input) {
+            this.showHelpOverlay();
+          } else if (isQuestion) {
             e.preventDefault();
             this.showHelpOverlay();
-          } else if (e.key === 'Escape' && document.activeElement !== this.input && !this.isDemoMode) {
-            e.preventDefault();
-            this.input.focus();
           }
         });
 
-        const demoBtn = document.getElementById('demo-start-btn');
-        if (demoBtn) {
-          demoBtn.addEventListener('click', () => this.startDemoMode());
+        // Help button (mobile + accessible desktop trigger)
+        const helpBtn = document.getElementById('terminal-help-btn');
+        if (helpBtn) {
+          helpBtn.addEventListener('click', () => this.showHelpOverlay());
         }
+
+        // Close autocomplete when clicking outside the input or popup
+        document.addEventListener('mousedown', (e) => {
+          if (!this._autocompletePopup || this._autocompletePopup.style.display === 'none') return;
+          const target = e.target;
+          if (target !== this.input && !this._autocompletePopup.contains(target)) {
+            this._hideAutocompletePopup();
+          }
+        });
       }
-      window.addEventListener('resize', () => this.scrollToBottom());
+      window.addEventListener('resize', () => {
+        this.scrollToBottom();
+        this._hideAutocompletePopup();
+      });
+      window.addEventListener('scroll', () => {
+        this._positionAutocompletePopup();
+      }, { passive: true });
     }
   }
 
+  // ---- Autocomplete Dropdown System ----
+
+  _onInputChange() {
+    clearTimeout(this._autocompleteTimer);
+    this._autocompleteTimer = setTimeout(() => this._updateAutocomplete(), 80);
+  }
+
+  _updateAutocomplete() {
+    if (!this.input) return;
+    const value = this.input.value.trim();
+
+    if (!value) {
+      this._hideAutocompletePopup();
+      return;
+    }
+
+    // Check if we should show argument suggestions
+    const parts = value.split(/\s+/);
+    if (parts.length > 1) {
+      const cmd = parts[0].toLowerCase();
+      const argPrefix = parts.slice(1).join(' ');
+      if (ARG_SUGGESTIONS[cmd] || cmd === 'project') {
+        this._showArgSuggestions(cmd, argPrefix);
+        return;
+      }
+      // If no arg suggestions, show command completions based on the full input
+      this._showCommandSuggestions(value);
+      return;
+    }
+
+    this._showCommandSuggestions(value);
+  }
+
+  _showCommandSuggestions(prefix) {
+    const q = prefix.toLowerCase().trim();
+    const matches = this.commandHistory.filter(cmd => cmd.startsWith(q));
+
+    if (matches.length === 0) {
+      this._hideAutocompletePopup();
+      return;
+    }
+
+    const items = matches.slice(0, 10).map(cmd => ({
+      value: cmd,
+      display: cmd,
+      desc: COMMAND_DESCS[cmd] || '',
+      icon: COMMAND_ICONS[cmd] || '\u25aa',
+      isArg: false
+    }));
+
+    this._renderAutocomplete(items, prefix);
+  }
+
+  _showArgSuggestions(cmd, argPrefix) {
+    let suggestions = [];
+
+    if (cmd === 'project') {
+      suggestions = _projectNames();
+    } else if (ARG_SUGGESTIONS[cmd]) {
+      suggestions = ARG_SUGGESTIONS[cmd];
+    }
+
+    if (!suggestions.length) {
+      this._hideAutocompletePopup();
+      return;
+    }
+
+    const q = argPrefix.toLowerCase();
+    const filtered = suggestions.filter(s => s.value.toLowerCase().startsWith(q));
+
+    if (filtered.length === 0) {
+      this._hideAutocompletePopup();
+      return;
+    }
+
+    const items = filtered.slice(0, 8).map(s => ({
+      value: cmd + ' ' + s.value,
+      display: s.value,
+      desc: s.label || '',
+      icon: '\u25b8',
+      isArg: true
+    }));
+
+    this._renderAutocomplete(items, argPrefix);
+  }
+
+  _renderAutocomplete(items, query) {
+    if (!this.input) return;
+
+    let popup = this._autocompletePopup;
+    if (!popup) {
+      popup = document.createElement('div');
+      popup.id = 'autocomplete-popup';
+      popup.className = 'autocomplete-popup';
+      popup.style.display = 'none';
+      // Append to body so it is not clipped by terminal overflow
+      document.body.appendChild(popup);
+      this._autocompletePopup = popup;
+
+      // One delegated click listener; element is re-used
+      popup.addEventListener('click', (e) => {
+        const item = e.target.closest('.autocomplete-item');
+        if (item) {
+          this._acceptAutocomplete(item.dataset.value);
+        }
+      });
+    }
+
+    const q = query.toLowerCase();
+    popup.innerHTML = items.map((item, i) => {
+      const highlighted = this._highlightMatch(item.display, q);
+      return `<div class="autocomplete-item ${i === 0 ? 'focused' : ''} ${item.isArg ? 'ac-arg' : ''}" data-value="${escapeHtml(item.value)}" data-index="${i}">
+        <span class="ac-icon">${item.icon}</span>
+        <span class="ac-cmd">${highlighted}</span>
+        ${item.isArg ? '<span class="ac-arg-label">arg</span>' : ''}
+        <span class="ac-desc">${escapeHtml(item.desc)}</span>
+      </div>`;
+    }).join('');
+
+    popup.style.display = 'block';
+    this._autocompleteSelectedIndex = 0;
+    this._positionAutocompletePopup();
+  }
+
+  _positionAutocompletePopup() {
+    if (!this._autocompletePopup || !this.input) return;
+
+    const inputRect = this.input.getBoundingClientRect();
+    const popup = this._autocompletePopup;
+    const popupHeight = Math.min(popup.offsetHeight || 220, 260);
+
+    // Default: show above the input line
+    let top = inputRect.top + window.scrollY - popupHeight;
+    let bottom = 'auto';
+
+    // If there is not enough room above, show below the input line
+    if (top < window.scrollY + 8) {
+      const cmdLine = this.input.closest('.command-line');
+      const cmdLineRect = cmdLine ? cmdLine.getBoundingClientRect() : inputRect;
+      top = cmdLineRect.bottom + window.scrollY;
+      bottom = 'auto';
+    }
+
+    popup.style.position = 'absolute';
+    popup.style.top = `${top}px`;
+    popup.style.bottom = bottom;
+    popup.style.left = `${inputRect.left + window.scrollX}px`;
+    popup.style.width = `${inputRect.width}px`;
+    popup.style.zIndex = '10000';
+  }
+
+  _highlightMatch(text, query) {
+    if (!query) return escapeHtml(text);
+    const idx = text.toLowerCase().indexOf(query);
+    if (idx === -1) return escapeHtml(text);
+    const before = escapeHtml(text.slice(0, idx));
+    const match = escapeHtml(text.slice(idx, idx + query.length));
+    const after = escapeHtml(text.slice(idx + query.length));
+    return `${before}<span class="ac-highlight">${match}</span>${after}`;
+  }
+
+  _acceptAutocomplete(value) {
+    if (!this.input) return;
+    this.input.value = value;
+    this.input.focus();
+    this._hideAutocompletePopup();
+    // Brief flash feedback
+    this.input.style.boxShadow = '0 0 8px var(--neon-cyan)';
+    setTimeout(() => { this.input.style.boxShadow = ''; }, 250);
+  }
+
+  _hideAutocompletePopup() {
+    if (this._autocompletePopup) {
+      this._autocompletePopup.style.display = 'none';
+    }
+    this._autocompleteSelectedIndex = -1;
+  }
+
+  _autocompleteNavigate(direction) {
+    if (!this._autocompletePopup || this._autocompletePopup.style.display === 'none') return;
+    const items = this._autocompletePopup.querySelectorAll('.autocomplete-item');
+    if (!items.length) return;
+
+    // Remove focused from current
+    items.forEach(i => i.classList.remove('focused'));
+
+    if (direction === 'down') {
+      this._autocompleteSelectedIndex = Math.min(
+        this._autocompleteSelectedIndex + 1,
+        items.length - 1
+      );
+    } else if (direction === 'up') {
+      this._autocompleteSelectedIndex = Math.max(
+        this._autocompleteSelectedIndex - 1,
+        0
+      );
+    }
+
+    items[this._autocompleteSelectedIndex].classList.add('focused');
+    items[this._autocompleteSelectedIndex].scrollIntoView({ block: 'nearest' });
+  }
+
+  _autocompleteAccept() {
+    if (!this._autocompletePopup || this._autocompletePopup.style.display === 'none') return;
+    const focused = this._autocompletePopup.querySelector('.autocomplete-item.focused');
+    if (focused) {
+      this._acceptAutocomplete(focused.dataset.value);
+      return true;
+    }
+    // Fallback: accept first item
+    const first = this._autocompletePopup.querySelector('.autocomplete-item');
+    if (first) {
+      this._acceptAutocomplete(first.dataset.value);
+      return true;
+    }
+    return false;
+  }
+
+  // ---- Input Handling ----
+
   handleInput(e) {
-    // Handle Enter key: supports both modern (key='Enter') and legacy/mobile (keyCode/charCode=13)
     const isEnter = e.key === 'Enter' || e.keyCode === 13 || e.charCode === 13;
+
     if (isEnter) {
+      // Accept autocomplete if open and focused
+      if (this._autocompletePopup && this._autocompletePopup.style.display !== 'none') {
+        if (this._autocompleteAccept()) {
+          this._hideAutocompletePopup();
+          // Now execute the completed command
+          const command = this.input.value.trim();
+          if (command) {
+            this.history.push(command);
+            this.historyIndex = this.history.length;
+            this.displayCommand(command);
+            this.executeCommand(command);
+          }
+          this.input.value = '';
+          this.scrollToBottom();
+          return;
+        }
+      }
+
       const command = this.input.value.trim();
+      this._hideAutocompletePopup();
       if (command) {
         this.history.push(command);
         this.historyIndex = this.history.length;
@@ -257,12 +521,20 @@ class Terminal {
       this.scrollToBottom();
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      if (this._autocompletePopup && this._autocompletePopup.style.display !== 'none') {
+        this._autocompleteNavigate('up');
+        return;
+      }
       if (this.historyIndex > 0) {
         this.historyIndex--;
         this.input.value = this.history[this.historyIndex];
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
+      if (this._autocompletePopup && this._autocompletePopup.style.display !== 'none') {
+        this._autocompleteNavigate('down');
+        return;
+      }
       if (this.historyIndex < this.history.length - 1) {
         this.historyIndex++;
         this.input.value = this.history[this.historyIndex];
@@ -272,7 +544,22 @@ class Terminal {
       }
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      this.autocomplete();
+      if (this._autocompletePopup && this._autocompletePopup.style.display !== 'none') {
+        this._autocompleteAccept();
+      } else {
+        // First Tab: show autocomplete for current prefix
+        this._updateAutocomplete();
+        // If popup is now shown, focus first item
+        if (this._autocompletePopup && this._autocompletePopup.style.display !== 'none') {
+          const first = this._autocompletePopup.querySelector('.autocomplete-item');
+          if (first) first.classList.add('focused');
+        }
+      }
+    } else if (e.key === 'Escape') {
+      if (this._autocompletePopup && this._autocompletePopup.style.display !== 'none') {
+        e.preventDefault();
+        this._hideAutocompletePopup();
+      }
     }
   }
 
@@ -353,7 +640,6 @@ class Terminal {
             this.startDemoMode();
           }
           break;
-
         case 'skills-visual':
           this.showSkillsVisual();
           break;
@@ -372,26 +658,26 @@ class Terminal {
         case 'achievements':
           this.showAchievements();
           break;
-  case 'perf':
-           this.showPerf();
-           break;
-         case 'explorer':
-           this.openPage('/project-explorer.html', 'Project Explorer');
-           break;
+        case 'perf':
+          this.showPerf();
+          break;
+        case 'explorer':
+          this.openPage('/project-explorer.html', 'Project Explorer');
+          break;
         case 'dashboard':
-            this.openPage('/dashboard.html', 'Live Dashboard');
-            break;
-case 'writeups':
-             this.openPage('/writeups.html', 'Writeups');
-             break;
-          case 'git':
-            this.showGitHubStats();
-            break;
-           default:
-           this.log(`Unknown command: ${cmd}`, 'warning');
+          this.openPage('/dashboard.html', 'Live Dashboard');
+          break;
+        case 'writeups':
+          this.openPage('/writeups.html', 'Writeups');
+          break;
+        case 'git':
+          this.showGitHubStats();
+          break;
+        default:
+          this.log(`Unknown command: ${cmd}`, 'warning');
       }
 
-      // Track achievements for valid commands only
+      // Track achievements for valid commands
       if (typeof document !== 'undefined' && cmd !== 'clear' && cmd !== 'help' && this.commandHistory.includes(cmd)) {
         const newUnlocks = this.achievements.record(cmd, args);
         newUnlocks.forEach(a => {
@@ -400,77 +686,35 @@ case 'writeups':
       }
     } catch (error) {
       console.error('[Terminal] Command error:', error.name, '-', error.message);
-      this.log(`\n⚡ System error: ${error.message || 'An unexpected error occurred'}`, 'warning');
-      this.log('Try "help" for available commands.', 'info');
+      this.log(`System error: ${error.message || 'Unexpected error'}`, 'warning');
+      this.log('Type "help" for navigation tips. Press Shift + ? for the command reference.', 'info');
     }
   }
 
- showHelp() {
-    const helpText = [
-      { cmd: 'help', desc: 'Show this help message' },
-      { cmd: 'projects [category]', desc: 'List projects (optional: cloud, devops, iot, web)' },
-      { cmd: 'project <name>', desc: 'Deep-dive into a specific project' },
-      { cmd: 'skills [category]', desc: 'Show technical skills (optional: category)' },
-      { cmd: 'skills-visual', desc: 'Animated skill progress bars by category' },
-      { cmd: 'timeline', desc: 'Project timeline with active period chart' },
-      { cmd: 'experience [level]', desc: 'Show work experience (senior/mid/junior)' },
-      { cmd: 'education', desc: 'Show education background' },
-      { cmd: 'resume [--txt|--md]', desc: 'Display or download resume (text/markdown)' },
-      { cmd: 'about', desc: 'About Eugene Vincent' },
-      { cmd: 'contact', desc: 'Contact information' },
-      { cmd: 'status', desc: 'Show system/live metrics status' },
-      { cmd: 'minecraft', desc: 'Show Minecraft server live stats' },
-      { cmd: 'ai <question>', desc: 'Ask AI about your portfolio' },
-      { cmd: 'demo [stop]', desc: 'Start/stop auto-cycling project showcase' },
-      { cmd: 'clear', desc: 'Clear terminal output' },
-      { cmd: 'theme [retro|synthwave]', desc: 'Set or toggle theme (default: toggle)' },
-      { cmd: 'neofetch', desc: 'System information display' },
-      { cmd: 'fortune', desc: 'Random tech/career fortune' },
-      { cmd: 'cowsay <text>', desc: 'ASCII cow says your text' },
-      { cmd: 'achievements', desc: 'View earned achievements' },
-      { cmd: 'perf', desc: 'Performance dashboard (A-F grading)' },
-      { cmd: 'contact --email', desc: 'Interactive email form' },
-      { cmd: 'explorer', desc: 'Open Project Explorer page' },
-      { cmd: 'dashboard', desc: 'Open Live Dashboard page' },
-      { cmd: 'writeups', desc: 'Open Writeups/blog page' },
-      { cmd: 'git', desc: 'GitHub profile stats' }
-    ];
+  // ---- Help ----
 
-    const a11yShortcuts = [
-      { key: 'Tab', desc: 'Autocomplete command' },
-      { key: '\u2190/\u2191', desc: 'Command history' },
-      { key: 'Ctrl+K', desc: 'Command palette overlay' },
-      { key: '?', desc: 'Help overlay' },
-      { key: 'Esc', desc: 'Focus input field' }
-    ];
-
-    this.divider();
-    this.log('\n=== AVAILABLE COMMANDS ===', 'info');
-    helpText.forEach(({ cmd, desc }) => {
-      this.log(`  ${cmd.padEnd(20)} - ${desc}`, 'success');
-    });
-    this.log('============================\n', 'info');
-    this.divider();
-
-    this.log('=== KEYBOARD SHORTCUTS ===', 'info');
-    a11yShortcuts.forEach(({ key, desc }) => {
-      this.log(`  ${key.padEnd(10)} - ${desc}`, 'success');
-    });
-    this.log('===========================\n', 'info');
-    this.divider();
-
-    this.log('=== PROJECT CATEGORIES ===', 'info');
-    const categories = ['cloud', 'devops', 'iot', 'web'];
-    categories.forEach(cat => {
-      this.log(`  ${cat.padEnd(10)} - Projects in "${cat}" category`, 'info');
-    });
-    this.log('===========================\n', 'info');
+  showHelp() {
+    this.log('');
+    this.log('TERMINAL NAVIGATION', 'info');
+    this.log('');
+    this.log('Keyboard shortcuts', 'success');
+    this.log('  Tab              Autocomplete commands and arguments', 'info');
+    this.log('  \u2191 / \u2193           Browse command history', 'info');
+    this.log('  Shift + ?        Open command reference overlay', 'info');
+    this.log('  Esc              Close overlays / focus input', 'info');
+    this.log('');
+    this.log('Autocomplete', 'success');
+    this.log('  Start typing a command to see matching suggestions.', 'info');
+    this.log('  Press Tab or Enter to accept the highlighted suggestion.', 'info');
+    this.log('  Use \u2191 / \u2193 to navigate the suggestion list.', 'info');
+    this.log('');
+    this.log('For a full list of commands, open the reference with Shift + ?.', 'info');
+    this.log('');
   }
 
   showHelpOverlay() {
     if (typeof document === 'undefined') return;
 
-    // Remove existing overlay if present
     const existing = document.getElementById('help-overlay');
     if (existing) { existing.remove(); return; }
 
@@ -506,9 +750,8 @@ case 'writeups':
 
     const shortcuts = [
       { key: 'Tab', desc: 'Autocomplete command' },
-      { key: '\u2190/\u2191', desc: 'Command history' },
-      { key: 'Ctrl+K', desc: 'Command palette overlay' },
-      { key: '?', desc: 'Toggle help overlay' },
+      { key: '\u2191/\u2193', desc: 'Command history / autocomplete' },
+      { key: 'Shift + ?', desc: 'Open help overlay' },
       { key: 'Esc', desc: 'Close overlay / Focus input' }
     ];
 
@@ -533,13 +776,12 @@ case 'writeups':
             ${shortcuts.map(({ key, desc }) => `<li><kbd>${escapeHtml(key)}</kbd> — ${escapeHtml(desc)}</li>`).join('')}
           </ul>
         </div>
-        <p class="help-hint">Press ? or Esc to close</p>
+        <p class="help-hint">Press Shift + ? or Esc to close</p>
       </div>
     `;
 
     document.body.appendChild(overlay);
 
-    // Close handlers
     const closeHandler = () => overlay.remove();
     overlay.querySelector('.help-overlay-close').addEventListener('click', closeHandler);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeHandler(); });
@@ -549,12 +791,14 @@ case 'writeups':
       }
     }, { once: true });
 
-    // Focus trap
     overlay.querySelector('.help-overlay-close').focus();
   }
 
+  // ---- Projects ----
+
   showProjects(filter = '') {
-    this.log('\n=== PROJECTS ===\n', 'info');
+    this.log('');
+    this.log('PROJECTS', 'info');
 
     if (this._guard()) return;
 
@@ -564,7 +808,7 @@ case 'writeups':
       this.log('No projects found matching criteria', 'warning');
       this.log('Available categories: cloud, devops, iot, web', 'info');
     } else {
-      this.log(`Found ${projectList.length} project(s):\n`, 'success');
+      this.log(`Found ${projectList.length} project(s)`, 'success');
 
       projectList.forEach(project => {
         const badgesHTML = generateBadges(project.badges);
@@ -581,7 +825,7 @@ case 'writeups':
       });
     }
 
-    this.log('\n📡 Tip: Type "project <name>" for a deep-dive into any project\n', 'info');
+    this.log('');
   }
 
   formatProjectMetrics(project) {
@@ -599,9 +843,10 @@ case 'writeups':
 
   showProjectDetail(identifier = '') {
     if (!identifier) {
-      this.log('\n=== PROJECTS ===\n', 'info');
+      this.log('');
+      this.log('PROJECTS', 'info');
       const projects = getProjects();
-      this.log('Available projects (type "project <name>" for details):\n', 'success');
+      this.log('Available projects (type "project <name>" for details)', 'success');
 
       if (this._guard()) return;
 
@@ -620,12 +865,13 @@ case 'writeups':
     const project = getProject(normalizeSlug(identifier));
 
     if (!project) {
-      this.log(`\n\u274C Project "${identifier}" not found.`, 'warning');
-      this.log('Available projects: meshwatch, minecraft-monitoring, monitoring, azure-functions, career-portal\n', 'info');
+      this.log(`Project "${identifier}" not found.`, 'warning');
+      this.log('Available projects: meshwatch, minecraft-monitoring, monitoring, azure-functions, career-portal', 'info');
       return;
     }
 
-    this.log(`\n=== PROJECT: ${project.name.toUpperCase()} ===\n`, 'info');
+    this.log('');
+    this.log(`PROJECT: ${project.name.toUpperCase()}`, 'info');
 
     if (this._guard()) return;
 
@@ -663,12 +909,15 @@ case 'writeups':
       this._card(linksContent);
     }
 
-    this.log('', 'default');
+    this.log('');
   }
+
+  // ---- Skills ----
 
   showSkills(category = '') {
     if (typeof document === 'undefined' || !this.output) return;
-    this.log('\n=== TECHNICAL SKILLS ===\n', 'info');
+    this.log('');
+    this.log('TECHNICAL SKILLS', 'info');
 
     const skills = {
       cloud: [
@@ -708,12 +957,13 @@ case 'writeups':
       }
     });
 
-    this.log('\n========================\n', 'info');
+    this.log('');
   }
+
+  // ---- About ----
 
   showAbout() {
     if (typeof document === 'undefined' || !this.output) return;
-    this.divider();
     const aboutText = [
       '',
       '\u{1f44b} Hello! I\'m Eugene Vincent',
@@ -741,7 +991,7 @@ case 'writeups':
       '   \u2022 WASM for browser-based compute',
       '   \u2022 Edge computing with Cloudflare Workers',
       '',
-      '========================\n'
+      ''
     ];
 
     aboutText.forEach(line => {
@@ -755,33 +1005,33 @@ case 'writeups':
     });
   }
 
+  // ---- Contact ----
+
   showContact(args) {
     if (typeof document === 'undefined' || !this.output) return;
 
-    // Multi-step interactive email form: contact --email
     if (args === '--email' || args === '-e') {
       this.startContactForm();
       return;
     }
 
-    this.divider();
-    this.log('\n=== CONTACT ===\n', 'info');
+    this.log('');
+    this.log('CONTACT', 'info');
     this.log('\u{1f4e7} Email: eugene.vince55@gmail.com', 'success');
     this.log('\u{1f517} GitHub: github.com/chaitea321', 'success');
     this.log('\u{1f4bc} LinkedIn: linkedin.com/in/eugene-vincent-42472024b', 'success');
     this.log('\u{1f310} Portfolio: chai-homelab.com', 'success');
-    this.log('\n  Use "contact --email" to send via terminal.\n', 'info');
-    this.log('========================\n', 'info');
+    this.log('  Use "contact --email" to send via terminal.', 'info');
+    this.log('');
   }
 
-  // Multi-step contact form with interactive prompts
   startContactForm() {
     if (typeof document === 'undefined' || !this.output || !this.input) return;
 
-    this.divider();
-    this.log('\n=== SEND EMAIL ===\n', 'info');
+    this.log('');
+    this.log('SEND EMAIL', 'info');
     this.log('Interactive email form. Type answers below.', 'info');
-    this.log('Type "cancel" at any time to abort.\n', 'warning');
+    this.log('Type "cancel" at any time to abort.', 'warning');
 
     const steps = [
       { key: 'name', prompt: 'Your name:', validate: v => v.trim().length > 0 },
@@ -795,16 +1045,13 @@ case 'writeups':
 
     const askNext = () => {
       if (stepIndex >= steps.length) {
-        // Submit via API (falls back to mailto: if backend unavailable)
-        this.log('\nSending email...\n', 'info');
+        this.log('Sending email...', 'info');
 
         contactAPI.submit(formData).then(result => {
           this.log(`\n${result.message}`, result.fallback ? 'warning' : 'success');
-          this.divider();
-          stepIndex = -1; // Mark as complete
+          stepIndex = -1;
         }).catch(err => {
-          this.log(`\nError sending email: ${err.message || 'Unknown error'}`, 'warning');
-          this.divider();
+          this.log(`Error sending email: ${err.message || 'Unknown error'}`, 'warning');
           stepIndex = -1;
         });
 
@@ -813,9 +1060,8 @@ case 'writeups':
 
       const step = steps[stepIndex];
       this.log(`\n${step.prompt}`, 'info');
-      this.log('  (type "cancel" to abort)\n', 'warning');
+      this.log('  (type "cancel" to abort)', 'warning');
 
-      // Override Enter key temporarily for form input
       const formSubmit = (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -823,8 +1069,7 @@ case 'writeups':
           const value = this.input.value.trim();
 
           if (value.toLowerCase() === 'cancel') {
-            this.log('\nForm cancelled.', 'warning');
-            this.divider();
+            this.log('Form cancelled.', 'warning');
             stepIndex = -1;
             this.input.onkeydown = null;
             return;
@@ -836,22 +1081,20 @@ case 'writeups':
             return;
           }
 
-formData[step.key] = value;
-          this.log('  ✓ Recorded.', 'success');
+          formData[step.key] = value;
+          this.log('  Recorded.', 'success');
           stepIndex++;
           this.input.value = '';
           this.input.onkeydown = null;
           if (stepIndex >= 0) askNext();
         } else if (e.key === 'Escape') {
           e.preventDefault();
-          this.log('\nForm cancelled.', 'warning');
-          this.divider();
+          this.log('Form cancelled.', 'warning');
           stepIndex = -1;
           this.input.onkeydown = null;
         }
       };
 
-      // Small delay to let the next character render before focusing
       setTimeout(() => {
         this.input.focus();
         this.input.onkeydown = formSubmit;
@@ -861,9 +1104,12 @@ formData[step.key] = value;
     askNext();
   }
 
+  // ---- Experience ----
+
   showExperience(level = '') {
     if (this._guard()) return;
-    this.log('\n=== HOMELAB PROJECTS & EXPERIENCE ===\n', 'info');
+    this.log('');
+    this.log('HOMELAB PROJECTS & EXPERIENCE', 'info');
 
     const experience = [
       {
@@ -924,12 +1170,15 @@ formData[step.key] = value;
       });
     }
 
-    this.log('\n========================\n', 'info');
+    this.log('');
   }
+
+  // ---- Education ----
 
   showEducation() {
     if (this._guard()) return;
-    this.log('\n=== EDUCATION ===\n', 'info');
+    this.log('');
+    this.log('EDUCATION', 'info');
 
     const education = [
       {
@@ -967,8 +1216,10 @@ formData[step.key] = value;
       this._card(html);
     });
 
-    this.log('\n========================\n', 'info');
+    this.log('');
   }
+
+  // ---- Resume ----
 
   showResume(format = '') {
     if (typeof document === 'undefined' || !this.output) return;
@@ -1122,10 +1373,10 @@ Generated from chai-homelab.com portfolio terminal`;
       return;
     }
 
-    this.divider();
-    this.log('\n=== RESUME ===\n', 'info');
+    this.log('');
+    this.log('RESUME', 'info');
     this.log(resumeText, 'default');
-    this.log('\n💠 Tip: Use "resume --txt" or "resume --md" to download.', 'info');
+    this.log('');
   }
 
   downloadFile(content, filename, mimeType) {
@@ -1141,18 +1392,18 @@ Generated from chai-homelab.com portfolio terminal`;
     URL.revokeObjectURL(url);
   }
 
+  // ---- Status ----
+
   async showStatus() {
     if (typeof document === 'undefined' || !this.output) return;
-    this.divider();
-    this.log('\n=== SYSTEM STATUS ===\n', 'info');
+    this.log('');
+    this.log('SYSTEM STATUS', 'info');
 
     try {
-      // Show current online/offline status
       const isOnline = navigator.onLine;
       this.log(`Network: ${isOnline ? '\u2705 Online' : '\u274C Offline'}`, isOnline ? 'success' : 'warning');
 
       if (isOnline) {
-        // Try to fetch live metrics from Azure Functions
         const status = await this.meshwatchAPI.getMetrics();
         if (status.success) {
           this.log('MeshWatch: \u2705 Live (Azure Functions)', 'success');
@@ -1160,7 +1411,6 @@ Generated from chai-homelab.com portfolio terminal`;
           this.log(`  Cost: $${status.monthlyCost || '5.12'}/month (60% savings vs serverless)`, 'success');
           this.log(`  AI Analysis: ${status.aiAnalysis || 'Ollama Phi-3 ready for incident analysis'}`, 'info');
         } else {
-          // Fallback to cached/demo metrics — clearly labeled
           this.log('Azure Functions not yet deployed, showing demo data...', 'warning');
           this.log('MeshWatch: \u2705 Production (demo mode — static estimates)', 'success');
           this.log('  Pods deployed: 15 | Services monitored: 5', 'info');
@@ -1173,8 +1423,7 @@ Generated from chai-homelab.com portfolio terminal`;
         this.log('  Pods deployed: 15 | Services monitored: 5', 'info');
       }
 
-      // Show browser info for recruiter talk points
-      this.log(`\nBrowser: ${navigator.userAgent.split(' ').slice(-1)[0] || 'Modern'}`, 'info');
+      this.log(`Browser: ${navigator.userAgent.split(' ').slice(-1)[0] || 'Modern'}`, 'info');
       this.log(`Platform: ${navigator.platform || 'Unknown'}`, 'info');
       this.log(`Memory API: ${performance.memory ? 'Available' : 'Not available'}`, 'info');
     } catch (error) {
@@ -1184,15 +1433,17 @@ Generated from chai-homelab.com portfolio terminal`;
       this.log('  Pods deployed: 15 | Services monitored: 5', 'info');
     }
 
-    this.log('\n========================\n', 'info');
+    this.log('');
   }
+
+  // ---- Minecraft ----
 
   async showMinecraft() {
     if (typeof document === 'undefined' || !this.output) return;
-    this.log('\n=== MINECRAFT SERVER STATUS ===\n', 'info');
+    this.log('');
+    this.log('MINECRAFT SERVER STATUS', 'info');
 
     try {
-      // Load stats from local JSON file (updated every 10 min via cron)
       const resp = await fetch(`/config/minecraft-stats.json?t=${Date.now()}`);
       if (resp.ok) {
         const stats = await resp.json();
@@ -1203,7 +1454,7 @@ Generated from chai-homelab.com portfolio terminal`;
         this.log(`Discord Alerts Today: ${stats.monitoring.discordAlertsToday} | RCON Latency: ${stats.monitoring.rconLatency}`, 'info');
         this.log(`Heap: ${stats.metrics.heapUsedMB}MB / ${stats.metrics.heapMaxMB}MB`, 'info');
         if (stats.recentChanges && stats.recentChanges.length > 0) {
-          this.log('\nRecent Changes:', 'success');
+          this.log('Recent Changes:', 'success');
           stats.recentChanges.forEach(change => {
             this.log(`  \u2022 ${change}`, 'info');
           });
@@ -1216,7 +1467,7 @@ Generated from chai-homelab.com portfolio terminal`;
       this.showMinecraftFallback();
     }
 
-    this.log('\n========================\n', 'info');
+    this.log('');
   }
 
   showMinecraftFallback() {
@@ -1225,38 +1476,39 @@ Generated from chai-homelab.com portfolio terminal`;
     this.log('TPS: 20 | Players: 3', 'info');
     this.log('Uptime: 99.8%', 'info');
     this.log('Discord Alerts Today: 0', 'info');
-    this.log('\nTech Stack:', 'success');
+    this.log('Tech Stack:', 'success');
     this.log('  \u2022 JMX Exporter - TPS, Heap, GC Metrics', 'info');
     this.log('  \u2022 RCON Protocol - Server Control', 'info');
     this.log('  \u2022 Discord.py Bot - 10 Slash Commands', 'info');
     this.log('  \u2022 Prometheus + Grafana - Real-time Dashboards', 'info');
     this.log('  \u2022 Ollama Phi-3 - AI Lag Analysis', 'info');
-    this.log('\nStats update every 10 minutes via cron job.', 'info');
+    this.log('Stats update every 10 minutes via cron job.', 'info');
   }
+
+  // ---- AI ----
 
   async askAI(question = '') {
     if (!question) {
-      this.log('\n=== AI ASSISTANT ===\n', 'info');
+      this.log('');
+      this.log('AI ASSISTANT', 'info');
       this.log('Ask me anything about your portfolio projects!', 'success');
       this.log('Examples:', 'info');
       this.log('  ai What does MeshWatch do?', 'info');
       this.log('  ai Tell me about your Kubernetes experience', 'info');
       this.log('  ai How much did you save on monitoring costs?', 'info');
-      this.log('\n\nAI requires Ollama deployment via Tailscale.', 'warning');
-      this.log('In demo mode, I will answer from cached knowledge.\n', 'info');
+      this.log('AI requires Ollama deployment via Tailscale.', 'warning');
+      this.log('In demo mode, I will answer from cached knowledge.', 'info');
       return;
     }
 
-    this.log('', 'default');
+    this.log('');
     this.log(`\u{1f916} Portfolio Knowledge: ${question}`, 'info');
 
     try {
-      // Try to query Ollama via Azure Functions proxy
       const response = await this.aiAssistant.query(question);
 
       if (response.success) {
-        this.log('\n\u{1f916} Answer:', 'success');
-        // Wrap long responses nicely
+        this.log('Answer:', 'success');
         const words = response.data.split(' ');
         let line = '';
         const maxLineLength = 80;
@@ -1270,8 +1522,7 @@ Generated from chai-homelab.com portfolio terminal`;
         });
         if (line) this.log(line, 'info');
       } else {
-        // Fallback: use cached knowledge (already returned in response.data)
-        this.log('\n\u{1f916} Answer:', 'success');
+        this.log('Answer:', 'success');
         const answer = response.data;
         if (answer) {
           const words = answer.split(' ');
@@ -1292,12 +1543,14 @@ Generated from chai-homelab.com portfolio terminal`;
       }
     } catch (error) {
       console.error('AI query error:', error);
-      this.log('\n\u{1f916} Answer:', 'info');
+      this.log('Answer:', 'info');
       this.log('Using cached knowledge. Deploy Ollama for live AI answers.', 'warning');
     }
 
-    this.log('', 'default');
+    this.log('');
   }
+
+  // ---- Clear ----
 
   clearTerminal() {
     if (!this.output) return;
@@ -1318,24 +1571,15 @@ Generated from chai-homelab.com portfolio terminal`;
 
   startDemoMode() {
     if (this.isDemoMode) {
-      this.log('\n\u2705 Demo mode already running!', 'success');
+      this.log('Demo mode already running!', 'success');
       return;
     }
 
     this.isDemoMode = true;
     this.currentProjectIndex = 0;
 
-    this.log('\n=== DEMO MODE ACTIVATED ===', 'info');
-    this.log('Auto-cycling through projects. Press "demo stop" or click Stop Demo to exit.', 'success');
-    this.log('Press any key to pause the showcase.\n', 'warning');
-
-    // Bind pause on any keypress
-    this._demoPauseHandler = (e) => {
-      if (!this.isDemoMode) return;
-      this.stopDemoMode();
-      document.removeEventListener('keydown', this._demoPauseHandler);
-    };
-    document.addEventListener('keydown', this._demoPauseHandler);
+    this.log('DEMO MODE ACTIVATED', 'info');
+    this.log('Auto-cycling through projects. Type "demo stop" to exit.', 'success');
 
     const projects = getProjects();
     const runNext = () => {
@@ -1349,7 +1593,6 @@ Generated from chai-homelab.com portfolio terminal`;
 
       this.currentProjectIndex++;
 
-      // Schedule next project after delay (config-driven, falls back to 4000ms)
       const delay = this.config?.demoMode?.cycleIntervalMs || 4000;
       this.demoInterval = setTimeout(runNext, delay);
     };
@@ -1364,19 +1607,16 @@ Generated from chai-homelab.com portfolio terminal`;
     clearTimeout(this.demoInterval);
     this.demoInterval = null;
 
-    document.removeEventListener('keydown', this._demoPauseHandler);
-    this._demoPauseHandler = null;
-
-    this.log('\n=== DEMO MODE STOPPED ===', 'warning');
-    this.log('Demo mode deactivated. Resume normal terminal interaction.\n', 'info');
+    this.log('DEMO MODE STOPPED', 'warning');
+    this.log('Demo mode deactivated. Resume normal terminal interaction.', 'info');
   }
 
-  // ---- Skills Visual ---
+  // ---- Skills Visual ----
 
   showSkillsVisual() {
     if (typeof document === 'undefined' || !this.output) return;
-    this.divider();
-    this.log('\n=== SKILLS VISUALIZATION ===\n', 'info');
+    this.log('');
+    this.log('SKILLS VISUALIZATION', 'info');
 
     Object.values(SKILLS_DATA).forEach(data => {
       this.log(`${data.label}`, 'success');
@@ -1388,15 +1628,15 @@ Generated from chai-homelab.com portfolio terminal`;
       this.log('');
     });
 
-    this.divider();
+    this.log('');
   }
 
-  // ---- Timeline ---
+  // ---- Timeline ----
 
   showTimeline() {
     if (typeof document === 'undefined' || !this.output) return;
-    this.divider();
-    this.log('\n=== PROJECT TIMELINE ===\n', 'info');
+    this.log('');
+    this.log('PROJECT TIMELINE', 'info');
 
     const projects = [
       { name: 'Monitoring Stack', start: 2022, end: null, active: true },
@@ -1409,14 +1649,12 @@ Generated from chai-homelab.com portfolio terminal`;
     const years = [2022, 2023, 2024, 2025];
     const maxYear = 2025;
 
-    // Header row
     const header = 'Year   '.padEnd(8) + projects.map(p => p.name.substring(0, 12).padEnd(14)).join('');
     this.log(header, 'info');
-    this.log('─'.repeat(header.length), 'info');
+    this.log('\u2500'.repeat(header.length), 'info');
 
-    // Draw timeline bars for each project
     projects.forEach(project => {
-      const prefix = `${project.start}─`.padEnd(8);
+      const prefix = `${project.start}\u2500`.padEnd(8);
       let bar = '';
       for (const year of years) {
         if (year < project.start) {
@@ -1442,10 +1680,10 @@ Generated from chai-homelab.com portfolio terminal`;
 
     this.log('');
     this.log('Key: \u2500 = Active period  |  [CURRENT] = Still maintained', 'info');
-    this.divider();
+    this.log('');
   }
 
-  // ---- Easter Eggs ---
+  // ---- Easter Eggs ----
 
   showNeofetch() {
     if (typeof document === 'undefined' || !this.output) return;
@@ -1453,7 +1691,6 @@ Generated from chai-homelab.com portfolio terminal`;
     const browser = navigator.userAgent.split(' ').slice(-1)[0] || 'Modern';
     const platform = navigator.platform || 'Unknown';
 
-    this.divider();
     this.log('       _/.-~-.        eugene@homelab', 'cyan');
     this.log('      |   \'._.\'       ------------------');
     this.log('      |  \'-.  .-\'     OS: Ubuntu 24.04 LTS');
@@ -1465,7 +1702,6 @@ Generated from chai-homelab.com portfolio terminal`;
     this.log('                   AI: Ollama Phi-3 (Tailscale)');
     this.log(`                   Browser: ${browser}`);
     this.log(`                   Network: ${isOnline ? '108.233.139.113' : 'offline'}`);
-    this.divider();
   }
 
   showFortune() {
@@ -1495,19 +1731,18 @@ Generated from chai-homelab.com portfolio terminal`;
     ];
 
     const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-    this.divider();
-    this.log('\n   \u{1f3ae} FORTUNE\n', 'success');
+    this.log('');
+    this.log(`   \u{1f3ae} FORTUNE`, 'success');
     this.log(`   ${fortune}`, 'info');
-    this.log('\n   Type "fortune" again for another.\n', 'info');
-    this.divider();
+    this.log('');
   }
 
   showCowsay(text) {
     if (typeof document === 'undefined' || !this.output) return;
 
     if (!text) {
-      this.log('\nUsage: cowsay <your text here>', 'warning');
-      this.log('Example: cowsay Hello World\n', 'info');
+      this.log('Usage: cowsay <your text here>', 'warning');
+      this.log('Example: cowsay Hello World', 'info');
       return;
     }
 
@@ -1528,15 +1763,14 @@ Generated from chai-homelab.com portfolio terminal`;
 
     const bubbleWidth = Math.max(...wrapped.map(l => l.length)) + 2;
 
-    this.divider();
     this.log('', 'default');
 
     if (wrapped.length === 1) {
-      this.log(` ${'─'.repeat(bubbleWidth)} `, 'info');
+      this.log(` ${'\u2500'.repeat(bubbleWidth)} `, 'info');
       this.log(` <${wrapped[0]}>`, 'info');
-      this.log(` ${'─'.repeat(bubbleWidth)} `, 'info');
+      this.log(` ${'\u2500'.repeat(bubbleWidth)} `, 'info');
     } else {
-      this.log(` ${'─'.repeat(bubbleWidth)} `, 'info');
+      this.log(` ${'\u2500'.repeat(bubbleWidth)} `, 'info');
       wrapped.forEach((line, i) => {
         const padded = line.padEnd(bubbleWidth - 2);
         const isLast = i === wrapped.length - 1;
@@ -1546,22 +1780,21 @@ Generated from chai-homelab.com portfolio terminal`;
           this.log(` |${padded}|`, 'info');
         }
       });
-      this.log(` ${'─'.repeat(bubbleWidth)} `, 'info');
+      this.log(` ${'\u2500'.repeat(bubbleWidth)} `, 'info');
     }
 
     this.log('        \\   ^__^', 'info');
     this.log('         \\  (oo)\\', 'info');
     this.log('          (xx)\\', 'info');
     this.log('', 'default');
-    this.divider();
   }
 
-  // ---- Achievements ---
+  // ---- Achievements ----
 
   showAchievements() {
     if (typeof document === 'undefined' || !this.output) return;
-    this.divider();
-    this.log('\n=== ACHIEVEMENTS ===\n', 'info');
+    this.log('');
+    this.log('ACHIEVEMENTS', 'info');
 
     const total = this.achievements.getAll().length;
     const unlocked = this.achievements.getCount();
@@ -1574,10 +1807,10 @@ Generated from chai-homelab.com portfolio terminal`;
       this.log(`  ${a.icon} ${a.name.padEnd(20)} — ${a.desc.padEnd(35)} ${status}`, isUnlocked ? 'success' : 'warning');
     });
 
-    this.divider();
+    this.log('');
   }
 
-  // ---- Ctrl+K Command Palette ---
+  // ---- Ctrl+K Command Palette ----
 
   toggleCommandPalette() {
     if (typeof document === 'undefined') return;
@@ -1593,20 +1826,17 @@ Generated from chai-homelab.com portfolio terminal`;
   showCommandPalette() {
     if (typeof document === 'undefined' || !this.output) return;
 
-    // Create overlay
     const overlay = document.createElement('div');
     overlay.id = 'command-palette';
     overlay.className = 'command-palette';
 
-    // Search input
     const searchInput = document.createElement('input');
     searchInput.id = 'palette-search';
     searchInput.type = 'text';
-    searchInput.placeholder = 'Type a command... (↑↓ navigate, Enter execute, Esc close)';
+    searchInput.placeholder = 'Type a command... (\u2191\u2193 navigate, Enter execute, Esc close)';
     searchInput.setAttribute('autocomplete', 'off');
     searchInput.setAttribute('spellcheck', 'false');
 
-    // Results container
     const results = document.createElement('div');
     results.id = 'palette-results';
     results.className = 'palette-results';
@@ -1617,18 +1847,15 @@ Generated from chai-homelab.com portfolio terminal`;
 
     this._paletteOpen = true;
 
-    // Focus search input with slight delay for animation
     setTimeout(() => {
       searchInput.focus();
       this.renderPaletteResults(searchInput.value, results);
     }, 100);
 
-    // Search / filter handler
     searchInput.addEventListener('input', () => {
       this.renderPaletteResults(searchInput.value, results);
     });
 
-    // Keyboard navigation
     searchInput.addEventListener('keydown', (e) => {
       const items = results.querySelectorAll('.palette-item');
       const focused = results.querySelector('.palette-item.focused');
@@ -1657,7 +1884,6 @@ Generated from chai-homelab.com portfolio terminal`;
           const cmd = active.dataset.command;
           overlay.remove();
           this._paletteOpen = false;
-          // Execute the command
           this.displayCommand(cmd);
           this.executeCommand(cmd);
         }
@@ -1669,7 +1895,6 @@ Generated from chai-homelab.com portfolio terminal`;
       }
     });
 
-    // Click to execute
     results.addEventListener('click', (e) => {
       const item = e.target.closest('.palette-item');
       if (item) {
@@ -1681,7 +1906,6 @@ Generated from chai-homelab.com portfolio terminal`;
       }
     });
 
-    // Close on overlay click (outside palette box)
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         overlay.remove();
@@ -1694,9 +1918,7 @@ Generated from chai-homelab.com portfolio terminal`;
     results.innerHTML = '';
     const q = query.toLowerCase().trim();
 
-    // Build command list
     const allCommands = [...this.commandHistory];
-
     const filtered = filterCommands(allCommands, q);
 
     if (filtered.length === 0) {
@@ -1712,28 +1934,25 @@ Generated from chai-homelab.com portfolio terminal`;
       results.appendChild(item);
     });
 
-    // Auto-focus first result
     const first = results.querySelector('.palette-item');
     if (first) first.classList.add('focused');
   }
 
-  // ---- Performance Dashboard ---
+  // ---- Performance Dashboard ----
 
   showPerf() {
     if (typeof document === 'undefined' || !this.output) return;
-    this.divider();
-    this.log('\n=== PERFORMANCE DASHBOARD ===\n', 'info');
+    this.log('');
+    this.log('PERFORMANCE DASHBOARD', 'info');
 
     const perf = performance.getEntriesByType('navigation')[0] || {};
     const now = performance.now();
 
-    // Navigation Timing API metrics
     const ttfb = perf.startTime ? Math.round(perf.responseStart - perf.startTime) : null;
     const dcltStart = perf.domContentLoadedEventStart || 0;
     const domContentLoaded = Math.round(dcltStart - perf.startTime);
     const fullLoad = perf.loadEventStart ? Math.round(perf.loadEventStart - perf.startTime) : null;
 
-    // Fallback: when Navigation Timing API unavailable, show N/A instead of fake numbers
     let ttfbEst = ttfb;
     let dcltEst = domContentLoaded;
     let fullLoadEst = fullLoad;
@@ -1744,22 +1963,20 @@ Generated from chai-homelab.com portfolio terminal`;
       fullLoadEst = null;
     }
 
-    // A-F grading thresholds (extracted to constants)
     const grades = {
       ttfb: gradePerf(ttfbEst, PERF_THRESHOLDS.ttfb),
       dclt: gradePerf(dcltEst, PERF_THRESHOLDS.domContentLoaded),
       full: gradePerf(fullLoadEst, PERF_THRESHOLDS.fullLoad)
     };
 
-    // ASCII bar chart for each metric
     const bar = (ms, max) => {
-      if (ms === null || ms <= 0) return '░░░░░░░░░░';
+      if (ms === null || ms <= 0) return '\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591';
       const filled = Math.min(10, Math.max(1, Math.round((ms / max) * 10)));
       return '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled);
     };
 
-    this.log('\n  Metric                    Time     Grade   Bar', 'info');
-    this.log('  ───────────────────────────────────────────────', 'info');
+    this.log('  Metric                    Time     Grade   Bar', 'info');
+    this.log('  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', 'info');
 
     const metrics = [
       { name: 'TTFB', time: ttfbEst, ...grades.ttfb, max: 2000 },
@@ -1773,37 +1990,32 @@ Generated from chai-homelab.com portfolio terminal`;
       this.log(`  ${m.name.padEnd(23)} ${timeStr.padEnd(8)} ${m.letter.padEnd(5)} ${barStr}`, m.color);
     });
 
-    // Overall grade (extracted to utility function)
-    const overall = computeOverallGrade(grades);
+    this.log('  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', 'info');
 
-    this.log('  ───────────────────────────────────────────────', 'info');
+    const overall = computeOverallGrade(grades);
     this.log(`  Overall Grade: ${overall.grade}`, overall.color);
 
-    // Additional perf data from Performance API
     if (performance.getEntriesByType('resource').length > 0) {
       const resources = performance.getEntriesByType('resource');
       const largestResource = resources.reduce((max, r) => r.responseEnd > max.responseEnd ? r : max, resources[0] || {});
-      this.log(`\n  Largest Resource: ${largestResource.name || 'N/A'}`, 'info');
+      this.log(`  Largest Resource: ${largestResource.name || 'N/A'}`, 'info');
     }
 
-    // Memory info (if available via Performance API)
     if (performance.memory) {
       const usedMB = Math.round(performance.memory.usedJSHeapSize / 1048576);
       const totalMB = Math.round(performance.memory.totalJSHeapSize / 1048576);
       this.log(`  JS Heap: ${usedMB}MB / ${totalMB}MB`, 'info');
     }
 
-    this.divider();
+    this.log('');
   }
 
-  // ---- Core Methods ---
+  // ---- Core Methods ----
 
-/** Guard: exit early if not in browser or output element missing */
-   _guard() {
+  _guard() {
     return typeof document === 'undefined' || !this.output;
   }
 
-  /** Create a project-style card with innerHTML */
   _card(html, className = 'output-line project-card') {
     if (this._guard()) return null;
     const card = document.createElement('div');
@@ -1814,16 +2026,15 @@ Generated from chai-homelab.com portfolio terminal`;
     return card;
   }
 
-  /** Open a new page in a new tab with confirmation */
   openPage(url, title) {
     if (this._guard()) return;
-    this.log(`\n📂 Opening ${title}...`, 'info');
+    this.log(`Opening ${title}...`, 'info');
     const newTab = window.open(url, '_blank', 'noopener,noreferrer');
     if (!newTab) {
-      this.log('⚠ Popup blocked! Please allow popups for this site.', 'warning');
+      this.log('Popup blocked! Please allow popups for this site.', 'warning');
       this.log(`  Direct link: ${url}`, 'info');
     } else {
-      this.log(`✅ ${title} opened in new tab.`, 'success');
+      this.log(`${title} opened in new tab.`, 'success');
     }
   }
 
@@ -1834,20 +2045,18 @@ Generated from chai-homelab.com portfolio terminal`;
     line.textContent = message;
     this.output.appendChild(line);
 
-    // Cap output at 500 lines to prevent DOM bloat on long sessions
+    // Cap output at 500 lines to prevent DOM bloat
     while (this.output.children.length > 500) {
       this.output.removeChild(this.output.firstChild);
     }
 
     this.scrollToBottom();
 
-    // Announce to screen readers (first and last lines only to avoid spam)
     if (this.announcementEl && message.trim() && !message.startsWith('   ')) {
       void this.announceMessage(message.trim());
     }
   }
 
-  // Print a section divider line for visual grouping
   divider() {
     if (typeof document === 'undefined' || !this.output) return;
     const line = document.createElement('div');
@@ -1863,32 +2072,6 @@ Generated from chai-homelab.com portfolio terminal`;
         this.announcementEl.textContent = message;
       }, 300);
     }
-  }
-
-  typewriterEffect(text, callback) {
-    if (typeof document === 'undefined' || !this.output) {
-      if (callback) callback();
-      return;
-    }
-    const line = document.createElement('div');
-    line.className = 'output-line';
-    this.output.appendChild(line);
-
-    let i = 0;
-    const speed = 2;
-
-    const type = () => {
-      if (i < text.length) {
-        line.textContent += text.charAt(i);
-        i++;
-        this.scrollToBottom();
-        setTimeout(type, speed);
-      } else if (callback) {
-        callback();
-      }
-    };
-
-    type();
   }
 
   scrollToBottom() {
@@ -1908,9 +2091,8 @@ Generated from chai-homelab.com portfolio terminal`;
     if (typeof document === 'undefined' || !this.input) return;
     const value = this.input.value.trim();
 
-    // Empty input with Tab shows all commands available
     if (!value) {
-      this.log('\nAvailable commands: ' + this.commandHistory.join(', '), 'info');
+      this._updateAutocomplete();
       return;
     }
 
@@ -1920,20 +2102,16 @@ Generated from chai-homelab.com portfolio terminal`;
 
     if (matches.length === 1) {
       this.input.value = matches[0];
-      // Brief visual feedback for successful autocomplete
       this.input.style.boxShadow = '0 0 8px var(--neon-cyan)';
       setTimeout(() => { this.input.style.boxShadow = ''; }, 300);
     } else if (matches.length > 1) {
-      this.log('\nMatches: ' + matches.join('  '), 'info');
-      // Keep cursor at end of input so user can continue typing
-    } else {
-      this.log('\nNo matches for "' + value + '". Try Tab to see available commands.', 'warning');
+      this._updateAutocomplete();
     }
   }
 
   async showGitHubStats() {
-    this.divider();
-    this.log('\n=== GitHub Profile Stats ===', 'info');
+    this.log('');
+    this.log('GitHub Profile Stats', 'info');
 
     try {
       const resp = await fetch('https://api.github.com/users/chaitea321');
@@ -1945,7 +2123,7 @@ Generated from chai-homelab.com portfolio terminal`;
       this.log(`  Name: ${data.name || 'N/A'}`, 'info');
       this.log(`  Location: ${data.location || 'N/A'}`, 'info');
       this.log(`  Bio: ${data.bio || 'No bio set'}`, 'info');
-      this.log('  ───────────────────────────────────────────────', 'info');
+      this.log('  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', 'info');
       this.log(`  Repositories: ${data.public_repos}`, 'success');
       this.log(`  Followers: ${data.followers_count}`, 'success');
       this.log(`  Stars Received: ${data.total_repositories_stars_received || 'N/A'}`, 'success');
@@ -1961,14 +2139,14 @@ Generated from chai-homelab.com portfolio terminal`;
       this.log('  Profile: github.com/chaitea321', 'info');
     }
 
-    this.divider();
+    this.log('');
   }
 }
 
 export default Terminal;
 
-// Self-instantiate the terminal (matches pattern used by audio, performance)
+// Self-instantiate the terminal
 if (typeof window !== 'undefined') {
   const term = new Terminal();
-  window.terminal = term; // Expose for debugging
+  window.terminal = term;
 }
