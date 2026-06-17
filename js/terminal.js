@@ -29,13 +29,47 @@ class Terminal {
     this.input = typeof document !== 'undefined' ? document.getElementById('command-input') : null;
     this.history = [];
     this.historyIndex = -1;
-    this.commandHistory = [
-      'help', 'projects', 'project', 'skills', 'skills-visual',
-      'experience', 'education', 'resume', 'about', 'contact',
-      'status', 'minecraft', 'ai', 'demo', 'clear', 'theme',
-      'timeline', 'neofetch', 'fortune', 'cowsay',
-      'achievements', 'perf', 'explorer', 'dashboard', 'writeups', 'git'
-    ];
+    this._commands = new Map([
+      ['help',        { handler: () => this.showHelp() }],
+      ['projects',    { handler: (a) => this.showProjects(a), usage: '[category]', desc: 'List projects (optional: cloud, devops, iot, web)' }],
+      ['project',     { handler: (a) => this.showProjectDetail(a), usage: '<name>', desc: 'Deep-dive into a specific project' }],
+      ['skills',      { handler: (a) => this.showSkills(a), usage: '[category]', desc: 'Show technical skills (optional: category)' }],
+      ['skills-visual', { handler: () => this.showSkillsVisual(), desc: 'Animated skill progress bars by category' }],
+      ['timeline',    { handler: () => this.showTimeline(), desc: 'Project timeline with active period chart' }],
+      ['experience',  { handler: (a) => this.showExperience(a), usage: '[level]', desc: 'Show work experience (senior/mid/junior)' }],
+      ['education',   { handler: () => this.showEducation(), desc: 'Show education background' }],
+      ['resume',      { handler: (a) => this.showResume(a), usage: '[--txt|--md]', desc: 'Display or download resume (text/markdown)' }],
+      ['about',       { handler: () => this.showAbout(), desc: 'About Eugene Vincent' }],
+      ['contact',     { handler: (a) => this.showContact(a), desc: 'Contact information', extraDocs: [{ cmd: 'contact --email', desc: 'Interactive email form' }] }],
+      ['status',      { handler: () => this.showStatus(), desc: 'Show system/live metrics status' }],
+      ['minecraft',   { handler: () => this.showMinecraft(), desc: 'Show Minecraft server live stats' }],
+      ['ai',          { handler: (a) => this.askAI(a), usage: '<question>', desc: 'Ask AI about your portfolio' }],
+      ['demo',        { handler: (a) => { a === 'stop' ? this.stopDemoMode() : this.startDemoMode(); }, usage: '[stop]', desc: 'Start/stop auto-cycling project showcase' }],
+      ['clear',       { handler: () => this.clearTerminal(), desc: 'Clear terminal output' }],
+      ['theme',       { handler: (a) => {
+        if (a === 'retro') {
+          document.body.classList.add('theme-retro');
+          localStorage.setItem('portfolio-theme', 'retro');
+          this.log('\u2705 Theme set to retro mode', 'success');
+        } else if (a === 'synthwave') {
+          document.body.classList.remove('theme-retro');
+          localStorage.setItem('portfolio-theme', 'synthwave');
+          this.log('\u266F Theme set to synthwave mode', 'success');
+        } else {
+          this.toggleTheme();
+        }
+      }, usage: '[retro|synthwave]', desc: 'Set or toggle theme (default: toggle)' }],
+      ['neofetch',    { handler: () => this.showNeofetch(), desc: 'System information display' }],
+      ['fortune',     { handler: () => this.showFortune(), desc: 'Random tech/career fortune' }],
+      ['cowsay',      { handler: (a) => this.showCowsay(a), usage: '<text>', desc: 'ASCII cow says your text' }],
+      ['achievements',{ handler: () => this.showAchievements(), desc: 'View earned achievements' }],
+      ['perf',        { handler: () => this.showPerf(), desc: 'Performance dashboard (A-F grading)' }],
+      ['explorer',    { handler: () => this.openPage('/project-explorer.html', 'Project Explorer'), desc: 'Open Project Explorer page' }],
+      ['dashboard',   { handler: () => this.openPage('/dashboard.html', 'Live Dashboard'), desc: 'Open Live Dashboard page' }],
+      ['writeups',    { handler: () => this.openPage('/writeups.html', 'Writeups'), desc: 'Open Writeups/blog page' }],
+      ['git',         { handler: () => this.showGitHubStats(), desc: 'GitHub profile stats' }]
+    ]);
+    this.commandHistory = [...this._commands.keys()];
     this._executionHistory = [];
     this.announcementEl = null;
     this._announcementTimeout = null;
@@ -47,6 +81,7 @@ class Terminal {
     this._aiAssistant = null;
     this.achievements = new Achievements();
     this.config = { demoMode: { cycleIntervalMs: 4000 } };
+    this._resumeContent = null;
     this._autocompletePopup = null;
     this._autocompleteSelectedIndex = -1;
     // Debounce timer for autocomplete input
@@ -126,6 +161,20 @@ class Terminal {
     } catch (e) {
       console.warn('[Terminal] Config load failed, using defaults');
     }
+  }
+
+  async loadResumeContent() {
+    if (this._resumeContent) return this._resumeContent;
+    try {
+      const resp = await fetch('/config/resume-content.json');
+      if (resp.ok) {
+        this._resumeContent = await resp.json();
+        return this._resumeContent;
+      }
+    } catch (e) {
+      console.warn('[Terminal] Resume content load failed');
+    }
+    return null;
   }
 
   get meshwatchAPI() {
@@ -629,101 +678,11 @@ class Terminal {
       const cmd = parts[0].toLowerCase();
       const args = parts.slice(1).join(' ');
 
-      switch (cmd) {
-        case 'help':
-          this.showHelp();
-          break;
-        case 'projects':
-          this.showProjects(args);
-          break;
-        case 'project':
-          this.showProjectDetail(args);
-          break;
-        case 'skills':
-          this.showSkills(args);
-          break;
-        case 'about':
-          this.showAbout();
-          break;
-        case 'contact':
-          this.showContact(args);
-          break;
-        case 'clear':
-          this.clearTerminal();
-          break;
-        case 'theme':
-          if (args === 'retro') {
-            document.body.classList.add('theme-retro');
-            localStorage.setItem('portfolio-theme', 'retro');
-            this.log('\u2705 Theme set to retro mode', 'success');
-          } else if (args === 'synthwave') {
-            document.body.classList.remove('theme-retro');
-            localStorage.setItem('portfolio-theme', 'synthwave');
-            this.log('\u266F Theme set to synthwave mode', 'success');
-          } else {
-            this.toggleTheme();
-          }
-          break;
-        case 'experience':
-          this.showExperience(args);
-          break;
-        case 'education':
-          this.showEducation(args);
-          break;
-        case 'resume':
-          this.showResume(args);
-          break;
-        case 'status':
-          this.showStatus();
-          break;
-        case 'minecraft':
-          this.showMinecraft();
-          break;
-        case 'ai':
-          this.askAI(args);
-          break;
-        case 'demo':
-          if (args === 'stop') {
-            this.stopDemoMode();
-          } else {
-            this.startDemoMode();
-          }
-          break;
-        case 'skills-visual':
-          this.showSkillsVisual();
-          break;
-        case 'timeline':
-          this.showTimeline();
-          break;
-        case 'neofetch':
-          this.showNeofetch();
-          break;
-        case 'fortune':
-          this.showFortune();
-          break;
-        case 'cowsay':
-          this.showCowsay(args);
-          break;
-        case 'achievements':
-          this.showAchievements();
-          break;
-        case 'perf':
-          this.showPerf();
-          break;
-        case 'explorer':
-          this.openPage('/project-explorer.html', 'Project Explorer');
-          break;
-        case 'dashboard':
-          this.openPage('/dashboard.html', 'Live Dashboard');
-          break;
-        case 'writeups':
-          this.openPage('/writeups.html', 'Writeups');
-          break;
-        case 'git':
-          this.showGitHubStats();
-          break;
-        default:
-          this.log(`Unknown command: ${cmd}`, 'warning');
+      const entry = this._commands.get(cmd);
+      if (entry) {
+        entry.handler(args);
+      } else {
+        this.log(`Unknown command: ${cmd}`, 'warning');
       }
 
       // Track achievements for valid commands
@@ -767,35 +726,16 @@ class Terminal {
     const existing = document.getElementById('help-overlay');
     if (existing) { existing.remove(); this.input.focus(); return; }
 
-    const helpText = [
-      { cmd: 'help', desc: 'Show this help message' },
-      { cmd: 'projects [category]', desc: 'List projects (optional: cloud, devops, iot, web)' },
-      { cmd: 'project <name>', desc: 'Deep-dive into a specific project' },
-      { cmd: 'skills [category]', desc: 'Show technical skills (optional: category)' },
-      { cmd: 'skills-visual', desc: 'Animated skill progress bars by category' },
-      { cmd: 'timeline', desc: 'Project timeline with active period chart' },
-      { cmd: 'experience [level]', desc: 'Show work experience (senior/mid/junior)' },
-      { cmd: 'education', desc: 'Show education background' },
-      { cmd: 'resume [--txt|--md]', desc: 'Display or download resume (text/markdown)' },
-      { cmd: 'about', desc: 'About Eugene Vincent' },
-      { cmd: 'contact', desc: 'Contact information' },
-      { cmd: 'status', desc: 'Show system/live metrics status' },
-      { cmd: 'minecraft', desc: 'Show Minecraft server live stats' },
-      { cmd: 'ai <question>', desc: 'Ask AI about your portfolio' },
-      { cmd: 'demo [stop]', desc: 'Start/stop auto-cycling project showcase' },
-      { cmd: 'clear', desc: 'Clear terminal output' },
-      { cmd: 'theme [retro|synthwave]', desc: 'Set or toggle theme (default: toggle)' },
-      { cmd: 'neofetch', desc: 'System information display' },
-      { cmd: 'fortune', desc: 'Random tech/career fortune' },
-      { cmd: 'cowsay <text>', desc: 'ASCII cow says your text' },
-      { cmd: 'achievements', desc: 'View earned achievements' },
-      { cmd: 'perf', desc: 'Performance dashboard (A-F grading)' },
-      { cmd: 'contact --email', desc: 'Interactive email form' },
-      { cmd: 'explorer', desc: 'Open Project Explorer page' },
-      { cmd: 'dashboard', desc: 'Open Live Dashboard page' },
-      { cmd: 'writeups', desc: 'Open Writeups/blog page' },
-      { cmd: 'git', desc: 'GitHub profile stats' }
-    ];
+    const helpText = [];
+    for (const [cmd, entry] of this._commands) {
+      helpText.push({
+        cmd: entry.usage ? `${cmd} ${entry.usage}` : cmd,
+        desc: entry.desc || ''
+      });
+      if (entry.extraDocs) {
+        helpText.push(...entry.extraDocs);
+      }
+    }
 
     const shortcuts = [
       { key: 'Tab', desc: 'Autocomplete command' },
@@ -1273,145 +1213,16 @@ class Terminal {
 
   // ---- Resume ----
 
-  showResume(format = '') {
+  async showResume(format = '') {
     if (typeof document === 'undefined' || !this.output) return;
 
-    const resumeText = `EUGENE VINCENT
-Full Stack Engineer | Azure DevOps | Software Reliability
-${'\u{1f4cf}'} Aurora, IL, USA | ${'\u{1f4e7}'} eugene.vince55@gmail.com
-${'\u{1f517}'} github.com/chaitea321  ${'\u{1f4bc}'} linkedin.com/in/eugene-vincent-42472024b
-
-EDUCATION
-----------------------------------------------------------
-B.S. Computer Science (2024 - 2028, Expected)
-University of Illinois
-  \u2022 Full-stack web development | Data structures & algorithms
-  \u2022 Software engineering principles | Database systems
-  \u2022 Cloud computing | Distributed systems
-
-CERTIFICATIONS
-----------------------------------------------------------
-AZ-900: Microsoft Azure Fundamentals (Certified)
-Self-Directed Learning (2022 - Present)
-  \u2022 Cloud Architecture & DevOps best practices
-  \u2022 Service mesh with Istio and Linkerd
-
-HOMELAB PROJECTS
-----------------------------------------------------------
-MeshWatch | Service Mesh Observability Platform
-  \u2022 Cost-optimized platform on k3s Kubernetes with Istio mTLS
-  \u2022 Integrated Ollama Phi-3 AI for automated incident analysis
-  \u2022 Reduced monitoring costs by 60% ($5.12/mo vs $7+/mo serverless)
-  \u2022 Full observability: Prometheus, Grafana, Loki, Tempo
-
-Minecraft Server Monitoring | IoT / Gaming
-  \u2022 Istio service mesh observability with JMX + RCON exporters
-  \u2022 Prometheus metrics (TPS, heap, GC pauses) + Grafana dashboards
-  \u2022 Discord bot with 10 slash commands for server control
-  \u2022 AI-powered lag analysis via Ollama Phi-3
-
-Monitoring Stack | DevOps
-  \u2022 ArgoCD App of Apps pattern for multi-namespace management
-  \u2022 External Secrets Operator with Azure Key Vault backend
-  \u2022 cert-manager with Let's Encrypt TLS auto-provisioning
-  \u2022 20-panel Grafana dashboard with Loki log aggregation
-
-Azure Functions | Serverless
-  \u2022 Health checker function with 15-minute cron interval
-  \u2022 Service Bus trigger for incident event processing
-  \u2022 Deduplication windows to prevent alert storms
-
-Software Reliability Engineering Focus
-  \u2022 Training and fine-tuning LLMs on local hardware for cost-effective AI
-  \u2022 Reducing inference costs by running models locally via Ollama
-  \u2022 Automating workflows with local AI agents to save time and compute
-
-SKILLS
-----------------------------------------------------------
-Cloud: Azure (Functions, Blob Storage, AKS), Cloudflare, Docker, Kubernetes
-Frontend: React.js, Next.js, TypeScript, CSS3, Tailwind, PWA Development
-Backend: Node.js, Express, Python, FastAPI, GraphQL, REST APIs
-DevOps: GitHub Actions, Terraform, Prometheus, Grafana, Loki, Istio
-Reliability: Distributed Tracing, SLO Monitoring, Incident Response
-
-PROJECTS
-----------------------------------------------------------
-meshwatch - Service mesh observability (*28 stars)
-  \u2022 Istio-based monitoring with real-time metrics
-  \u2022 Cost-optimized vs serverless alternatives
-  \u2022 AI-powered incident analysis with Ollama Phi-3
-
-minecraft-monitoring - Gaming server observability
-  \u2022 JMX + RCON exporters for real-time metrics
-  \u2022 Discord bot with 10 slash commands
-  \u2022 AI-powered lag analysis and alerting
-
-monitoring - Production monitoring platform
-  \u2022 ArgoCD GitOps with cert-manager TLS
-  \u2022 External Secrets Operator + Azure Key Vault
-  \u2022 20-panel Grafana dashboards + Loki logs
-
-azure-functions - Serverless API gateway
-  \u2022 Health checker + Service Bus incident processing
-  \u2022 Discord webhook integration
-  \u2022 Pydantic validation models
-
-career-portal - Terminal portfolio (you are here)
-   \u2022 Interactive terminal with ${this.commandHistory.length} commands and autocomplete
-  \u2022 PWA support with service worker offline caching
-  \u2022 WCAG 2.1 accessible (ARIA, keyboard nav, screen reader)
-${'='.repeat(40)}
-Generated from chai-homelab.com portfolio terminal`;
-
-    const resumeMd = `# Eugene Vincent — Full Stack Engineer
-
-**Azure DevOps | Software Reliability | Cloud-Native Architectures**
-
-📍 Aurora, IL, USA | 📧 eugene.vince55@gmail.com | 🐙 github.com/chaitea321 | 💼 linkedin.com/in/eugene-vincent-42472024b
-
-## Education
-- **B.S. Computer Science** (2024–2028, Expected) — University of Illinois
-  - Full-stack web development | Data structures & algorithms
-  - Software engineering principles | Database systems | Cloud computing
-
-## Certifications
-- **AZ-900**: Microsoft Azure Fundamentals (Certified)
-- Self-Directed Learning (2022–Present): Cloud Architecture, DevOps, Istio, Linkerd
-
-## Homelab Projects
-
-### MeshWatch — Service Mesh Observability Platform
-- Cost-optimized platform on k3s Kubernetes with Istio mTLS
-- Integrated Ollama Phi-3 AI for automated incident analysis
-- Reduced monitoring costs by 60% ($5.12/mo vs $7+/mo serverless)
-- Full observability: Prometheus, Grafana, Loki, Tempo
-
-### Minecraft Server Monitoring — IoT / Gaming
-- Istio service mesh observability with JMX + RCON exporters
-- Prometheus metrics (TPS, heap, GC pauses) + Grafana dashboards
-- Discord bot with 10 slash commands for server control
-- AI-powered lag analysis via Ollama Phi-3
-
-### Monitoring Stack — DevOps
-- ArgoCD App of Apps pattern for multi-namespace management
-- External Secrets Operator with Azure Key Vault backend
-- cert-manager with Let's Encrypt TLS auto-provisioning
-- 20-panel Grafana dashboard with Loki log aggregation
-
-### Azure Functions — Serverless
-- Health checker function with 15-minute cron interval
-- Service Bus trigger for incident event processing
-- Deduplication windows to prevent alert storms
-
-## Skills
-- **Cloud**: Azure, Cloudflare, Docker, Kubernetes
-- **Frontend**: React.js, Next.js, TypeScript, CSS3, Tailwind, PWA
-- **Backend**: Node.js, Express, Python, FastAPI, GraphQL, REST APIs
-- **DevOps**: GitHub Actions, Terraform, Prometheus, Grafana, Loki, Istio
-- **Reliability**: Distributed Tracing, SLO Monitoring, Incident Response
-
----
-Generated from chai-homelab.com portfolio terminal`;
+    const content = await this.loadResumeContent();
+    if (!content) {
+      this.log('Could not load resume content.', 'warning');
+      return;
+    }
+    const resumeText = content.resumeText.join('\n').replace('{commandCount}', this.commandHistory.length);
+    const resumeMd = content.resumeMd.join('\n');
 
     if (format === '--txt' || format === '-t') {
       this.downloadFile(resumeText, 'Eugene_Vincent_Resume.txt', 'text/plain');

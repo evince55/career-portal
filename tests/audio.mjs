@@ -1,30 +1,39 @@
+import { describe, it } from 'node:test';
+import assert from 'assert/strict';
 import audioController from '../js/audio.js';
 
-console.log('Testing AudioController...');
+describe('AudioController', () => {
+  it('exports a singleton instance', () => {
+    assert.ok(audioController);
+    assert.strictEqual(typeof audioController, 'object');
+  });
 
-// Test instance creation
-if (audioController) {
-  console.log('✓ AudioController instance created');
-} else {
-  console.error('✗ AudioController instance failed');
-  process.exit(1);
-}
+  it('starts with audio disabled', () => {
+    assert.strictEqual(audioController.enabled, false);
+  });
 
-// Test enabled state
-console.log('Testing enabled state...');
-if (typeof audioController.enabled === 'boolean') {
-  console.log('✓ Enabled state works:', audioController.enabled);
-} else {
-  console.error('✗ Enabled state failed');
-}
+  it('handleInput does not throw without DOM', () => {
+    assert.doesNotThrow(() => audioController.handleInput('a'));
+    assert.doesNotThrow(() => audioController.handleInput('Enter'));
+    assert.doesNotThrow(() => audioController.handleInput('Backspace'));
+  });
 
-// Test sound effect method
-console.log('Testing sound effect...');
-try {
-  audioController.handleInput('a');
-  console.log('✓ Sound effect method works');
-} catch (error) {
-  console.error('✗ Sound effect failed:', error);
-}
+  it('toggle flips enabled state', () => {
+    const before = audioController.enabled;
+    audioController.toggle();
+    assert.strictEqual(audioController.enabled, !before);
+    audioController.toggle();
+    assert.strictEqual(audioController.enabled, before);
+  });
 
-console.log('\nAll audio tests completed!');
+  it('playSound does not throw without DOM', () => {
+    assert.doesNotThrow(() => audioController.playSound('keydown'));
+    assert.doesNotThrow(() => audioController.playSound('enter'));
+    assert.doesNotThrow(() => audioController.playSound('backspace'));
+    assert.doesNotThrow(() => audioController.playSound('error'));
+  });
+
+  it('loadPreference does not throw without localStorage', () => {
+    assert.doesNotThrow(() => audioController.loadPreference());
+  });
+});

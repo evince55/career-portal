@@ -59,15 +59,14 @@ describe('Phase 4 — Git Command with GitHub Stats', () => {
     assert.ok(/'git'/.test(content), 'Should have git in commandHistory');
   });
 
-  it('git command is in switch statement', async () => {
+  it('git command is in command registry', async () => {
     const content = fs.readFileSync('./js/terminal.js', 'utf8');
-    assert.ok(/case\s+['"]git['"]/.test(content), 'Should have git case in switch');
+    assert.ok(/\['git',/.test(content), 'Should have git in command registry');
   });
 
   it('git command calls showGitHubStats', async () => {
     const content = fs.readFileSync('./js/terminal.js', 'utf8');
-    const gitCase = content.match(/case\s+['"]git['"][\s\S]*?showGitHubStats/);
-    assert.ok(gitCase !== null, 'Git case should call showGitHubStats');
+    assert.ok(/\['git'.*showGitHubStats/.test(content), 'Git entry should call showGitHubStats');
   });
 
   it('git command is in help text', async () => {

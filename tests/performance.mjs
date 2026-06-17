@@ -1,34 +1,33 @@
+import { describe, it } from 'node:test';
+import assert from 'assert/strict';
 import PerformanceMonitor from '../js/performance.js';
 
-console.log('Testing PerformanceMonitor...');
+describe('PerformanceMonitor', () => {
+  it('exports a class', () => {
+    assert.strictEqual(typeof PerformanceMonitor, 'function');
+  });
 
-// Test instance creation
-const perfMonitor = new PerformanceMonitor();
-if (perfMonitor) {
-  console.log('✓ PerformanceMonitor instance created successfully');
-} else {
-  console.error('✗ PerformanceMonitor instance failed');
-}
+  it('instantiates without crashing when performance is undefined', () => {
+    const pm = new PerformanceMonitor();
+    assert.ok(pm instanceof PerformanceMonitor);
+  });
 
-// Test mark method exists
-if (typeof perfMonitor.mark === 'function') {
-  console.log('✓ Mark method exists');
-} else {
-  console.error('✗ Mark method not found');
-}
+  it('has metrics as a Map', () => {
+    const pm = new PerformanceMonitor();
+    assert.ok(pm.metrics instanceof Map);
+    // In Node.js without Navigation Timing API, metrics should be empty
+    assert.strictEqual(pm.metrics.size, 0);
+  });
 
-// Test measure method exists
-if (typeof perfMonitor.measure === 'function') {
-  console.log('✓ Measure method exists');
-} else {
-  console.error('✗ Measure method not found');
-}
+  it('reportMetrics does not throw without console', () => {
+    const pm = new PerformanceMonitor();
+    assert.doesNotThrow(() => pm.reportMetrics());
+  });
 
-// Test reportMetrics method exists
-if (typeof perfMonitor.reportMetrics === 'function') {
-  console.log('✓ ReportMetrics method exists');
-} else {
-  console.error('✗ ReportMetrics method not found');
-}
-
-console.log('\nAll PerformanceMonitor tests completed!');
+  it('init does not throw', () => {
+    const pm = new PerformanceMonitor();
+    assert.doesNotThrow(() => pm.init());
+    // Calling init twice should be safe
+    assert.doesNotThrow(() => pm.init());
+  });
+});
