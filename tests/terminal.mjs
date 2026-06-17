@@ -1,23 +1,29 @@
+import { describe, it } from 'node:test';
+import assert from 'assert/strict';
 import Terminal from '../js/terminal.js';
 
-console.log('Testing Terminal class...');
+describe('Terminal', () => {
+  it('instantiates without crashing when document is undefined', () => {
+    const t = new Terminal();
+    assert.ok(t instanceof Terminal);
+  });
 
-// Test instance creation
-let terminal;
-try {
-  terminal = new Terminal();
-  console.log('✓ Terminal instance created');
-} catch (error) {
-  console.error('✗ Terminal instance failed:', error);
-}
+  it('executeCommand does not throw for known commands', () => {
+    const t = new Terminal();
+    assert.doesNotThrow(() => t.executeCommand('help'));
+    assert.doesNotThrow(() => t.executeCommand('clear'));
+    assert.doesNotThrow(() => t.executeCommand('about'));
+  });
 
-// Test command execution (will fail in Node.js due to DOM dependencies)
-console.log('Testing command execution...');
-try {
-  terminal.executeCommand('help');
-  console.log('✓ Command execution works');
-} catch (error) {
-  console.log('⚠ Command execution (expected DOM dependency error)');
-}
+  it('executeCommand does not throw for unknown commands', () => {
+    const t = new Terminal();
+    assert.doesNotThrow(() => t.executeCommand('nonexistent'));
+  });
 
-console.log('\nAll terminal tests completed!');
+  it('executeCommand does not throw for commands with args', () => {
+    const t = new Terminal();
+    assert.doesNotThrow(() => t.executeCommand('theme retro'));
+    assert.doesNotThrow(() => t.executeCommand('project test-monorepo'));
+    assert.doesNotThrow(() => t.executeCommand('ai "what is this?"'));
+  });
+});

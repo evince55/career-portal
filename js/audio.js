@@ -164,7 +164,9 @@ class AudioController {
   }
   
   savePreference() {
-    localStorage.setItem('portfolio-audio-enabled', this.enabled);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('portfolio-audio-enabled', this.enabled);
+    }
   }
   
   loadPreference() {

@@ -1,39 +1,49 @@
+import { describe, it } from 'node:test';
+import assert from 'assert/strict';
 import Terminal from '../js/terminal.js';
 
-console.log('Testing new terminal commands...');
+describe('New Terminal Commands', () => {
+  it('instantiates without crashing', () => {
+    const t = new Terminal();
+    assert.ok(t instanceof Terminal);
+  });
 
-// Test instance creation
-const terminal = new Terminal();
-if (terminal) {
-  console.log('✓ Terminal instance created successfully');
-} else {
-  console.error('✗ Terminal instance failed');
-}
+  // Note: 'git' excluded — makes real fetch to GitHub API. Test separately with mocking.
+  // Note: 'demo' excluded from loop — creates chained setTimeout that keeps event loop alive.
+  // Tested inline with start+stop cycle below.
+  const commands = [
+    'experience', 'education', 'resume',
+    'projects', 'skills', 'contact',
+    'neofetch', 'fortune', 'cowsay',
+    'achievements', 'perf',
+    'explorer', 'dashboard', 'writeups',
+    'status', 'minecraft', 'timeline',
+    'skills-visual'
+  ];
 
-// Test command history includes new commands
-const expectedCommands = ['help', 'projects', 'skills', 'experience', 'education', 'resume', 'about', 'contact'];
-const hasAllCommands = expectedCommands.every(cmd => terminal.commandHistory.includes(cmd));
+  for (const cmd of commands) {
+    it(`executeCommand handles "${cmd}" without throwing`, () => {
+      const t = new Terminal();
+      assert.doesNotThrow(() => t.executeCommand(cmd));
+    });
+  }
 
-if (hasAllCommands) {
-  console.log('✓ Command history includes all expected commands:', terminal.commandHistory);
-} else {
-  console.error('✗ Command history missing some commands');
-}
+  it('executeCommand handles demo start/stop cycle without leaking timers', () => {
+    const t = new Terminal();
+    t.executeCommand('demo');
+    assert.ok(t.isDemoMode);
+    t.executeCommand('demo stop');
+    assert.strictEqual(t.isDemoMode, false);
+    assert.strictEqual(t.demoInterval, null);
+  });
 
-// Test command parsing for new commands
-const newCommands = ['experience', 'education', 'resume'];
-let allParsedCorrectly = true;
+  it('executeCommand handles "cowsay hello" with args without throwing', () => {
+    const t = new Terminal();
+    assert.doesNotThrow(() => t.executeCommand('cowsay Hello World'));
+  });
 
-newCommands.forEach(cmd => {
-  const result = terminal.executeCommand(cmd);
-  // In Node.js, this will fail due to DOM dependencies, but we can check it doesn't throw
+  it('executeCommand handles "project" with project name without throwing', () => {
+    const t = new Terminal();
+    assert.doesNotThrow(() => t.executeCommand('project career-portal'));
+  });
 });
-
-if (allParsedCorrectly) {
-  console.log('✓ New commands parse correctly');
-} else {
-  console.error('✗ Some new commands failed to parse');
-}
-
-// Test help command includes new commands
-console.log('\nAll new terminal command tests completed!');
