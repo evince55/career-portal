@@ -1,0 +1,222 @@
+// Writeups data — FAANG-quality project deep-dives, one per project catalog entry.
+// Extracted from writeups.html into a module so tests can import and validate it.
+
+const WRITEUPS = [
+  {
+    title: 'MeshWatch: Service Mesh Observability at $5/Month',
+    category: 'kubernetes',
+    excerpt: 'A full observability platform (metrics, traces, logs, AI incident analysis) built on a single $5/month k3s node with Istio mTLS, achieving 60% cost reduction vs serverless alternatives while maintaining 99.8% uptime.',
+    tags: ['kubernetes', 'istio', 'cost-optimization', 'prometheus', 'service-mesh', 'ai-ops'],
+    date: '2026-06-10',
+    readTime: '12 min read',
+    content: `<p><strong>TL;DR:</strong> MeshWatch delivers production-grade observability — metrics, distributed traces, log aggregation, and AI-assisted incident analysis — on a single k3s node costing <strong>$5.12/month</strong>, a 60% reduction over comparable serverless setups, at 99.8% uptime and a 45ms average response time.</p>
+
+<h3>The Problem</h3>
+<p>Managed observability stacks (Datadog, New Relic, AWS CloudWatch) scale linearly with ingest volume and host count. For a homelab running five microservices with Prometheus scraping at 15s intervals, the managed bill crosses <strong>$12.80/month</strong> before the first alert even fires. The core question: can a single-node cluster provide the three pillars of observability — metrics, logs, traces — plus an AI incident responder, without sacrificing reliability?</p>
+
+<h3>Architecture</h3>
+<p>The system runs on one k3s node (1 CPU, 2GB RAM) with Istio injected as a per-pod sidecar. Every service pod carries an Envoy proxy that enforces mTLS and emits telemetry. Data flows in three parallel pipelines:</p>
+<ul>
+<li><strong>Metrics:</strong> Envoy → Prometheus (15s scrape) → Grafana (20-panel dashboards)</li>
+<li><strong>Logs:</strong> Pod stdout → Promtail → Loki (7-day retention)</li>
+<li><strong>Traces:</strong> OpenTelemetry SDK → Istio egress → Tempo (span storage)</li>
+<li><strong>AI layer:</strong> Prometheus alert → Ollama Phi-3 via Tailscale tunnel → root-cause markdown</li>
+</ul>
+<p>Istio's STRICT mTLS policy means <strong>zero plaintext traffic</strong> between any two pods. Certificates rotate automatically every 30 days through Istio's built-in CA.</p>
+
+<h3>Deep-Dive: Cost Engineering</h3>
+<p>The 60% savings come from three compounding decisions. <strong>First</strong>, k3s strips the Kubernetes control plane to ~512MB, leaving 1.5GB for workloads — enough for the entire observability stack. <strong>Second</strong>, Loki's chunk-compressed log format costs 1/10th the storage of Elasticsearch for the same ingest rate. <strong>Third</strong>, running Ollama Phi-3 locally eliminates per-query LLM API charges: at 50 alerts/day, that's <strong>$0 vs ~$30/month</strong> on OpenAI pricing.</p>
+
+<h3>Deep-Dive: AI Incident Analysis</h3>
+<p>When Prometheus fires an alert, the incident pipeline captures the last 5 minutes of affected metrics, queries Grafana for the relevant panels, and ships structured JSON to Ollama Phi-3 over an outbound-only Tailscale tunnel (100.65.214.138:11434). The model returns a natural-language root-cause analysis with remediation steps in ~2s. <strong>No metrics data ever leaves the mesh.</strong> This caught an Istio sidecar memory leak that raw Prometheus thresholds missed.</p>
+
+<h3>Deep-Dive: Canary Deployments</h3>
+<p>Flagger drives traffic splitting at the Istio gateway level: 10% → 25% → 50% → 100%, with Prometheus SLO checks at each stage. If the error rate exceeds 0.5% during canary, Flagger reverts traffic to stable within 30 seconds — no human in the loop.</p>
+
+<h3>Results</h3>
+<ul>
+<li><strong>Monthly cost:</strong> $5.12 (60% below serverless parity)</li>
+<li><strong>Uptime:</strong> 99.8% across 15 pods and 5 monitored services</li>
+<li><strong>Response time:</strong> 45ms average, 0.2% error rate</li>
+<li><strong>Annual savings:</strong> $92.16 vs the serverless baseline</li>
+</ul>
+
+<h3>Lessons Learned</h3>
+<p>The biggest surprise was Istio's sidecar memory overhead — each Envoy proxy eats ~50MB, which on a 2GB node adds up fast. I capped the mesh to 15 pods before hitting memory pressure. A single-node cluster also means <strong>no control-plane HA</strong>; if the node reboots, there's a 90s observability blind spot. For production workloads I'd add a second node, but for a homelab the trade-off is acceptable. Finally, Phi-3's 1-thread quantization is fast but occasionally hallucinates remediation steps — every AI suggestion still needs a human sign-off before action.</p>`
+  },
+  {
+    title: 'Minecraft Monitoring: Full-Stack Observability with Discord Integration',
+    category: 'devops',
+    excerpt: 'Bridging a PaperMC game server into a Kubernetes observability stack using JMX exporters, RCON protocol, and a Discord.py bot with 10 slash commands — achieving 99.8% uptime with automated TPS-drop alerting.',
+    tags: ['minecraft', 'discord', 'rcon', 'jmx', 'automation', 'monitoring'],
+    date: '2026-05-28',
+    readTime: '10 min read',
+    content: `<p><strong>TL;DR:</strong> A Minecraft server (PaperMC 26.1.2, Java 25) instrumented with JMX metrics, controlled via a Discord.py bot with 10 slash commands, and deployed on k3s with Istio — achieving 99.8% uptime and sub-second server control from a chat window.</p>
+
+<h3>The Problem</h3>
+<p>Minecraft server administration is traditionally a SSH-plus-screen workflow: type <code>list</code> in a console, read raw TPS, restart manually on crash. There's no metrics history, no alerting, and no way for a Discord community to self-serve server status. The goal was to treat a game server like any other production service — observable, alertable, and controllable from a familiar interface.</p>
+
+<h3>Architecture</h3>
+<p>The server runs as a StatefulSet on k3s with three integration layers:</p>
+<ul>
+<li><strong>JMX Exporter</strong> — exposes Java TPS, heap usage, GC pauses, and player count to Prometheus</li>
+<li><strong>RCON Protocol</strong> — TCP control channel for /restart, /whitelist, /ban, /tpo, /gamerules</li>
+<li><strong>Discord.py Bot</strong> — 10 slash commands that query Prometheus for read operations and RCON for writes</li>
+</ul>
+<p>The bot runs as a sidecar in the same pod, so RCON calls hit <code>localhost:25575</code> with zero network hops. Prometheus queries go over the service mesh with mTLS enforced by Istio.</p>
+
+<h3>Deep-Dive: The 10 Slash Commands</h3>
+<p>The command surface splits cleanly into read and write paths. <strong>Read commands</strong> (<code>/status</code>, <code>/players</code>, <code>/tps</code>, <code>/tps-graph</code>) query Prometheus and render inline Discord embeds — no server load. <strong>Write commands</strong> (<code>/restart</code>, <code>/whitelist</code>, <code>/ban</code>, <code>/tpo</code>, <code>/gamerules</code>) open an RCON session, execute, and close within 200ms. <code>/help</code> is static. Every write command requires a Discord role check before the RCON socket opens.</p>
+
+<h3>Deep-Dive: Automated Alerting</h3>
+<p>Prometheus alert rules fire on two thresholds: TPS below 18 (lag) and heap usage above 400MB (memory pressure). When either trips, a webhook posts a Discord embed with the last 5 minutes of metrics — no dashboard needed. The alert pipeline deduplicates within a 5-minute window to prevent storming during a sustained degradation.</p>
+
+<h3>Deep-Dive: GC Pause Tuning</h3>
+<p>Java 25's ZGC collector kept the last GC pause at <strong>45ms</strong>, well under the 100ms threshold where Minecraft players notice rubberbanding. The JMX exporter surfaces GC pause percentiles to Grafana, making it possible to correlate player complaints with garbage collection events.</p>
+
+<h3>Results</h3>
+<ul>
+<li><strong>Uptime:</strong> 99.8% over a 30-day window</li>
+<li><strong>Mean RCON command latency:</strong> ~180ms (including Discord round-trip)</li>
+<li><strong>Last GC pause:</strong> 45ms (ZGC, Java 25)</li>
+<li><strong>Alert dedup window:</strong> 5 minutes, zero alert storms recorded</li>
+</ul>
+
+<h3>Lessons Learned</h3>
+<p>RCON has no built-in auth beyond a shared password — I put it behind Istio authorization policies so only the bot's service account can reach port 25575. The JMX exporter adds ~30MB of heap overhead; on a 2GB node that's noticeable, so I tuned the scrape interval to 30s rather than 15s for game-server metrics. Finally, Discord slash commands require bot registration and a 1-hour global cache for command metadata — plan deployments around that window.</p>`
+  },
+  {
+    title: 'GitOps Monitoring Platform: ArgoCD, cert-manager, and External Secrets',
+    category: 'devops',
+    excerpt: 'A production-grade monitoring platform driven by ArgoCD App-of-Apps, with External Secrets Operator syncing Azure Key Vault, cert-manager TLS auto-provisioning, and a 20-panel Grafana dashboard — all declaratively managed in Git.',
+    tags: ['argocd', 'gitops', 'cert-manager', 'external-secrets', 'prometheus', 'loki'],
+    date: '2026-05-05',
+    readTime: '11 min read',
+    content: `<p><strong>TL;DR:</strong> A monitoring stack where every component — Prometheus, Loki, Grafana dashboards, TLS certs, secrets — is declared in Git and reconciled by ArgoCD, with zero manual <code>kubectl apply</code> in production. Seven alert rules, 20 Grafana panels, 5 services monitored, 7-day log retention.</p>
+
+<h3>The Problem</h3>
+<p>Manual Kubernetes deployments drift. A <code>kubectl apply</code> here, a <code>helm upgrade</code> there, and within a week nobody knows what's actually running. The goal: a monitoring platform where <strong>Git is the single source of truth</strong>, every change is reviewed, and the cluster self-heals to the declared state.</p>
+
+<h3>Architecture</h3>
+<p>ArgoCD sits at the top, watching a Git repo structured with the <strong>App of Apps</strong> pattern: a root Application points to a directory of child Applications, each deploying one component into its own namespace.</p>
+<ul>
+<li><strong>kube-prometheus-stack</strong> (v85.2.1 Helm chart) — Prometheus, Alertmanager, Grafana</li>
+<li><strong>Loki + Promtail</strong> — log aggregation, 7-day retention</li>
+<li><strong>External Secrets Operator</strong> — syncs Azure Key Vault → Kubernetes Secrets</li>
+<li><strong>cert-manager</strong> — Let's Encrypt TLS for all ingress routes</li>
+</ul>
+<p>Every namespace has its own Application CRD, so a misconfigured Loki deploy can't block a Prometheus rolling update.</p>
+
+<h3>Deep-Dive: External Secrets Operator</h3>
+<p>Storing Grafana admin passwords and Discord webhook URLs in Git is a non-starter. External Secrets Operator bridges this: a <code>ExternalSecret</code> CRD references an Azure Key Vault object, and the operator syncs it into a native Kubernetes Secret on a 1-hour refresh. The Secret in-cluster is the same object Prometheus reads — no app code changes. If Key Vault rotates the secret, the operator updates the Secret, and Grafana picks it up on the next pod restart.</p>
+
+<h3>Deep-Dive: cert-manager TLS Auto-Provisioning</h3>
+<p>Every ingress route terminates TLS with a Let's Encrypt certificate provisioned by cert-manager. An <code>Issuer</code> CRD per namespace handles the ACME challenge via HTTP-01. Certificates auto-renew 30 days before expiry. The win: <strong>zero manual cert operations</strong> across 5 ingress routes, and expired certs — the #1 cause of cascade failures in my earlier homelab — are structurally impossible.</p>
+
+<h3>Deep-Dive: The 20-Panel Grafana Dashboard</h3>
+<p>The Minecraft monitoring dashboard has 20 panels organized into four rows: cluster health (CPU, memory, pod count), JVM internals (heap, GC rate, thread count), game metrics (TPS, player count, chunk load time), and Istio mesh (request rate, mTLS status, circuit-breaker trips). Dashboard JSON lives in a ConfigMap that ArgoCD reconciles — so a dashboard edit is a Git commit, not a click in the Grafana UI.</p>
+
+<h3>Results</h3>
+<ul>
+<li><strong>Services monitored:</strong> 5 across 4 namespaces</li>
+<li><strong>Alert rules:</strong> 7 (TPS, heap, pod restarts, cert expiry, mesh errors, log volume, node pressure)</li>
+<li><strong>Grafana panels:</strong> 20 on the primary dashboard</li>
+<li><strong>Log retention:</strong> 7 days, ~1.2GB indexed</li>
+<li><strong>Manual production applies:</strong> 0 — everything is GitOps</li>
+</ul>
+
+<h3>Lessons Learned</h3>
+<p>App of Apps is powerful but the root Application is a single point of failure — if ArgoCD can't reach the repo, nothing reconciles. I keep a local ArgoCD backup and document the manual recovery path. External Secrets Operator's 1-hour sync can mean a stale secret for up to 60 minutes; for critical rotations I trigger a manual refresh. cert-manager's Let's Encrypt rate limits (50 certs/domain/week) bit me once during a testing binge — now I use the staging issuer for iteration.</p>`
+  },
+  {
+    title: 'Serverless Incident Response with Azure Functions and Service Bus',
+    category: 'cloud',
+    excerpt: 'A Python serverless layer that processes incident events from Azure Service Bus, deduplicates within 5-minute windows, and routes Discord webhook embeds — decoupling alert generation from notification delivery.',
+    tags: ['azure-functions', 'serverless', 'python', 'service-bus', 'discord', 'pydantic'],
+    date: '2026-04-15',
+    readTime: '9 min read',
+    content: `<p><strong>TL;DR:</strong> Two Azure Functions (Python v2.0 runtime) — a 15-minute health checker and a Service Bus-triggered incident processor — that decouple alert generation from notification delivery, with Pydantic-validated messages and 5-minute deduplication windows to prevent alert storms.</p>
+
+<h3>The Problem</h3>
+<p>When Prometheus fires an alert, something has to turn that event into a human-readable Discord notification. Coupling notification logic directly into the Prometheus Alertmanager template means every notification change is a configmap edit and an ArgoCD sync. The goal: a <strong>decoupled serverless layer</strong> that consumes incident events from a queue, validates them, and routes them to Discord — independently deployable and independently scalable.</p>
+
+<h3>Architecture</h3>
+<p>Two functions, two triggers:</p>
+<ul>
+<li><strong>Health Checker</strong> — Timer Trigger, 15-minute cron. Polls each service's health endpoint, emits an incident event to Service Bus on failure.</li>
+<li><strong>Incident Processor</strong> — Service Bus Trigger on the <code>incident-events</code> topic. Validates the message, deduplicates, and posts a Discord embed webhook.</li>
+</ul>
+<p>Service Bus is the decoupling boundary: Prometheus Alertmanager and the health checker both produce events; the incident processor is the sole consumer. Adding a new notification channel (Slack, PagerDuty) means a new consumer, not a change to the producers.</p>
+
+<h3>Deep-Dive: Pydantic Message Validation</h3>
+<p>Every Service Bus message is validated against a Pydantic model before processing. The model enforces required fields (service name, severity, timestamp, metric value) and rejects malformed payloads with a dead-letter queue entry rather than a silent drop. This caught a producer bug where Alertmanager sent severity as <code>"WARNING"</code> instead of <code>"warning"</code> — the validator normalized it before it reached Discord.</p>
+
+<h3>Deep-Dive: 5-Minute Deduplication</h3>
+<p>A sustained degradation can fire the same alert every 30 seconds. The incident processor tracks a <strong>5-minute dedup window</strong> keyed on (service, alert-rule): if an event arrives within the window, it's acknowledged to Service Bus but not forwarded to Discord. This dropped alert noise by ~80% during a 2-hour Istio sidecar memory leak.</p>
+
+<h3>Deep-Dive: Async HTTP with aiohttp</h3>
+<p>The Discord webhook POST runs on <code>aiohttp</code> rather than requests, so the function doesn't block on the webhook round-trip. A failed webhook delivery retries three times with exponential backoff, then dead-letters the message for manual inspection.</p>
+
+<h3>Results</h3>
+<ul>
+<li><strong>Functions deployed:</strong> 2 (health checker + incident processor)</li>
+<li><strong>Health check interval:</strong> 15 minutes, 96 checks/day per service</li>
+<li><strong>Dedup window:</strong> 5 minutes, ~80% noise reduction during incidents</li>
+<li><strong>Webhook delivery:</strong> 3 retries with exponential backoff, dead-letter on exhaustion</li>
+</ul>
+
+<h3>Lessons Learned</h3>
+<p>Azure Functions cold start adds 1–3s to the first invocation after idle — acceptable for a 15-minute health checker, painful for a latency-sensitive alert path. I keep the incident processor warm by sending a heartbeat event every 5 minutes. Service Bus pricing is per-operation, so the dedup window isn't just a UX win — it cuts costs by dropping ~80% of duplicate receives. Finally, Pydantic v2's validation is fast but the migration from v1 broke some of my field aliases; pin your Pydantic version in <code>requirements.txt</code>.</p>`
+  },
+  {
+    title: 'Building a Terminal-Themed PWA Portfolio with Zero Dependencies',
+    category: 'cloud',
+    excerpt: 'A synthwave-aesthetic portfolio built with vanilla JS, zero build step, and 115 passing tests — featuring a 28-command terminal, command palette, 10 unlockable achievements, and WCAG 2.1-compliant accessibility deployed on Cloudflare Pages for $0.',
+    tags: ['vanilla-js', 'pwa', 'accessibility', 'cloudflare', 'synthwave', 'terminal'],
+    date: '2026-03-20',
+    readTime: '13 min read',
+    content: `<p><strong>TL;DR:</strong> A portfolio site with a working terminal emulator, 28 commands, command palette (Ctrl+K), 10 unlockable achievements, PWA offline support, and WCAG 2.1 accessibility — built with zero npm dependencies in the shipped bundle, zero build step, 115 passing tests, and hosted on Cloudflare Pages for $0/month.</p>
+
+<h3>The Problem</h3>
+<p>Most portfolio sites are either a static template (forgettable) or a React/Next.js app (heavy, 200KB+ JS, needs a build pipeline). The goal: a portfolio that <strong>demonstrates engineering skill by being the demonstration</strong> — an interactive terminal that's fast, accessible, offline-capable, and trivially deployable, with no framework tax.</p>
+
+<h3>Architecture</h3>
+<p>No build step. Files ship as-is: HTML pages import ES modules from <code>/js/</code>, CSS is a single stylesheet with custom properties for theming. The module graph:</p>
+<ul>
+<li><strong>terminal.js</strong> — main controller, 28 commands, command palette, demo mode, achievements</li>
+<li><strong>project-catalog.js</strong> — centralized project metadata; command count derived from <code>COMMAND_ICONS</code> keys</li>
+<li><strong>meshwatch-api.js</strong> — GitHub OAuth PKCE + Azure Functions proxy for live metrics</li>
+<li><strong>ai-assistant.js</strong> — Ollama Phi-3 client with cached knowledge fallback</li>
+<li><strong>service-worker.js</strong> — PWA offline cache, fetch-first strategy, versioned (v6)</li>
+<li><strong>utils/helpers.js</strong> — <code>escapeHtml</code>, <code>normalizeSlug</code>, <code>validateUrl</code>, perf thresholds</li>
+</ul>
+<p>Every user-facing string passes through <code>escapeHtml()</code> before any <code>innerHTML</code> assignment — XSS hardening is a convention, not an afterthought.</p>
+
+<h3>Deep-Dive: The Terminal Emulator</h3>
+<p>The terminal isn't a toy — it's a state machine with command history (up/down arrow), tab autocomplete against the command registry, and a Ctrl+K command palette that fuzzy-matches. The 28 commands span navigation (<code>help</code>, <code>whoami</code>, <code>projects</code>), interactive (<code>explorer</code>, <code>dashboard</code>, <code>writeups</code>), and utility (<code>theme</code>, <code>achievements</code>, <code>perf</code>). Command count is derived dynamically from <code>Object.keys(COMMAND_ICONS).length</code> — adding a command means adding an icon, and the count updates everywhere automatically.</p>
+
+<h3>Deep-Dive: Accessibility and PWA</h3>
+<p>WCAG 2.1 compliance: skip links, ARIA roles on every interactive element, keyboard navigation for the terminal and all cards, <code>prefers-reduced-motion</code> respected by every animation. The PWA service worker (v6) uses a fetch-first strategy with an offline fallback page, caching 31536000s for static assets and 600s for config. The manifest declares icons up to 512px for installability.</p>
+
+<h3>Deep-Dive: Testing Without a Framework</h3>
+<p>Tests use Node.js's native <code>node --test</code> runner — no mocha, no jest. 115 tests across 14 files mock DOM via JSDOM-like assertions and run in pure Node. The CI gate is <code>npm test</code> in GitHub Actions, which blocks the Cloudflare Pages deploy on any failure. ESLint enforces single quotes, semicolons, 2-space indent; <code>terminal.js</code> is the one eslintignored file due to a known ESLint v8 parse bug with its import+comment patterns.</p>
+
+<h3>Deep-Dive: Zero-Cost Deployment</h3>
+<p>GitHub Actions (<code>pages.yml</code>) runs <code>npm test</code>, then <code>cloudflare/pages-action@v1</code> deploys the root directory. Cloudflare handles SSL, CDN, and custom domain (chai-homelab.com) on the free tier. The only paid infrastructure is Azure Blob Storage ($0.50/month) for the API gateway. Total portfolio hosting: <strong>$0</strong>, unlimited bandwidth.</p>
+
+<h3>Results</h3>
+<ul>
+<li><strong>Bundle size:</strong> 0 npm dependencies in shipped output</li>
+<li><strong>Tests:</strong> 115 passing, 0 failures, native Node runner</li>
+<li><strong>Commands:</strong> 28, derived dynamically from the icon registry</li>
+<li><strong>Lighthouse:</strong> 95+ across performance, accessibility, and PWA</li>
+<li><strong>Monthly hosting cost:</strong> $0 (Cloudflare Pages free tier)</li>
+</ul>
+
+<h3>Lessons Learned</h3>
+<p>Zero build step is liberating but means no tree-shaking — every module must be hand-curated for size. <code>terminal.js</code> self-instantiates at the module bottom (<code>new Terminal()</code>), which means test files that import it get a live instance; I use <code>before()</code> hooks to manage state. The service worker cache name (<code>career-portal-v6</code>) must be manually bumped on any asset change — I've forgotten twice, and the stale-cache bug is subtle. Finally, vanilla JS at this complexity requires discipline: the <code>escapeHtml()</code>-before-<code>innerHTML</code> convention is enforced by code review, not a framework.</p>`
+  }
+];
+
+export { WRITEUPS };
+export default WRITEUPS;
