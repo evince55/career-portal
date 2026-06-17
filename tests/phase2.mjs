@@ -158,15 +158,15 @@ describe('Phase 2 — Help Overlay (?) Shortcut', () => {
     );
   });
 
-  it('help text includes ? shortcut in showHelp', async () => {
+  it('help text includes Shift + ? shortcut in showHelp', async () => {
     const fs = await import('fs');
     const content = fs.readFileSync('./js/terminal.js', 'utf8');
 
-    // Find showHelp method and check for ? shortcut
-    const showHelpMatch = content.match(/showHelp\(\)\s*\{[\s\S]*?['"]\?['"]/);
+    // Find showHelp method and check for Shift + ? shortcut
+    const showHelpMatch = content.match(/showHelp\(\)\s*\{[\s\S]*?Shift \+ \?/);
     assert.ok(
       showHelpMatch !== null,
-      'showHelp should include ? shortcut in keyboard shortcuts list'
+      'showHelp should include Shift + ? shortcut in keyboard shortcuts list'
     );
   });
 
