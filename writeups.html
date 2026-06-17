@@ -408,6 +408,14 @@
       margin-bottom: 0.3rem;
     }
 
+    .wp-modal-body h3 {
+      color: var(--neon-cyan);
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 1.5rem 0 0.5rem;
+      letter-spacing: 0.3px;
+    }
+
     .wp-modal-body code {
       background: rgba(188, 19, 254, 0.1);
       padding: 0.15rem 0.4rem;
@@ -660,15 +668,11 @@
     function sanitizeHtml(html) {
       if (!html) return '';
       const allowedTags = ['p','strong','em','ul','ol','li','code','br','h1','h2','h3','h4','blockquote'];
-      const allowedAttr = ['class'];
-      let result = html;
-      // Strip all tags not in the allowed list
-      result = result.replace(/<[^>]*>/g, (tag) => {
-        const tagName = tag.match(/^<\s*([a-zA-Z]+)/)?.[1]?.toLowerCase();
-        if (!tagName || !allowedTags.includes(tagName)) return '';
-        return tag;
+      return html.replace(/<\/?\s*([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g, (tag, name) => {
+        const tagName = name.toLowerCase();
+        if (!allowedTags.includes(tagName)) return '';
+        return tag.startsWith('</') ? `</${tagName}>` : `<${tagName}>`;
       });
-      return result;
     }
 
     function renderWriteups() {
