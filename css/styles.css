@@ -834,7 +834,6 @@ body.theme-retro .terminal-footer {
 
   /* Match button tops to header padding-top */
   .hidden-btn { top: 1rem; }
-  .theme-toggle-btn { top: 1rem; }
 
   /* Footer - stacked layout on mobile */
   .terminal-footer {
@@ -1024,7 +1023,6 @@ body.theme-retro .terminal-footer {
 @media (max-width: 400px) {
   .terminal-header { padding: 0.75rem 0.5rem; }
   .hidden-btn { top: 0.75rem; }
-  .theme-toggle-btn { top: 0.75rem; }
   .terminal-output { padding: 0.6rem; }
   .command-line { padding: 0.4rem 0.6rem; }
   .footer-right { flex-direction: column; gap: 0.2rem; }
@@ -1356,6 +1354,14 @@ body.theme-retro .theme-toggle-btn {
 body.theme-retro .theme-toggle-btn:hover {
   color: #ffaa00;
   text-shadow: 0 0 8px rgba(255, 170, 0, 0.5);
+}
+
+/* Mobile overrides: must come AFTER the base rule in cascade */
+@media (max-width: 768px) {
+  .theme-toggle-btn { top: 1rem; }
+}
+@media (max-width: 400px) {
+  .theme-toggle-btn { top: 0.75rem; }
 }
 
 /* ---- Retro Theme Overrides ---- */
