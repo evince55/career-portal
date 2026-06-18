@@ -293,21 +293,22 @@ input:focus, textarea:focus, select:focus {
 
 .hidden-btn {
   position: absolute;
-  top: 1rem; right: 1rem;
-  background: transparent;
-  border: 1px solid var(--neon-purple);
+  top: 2rem; right: 1rem;
+  background: none;
+  border: none;
   color: var(--neon-purple);
-  padding: 0.5rem 1rem;
+  padding: 0;
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   opacity: 0.5;
-  transition: opacity 0.3s, box-shadow 0.3s, border-color 0.3s;
+  transition: all 0.3s;
+  line-height: 1;
 }
 
 .hidden-btn:hover {
   opacity: 1;
-  box-shadow: var(--glow-purple);
+  text-shadow: 0 0 8px var(--neon-purple);
 }
 
 .audio-icon { font-size: 1.2rem; }
@@ -1022,16 +1023,9 @@ body.theme-retro .terminal-footer {
   .pe-nav a,
   .wp-nav a,
   .db-nav a,
-  .hidden-btn,
   .pe-modal-close,
   .wp-modal-close,
   .terminal-input,
-  .terminal-help-btn,
-  .ct-submit,
-  .theme-toggle-btn {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem 1rem;
   }
 
   /* Filter buttons - wider tap targets */
@@ -1473,38 +1467,34 @@ body.theme-retro .command-palette {
 
 .theme-toggle-btn {
   position: absolute;
-  top: 0.75rem;
+  top: 2rem;
   left: 0.75rem;
-  background: rgba(188, 19, 254, 0.1);
-  border: 1px solid rgba(188, 19, 254, 0.2);
+  background: none;
+  border: none;
   color: var(--neon-purple);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  padding: 0;
   cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.25s, border-color 0.25s, color 0.25s, box-shadow 0.25s;
+  font-size: 1.2rem;
+  line-height: 1;
+  opacity: 0.5;
+  transition: all 0.25s;
 }
 
 .theme-toggle-btn:hover {
-  border-color: var(--neon-cyan);
+  opacity: 1;
   color: var(--neon-cyan);
-  box-shadow: 0 0 12px rgba(0, 240, 252, 0.2);
+  text-shadow: 0 0 8px rgba(0, 240, 252, 0.5);
 }
 
 body.theme-retro .theme-toggle-btn {
-  background: rgba(255, 140, 0, 0.1);
-  border-color: rgba(255, 140, 0, 0.3);
-  color: #ffaa00;
+  background: none;
+  border: none;
+  color: #9a8050;
 }
 
 body.theme-retro .theme-toggle-btn:hover {
-  border-color: #ff8c00;
-  color: #ff8c00;
-  box-shadow: 0 0 12px rgba(255, 140, 0, 0.2);
+  color: #ffaa00;
+  text-shadow: 0 0 8px rgba(255, 170, 0, 0.5);
 }
 
 /* ---- Retro Theme Overrides ---- */
