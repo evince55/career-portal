@@ -146,7 +146,11 @@ body.theme-retro .terminal-output {
   font-size: 1.2rem;
   opacity: 0.5;
   transition: all 0.3s;
-  line-height: 1;
+  line-height: 0;
+}
+
+.audio-icon {
+  vertical-align: middle;
 }
 
 .hidden-btn:hover {
@@ -1333,10 +1337,16 @@ body.theme-retro .command-palette {
   color: var(--neon-purple);
   padding: 0;
   cursor: pointer;
+  font-family: var(--font-mono);
   font-size: 1.2rem;
-  line-height: 1;
+  line-height: 0;
   opacity: 0.5;
   transition: all 0.25s;
+}
+
+.theme-icon-synthwave,
+.theme-icon-retro {
+  vertical-align: middle;
 }
 
 .theme-toggle-btn:hover {
