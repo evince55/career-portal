@@ -959,6 +959,10 @@ body.theme-retro .terminal-footer {
     padding: 1rem 0.75rem;
   }
 
+  /* Match button tops to header padding-top */
+  .hidden-btn { top: 1rem; }
+  .theme-toggle-btn { top: 1rem; }
+
   /* Footer - stacked layout on mobile */
   .terminal-footer {
     flex-direction: column;
@@ -1142,6 +1146,8 @@ body.theme-retro .terminal-footer {
 /* ---- Small Phone Optimization (≤400px) ---- */
 @media (max-width: 400px) {
   .terminal-header { padding: 0.75rem 0.5rem; }
+  .hidden-btn { top: 0.75rem; }
+  .theme-toggle-btn { top: 0.75rem; }
   .terminal-output { padding: 0.6rem; }
   .command-line { padding: 0.4rem 0.6rem; }
   .footer-right { flex-direction: column; gap: 0.2rem; }
