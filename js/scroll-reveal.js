@@ -1,9 +1,11 @@
-// Scroll-triggered reveal animations — IntersectionObserver-based
-// Pattern: Motion-Driven (#15) from UI/UX Pro Max style database
-// Micro-interactions (#16): 50-100ms staggered delays
+// Scroll-triggered reveal animations — IntersectionObserver-based.
+// Progressive enhancement: elements are visible by default; this module adds
+// .reveal-armed (the hidden state) only when it can also guarantee the reveal,
+// so content never stays invisible if JS fails or IO is unsupported.
 
 export function initScrollReveal(root = document) {
   if (typeof IntersectionObserver === 'undefined') return;
+  if (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -19,6 +21,7 @@ export function initScrollReveal(root = document) {
 
   const elements = root.querySelectorAll('.reveal');
   for (const el of elements) {
+    el.classList.add('reveal-armed');
     observer.observe(el);
   }
 
