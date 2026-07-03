@@ -1,8 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="80" fill="#0a0a0f"/>
-  <rect x="40" y="40" width="432" height="432" rx="60" fill="none" stroke="#ff00ff" stroke-width="8"/>
-  <text x="256" y="180" font-family="monospace" font-size="80" fill="#ff00ff" text-anchor="middle" font-weight="bold">&gt;_</text>
-  <text x="256" y="300" font-family="monospace" font-size="40" fill="#0ff0fc" text-anchor="middle">CV</text>
-  <circle cx="100" cy="100" r="20" fill="#bc13fe" opacity="0.6"/>
-  <circle cx="412" cy="412" r="20" fill="#0ff0fc" opacity="0.6"/>
+  <rect width="512" height="512" rx="96" fill="#08080d"/>
+  <rect x="24" y="24" width="464" height="464" rx="80" fill="none" stroke="#3fd8e8" stroke-opacity="0.35" stroke-width="10"/>
+  <text x="256" y="308" font-family="'JetBrains Mono', ui-monospace, Menlo, monospace" font-size="150" fill="#3fd8e8" text-anchor="middle" font-weight="700">EV_</text>
+  <circle cx="256" cy="396" r="14" fill="#f45fd0" opacity="0.85"/>
 </svg>
