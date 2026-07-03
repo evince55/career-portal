@@ -1,0 +1,63 @@
+/* Design tokens — chai-homelab.com v2
+   Single source of truth for color, type, space, radius, motion.
+   Contrast pairs are enforced by tests/design-tokens.mjs (WCAG AA):
+   adjust values here only if the test still passes. */
+
+:root {
+  /* surfaces (layered elevation, near-black with a violet cast) */
+  --bg-0: #08080d;
+  --bg-1: #10101a;
+  --bg-2: #181826;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+
+  /* text */
+  --text-1: #eceaf4;
+  --text-2: #b4b2c9;
+  --text-3: #8b89a3;
+
+  /* accents — synthwave, disciplined */
+  --accent-cyan: #3fd8e8;
+  --accent-cyan-dim: rgba(63, 216, 232, 0.35);
+  --accent-cyan-faint: rgba(63, 216, 232, 0.12);
+  --accent-magenta: #f45fd0;
+  --accent-magenta-dim: rgba(244, 95, 208, 0.3);
+
+  /* status (dashboard, forms) */
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --err: #ff8a8a;
+
+  /* type */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --fs-0: 0.8125rem;
+  --fs-1: 0.9375rem;
+  --fs-2: 1.125rem;
+  --fs-3: 1.375rem;
+  --fs-4: 1.75rem;
+  --fs-5: clamp(2.25rem, 1.2rem + 4.5vw, 3.5rem);
+
+  /* space (4px base) */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-8: 3rem;
+  --sp-10: 4rem;
+  --sp-12: 6rem;
+
+  /* radius */
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 16px;
+
+  /* motion */
+  --t-fast: 150ms;
+  --t-med: 250ms;
+  --t-slow: 400ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
