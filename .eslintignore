@@ -1,2 +1,3 @@
 # terminal.js is ignored — it uses import+comment patterns that trigger ESLint parse bugs in v8.x
 js/terminal.js
+js/vendor/

@@ -3,39 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal Portfolio - Offline</title>
-  <style>
-    body { margin:0; padding:2rem; min-height:100vh; background:#0a0a0f; color:#e0e0e0; font-family:'JetBrains Mono',monospace; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; overflow-x:hidden; }
-    .offline-icon { font-size:4rem; margin-bottom:1rem; animation: pulse 2s infinite; }
-    h1 { color:#ff69b8; font-size:1.5rem; margin:0 0 0.5rem; }
-    p { color:#aaa; max-width:400px; line-height:1.6; }
-    .btn { display:inline-block; margin-top:1.5rem; padding:0.75rem 1.5rem; background:linear-gradient(135deg,#ff69b8,#a855d4); color:#fff; border:none; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:1rem; cursor:pointer; text-decoration:none; transition:transform 0.2s; }
-    .btn:hover { transform:scale(1.05); }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    .status-bar { position:fixed; top:0; left:0; right:0; height:3px; background:#ff69b8; animation:bar-move 3s linear infinite; }
-    @keyframes bar-move { 0%{width:0;background:#ff69b8} 50%{background:#a855d4} 100%{width:100%;background:#00f0ff} }
-  </style>
+  <title>Offline — Eugene Vincent</title>
+  <meta name="description" content="You're offline. Cached pages of Eugene Vincent's portfolio still work — retry when your connection returns.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#08080d">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/misc.css?v=7">
+  <!-- Served by the service worker when navigation fails offline.
+       Deliberately minimal: no palette, no pwa.js, no external requests —
+       only precached CSS/fonts/icons. -->
 </head>
 <body>
-  <div class="status-bar"></div>
-  <div class="offline-icon">&#x26A0;</div>
-  <h1>Terminal Offline</h1>
-  <p>Your internet connection is down. The cached version of the portfolio terminal may still work — click below to try reloading.</p>
-  <a href="/" class="btn" id="retryBtn">&#x1f504; Retry Connection</a>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" class="misc-main">
+    <div class="container misc-inner">
+      <span class="kicker">network: unreachable</span>
+      <h1 class="misc-title">You're offline</h1>
+      <p class="misc-lede">
+        No connection right now — nothing's broken on your end. This site is a PWA,
+        so pages you've visited are cached and still work, including everything in
+        the nav above. Live dashboard numbers will be stale until you're back online.
+      </p>
+      <div class="misc-actions">
+        <button class="btn btn--primary" type="button" id="retry-btn">Retry</button>
+      </div>
+      <p class="misc-hint">This page reloads automatically when the connection returns.</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><span class="mono">EV_</span> · Eugene Vincent — cached copy, external links unavailable offline</p>
+    </div>
+  </footer>
+
   <script>
-    document.getElementById('retryBtn').addEventListener('click', function(e) {
-      e.preventDefault();
-      if (navigator.onLine) {
-        location.reload();
-      } else {
-        this.textContent = '&#x274C; Still offline — check your connection';
-        this.style.background = '#666';
-        setTimeout(function() { location.reload(); }, 3000);
-      }
+    document.getElementById('retry-btn').addEventListener('click', () => {
+      location.reload();
     });
-    // Auto-retry every 30 seconds when online
-    setInterval(function() { if (navigator.onLine) location.reload(); }, 30000);
-    window.addEventListener('online', function() { location.reload(); });
+    window.addEventListener('online', () => location.reload());
   </script>
 </body>
 </html>

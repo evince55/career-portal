@@ -1,11 +1,17 @@
-// Project Catalog - Centralized project metadata for portfolio showcase
+// Project Catalog - Centralized project metadata for portfolio showcase.
+// v2 fields per docs/superpowers/plans/2026-07-03-site-redesign-v2.md (Lane B):
+// each project carries `slug` (matches /projects/<slug>.html), `outcome`
+// (one measurable line, sourced from existing metrics/achievements), and
+// `caseStudyUrl` ('/projects/<slug>.html').
 
-import { escapeHtml, normalizeSlug, COMMAND_COUNT } from './utils/helpers.js?v=3';
+import { escapeHtml, normalizeSlug } from './utils/helpers.js?v=7';
 
 const PROJECT_CATALOG = {
   'meshwatch': {
     name: 'MeshWatch',
     slug: 'meshwatch',
+    outcome: 'Full observability — metrics, logs, traces, AI incident analysis — for $5.12/month, 60% less than serverless alternatives.',
+    caseStudyUrl: '/projects/meshwatch.html',
     description: 'Cost-optimized service mesh observability platform on k3s Kubernetes with Istio mTLS, OpenTelemetry, and Ollama Phi-3 AI incident analysis.',
     category: 'devops',
     tags: ['cloud-native', 'kubernetes', 'service-mesh', 'ai-ops'],
@@ -40,6 +46,8 @@ const PROJECT_CATALOG = {
   'minecraft-monitoring': {
     name: 'minecraft-monitoring',
     slug: 'minecraft-monitoring',
+    outcome: '99.8% uptime with real-time TPS, heap, and player metrics, plus a 10-command Discord bot for alerts and control.',
+    caseStudyUrl: '/projects/minecraft-monitoring.html',
     description: 'Full-stack Minecraft server observability with Istio service mesh, Prometheus metrics (TPS, heap, players), Discord bot integration, and automated alerting.',
     category: 'iot',
     tags: ['minecraft', 'service-mesh', 'discord-bot', 'monitoring'],
@@ -73,7 +81,9 @@ const PROJECT_CATALOG = {
   'career-portal': {
     name: 'Career Portal',
     slug: 'career-portal',
-    description: 'FAANG-quality terminal-themed portfolio with synthwave aesthetic, PWA support, accessibility (WCAG 2.1), and dynamic Azure Functions integration.',
+    outcome: 'Zero-dependency vanilla JS PWA scoring Lighthouse 95+, WCAG 2.1 accessible, hosted for $0.50/month.',
+    caseStudyUrl: '/projects/career-portal.html',
+    description: 'This site: a vanilla JS portfolio PWA with a synthwave design system, command-palette navigation, WCAG 2.1 accessibility, and Azure Functions integration.',
     category: 'web',
     tags: ['portfolio', 'pwa', 'accessibility', 'synthwave'],
     techStack: [
@@ -94,16 +104,18 @@ const PROJECT_CATALOG = {
     githubUrl: 'https://github.com/chaitea321/career-portal',
     liveUrl: 'https://chai-homelab.com',
     keyAchievements: [
-      `Interactive terminal with ${COMMAND_COUNT} commands and autocomplete`,
+      'Ctrl+K command palette for keyboard-first navigation',
       'PWA support with service worker offline caching',
       'WCAG 2.1 accessible (ARIA, keyboard nav, screen reader)',
       'Azure Functions API gateway with GitHub OAuth'
     ],
     demoNote: 'You are currently viewing this project!'
   },
-  'monitoring': {
+  'monitoring-stack': {
     name: 'Monitoring Stack',
-    slug: 'monitoring',
+    slug: 'monitoring-stack',
+    outcome: '5 services monitored through GitOps with 7 alert rules and a 20-panel Grafana dashboard — no manual deploys.',
+    caseStudyUrl: '/projects/monitoring-stack.html',
     description: 'Production-grade monitoring platform with ArgoCD GitOps, External Secrets Operator, cert-manager TLS, and Discord integration for automated alerting.',
     category: 'devops',
     tags: ['kubernetes', 'argocd', 'prometheus', 'loki'],
@@ -134,6 +146,8 @@ const PROJECT_CATALOG = {
   'azure-functions': {
     name: 'Azure Functions',
     slug: 'azure-functions',
+    outcome: 'Serverless health checks every 15 minutes with 5-minute dedup windows that stop Discord alert storms.',
+    caseStudyUrl: '/projects/azure-functions.html',
     description: 'Serverless Python functions for homelab service health monitoring and alert processing via Azure Service Bus with Discord webhook integration.',
     category: 'cloud',
     tags: ['serverless', 'python', 'service-bus', 'discord'],
@@ -167,7 +181,7 @@ const PROJECT_CATALOG = {
 const DEFAULT_PROJECT_ORDER = [
   'meshwatch',
   'minecraft-monitoring',
-  'monitoring',
+  'monitoring-stack',
   'azure-functions',
   'career-portal'
 ];
@@ -182,13 +196,14 @@ function getProjects(filterCategory = '', filterKeyword = '') {
     projects = projects.filter(p => p.category === cat || p.tags.includes(cat));
   }
   
-  // Filter by keyword
+  // Filter by keyword (name, description, tags, tech stack)
   if (filterKeyword) {
     const kw = filterKeyword.toLowerCase();
     projects = projects.filter(p =>
       p.name.toLowerCase().includes(kw) ||
       p.description.toLowerCase().includes(kw) ||
-      p.tags.some(t => t.includes(kw))
+      p.tags.some(t => t.includes(kw)) ||
+      p.techStack.some(t => t.name.toLowerCase().includes(kw))
     );
   }
   

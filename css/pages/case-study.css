@@ -1,0 +1,215 @@
+/* Case-study pages (projects/*.html) — chai-homelab.com v2, Lane C.
+   Consumes css/tokens.css + css/base.css; page-specific layout only. */
+
+/* ---------- article layout ---------- */
+.case-study {
+  max-width: 800px;
+}
+
+.case-study__header {
+  padding-block: var(--sp-10) var(--sp-8);
+  border-bottom: 1px solid var(--line);
+}
+
+.case-study__header h1 {
+  font-size: var(--fs-5);
+}
+
+.case-study__outcome {
+  margin-top: var(--sp-4);
+  font-size: var(--fs-2);
+  color: var(--text-1);
+  max-width: 56ch;
+}
+
+.case-study__meta {
+  margin-top: var(--sp-3);
+  color: var(--text-3);
+  font-size: var(--fs-0);
+}
+
+.case-study__stack {
+  list-style: none;
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* ---------- prose sections ---------- */
+.case-study__section {
+  padding-block: var(--sp-8) 0;
+}
+
+.case-study__section h2 {
+  font-size: var(--fs-3);
+  margin-bottom: var(--sp-4);
+}
+
+.case-study__section p {
+  margin-bottom: var(--sp-4);
+}
+
+.case-study__section p:last-child {
+  margin-bottom: 0;
+}
+
+.case-study strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+/* ---------- key decisions list ---------- */
+.decisions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.decisions li {
+  padding: var(--sp-1) 0 var(--sp-1) var(--sp-4);
+  border-left: 2px solid var(--accent-cyan-dim);
+  max-width: 65ch;
+}
+
+/* ---------- measured outcomes ---------- */
+.outcome-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--sp-5);
+}
+
+/* ---------- links ---------- */
+.case-study__links ul {
+  list-style: none;
+  margin: 0 0 var(--sp-4);
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.case-study__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ---------- architecture diagram ---------- */
+.case-study__diagram {
+  margin: var(--sp-6) 0 var(--sp-4);
+}
+
+.case-study__diagram svg {
+  width: 100%;
+  height: auto;
+  max-width: 440px;
+  margin-inline: auto;
+}
+
+.case-study__diagram figcaption {
+  margin-top: var(--sp-3);
+  color: var(--text-3);
+  font-size: var(--fs-0);
+  text-align: center;
+}
+
+/* diagram primitives — colors come from tokens so theme stays single-source */
+.dg-box {
+  fill: var(--bg-1);
+  stroke: var(--line-strong);
+}
+
+.dg-box--accent {
+  stroke: var(--accent-cyan-dim);
+}
+
+.dg-group {
+  fill: none;
+  stroke: var(--line);
+  stroke-dasharray: 4 4;
+}
+
+.dg-arrow {
+  stroke: var(--accent-cyan);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.dg-head {
+  fill: var(--accent-cyan);
+}
+
+.dg-t1 {
+  fill: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.dg-t2 {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.dg-label {
+  fill: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ---------- next/prev pager ---------- */
+.pager {
+  margin-top: var(--sp-10);
+  padding-block: var(--sp-6) var(--sp-8);
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+.pager__link {
+  display: block;
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  text-decoration: none;
+  color: var(--text-2);
+  transition: border-color var(--t-fast) var(--ease);
+}
+
+.pager__link:hover {
+  border-color: var(--accent-cyan-dim);
+  color: var(--text-2);
+}
+
+.pager__dir {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-1);
+}
+
+.pager__title {
+  color: var(--text-1);
+  font-weight: 500;
+}
+
+.pager__link--next {
+  text-align: right;
+}
+
+@media (max-width: 540px) {
+  .pager {
+    grid-template-columns: 1fr;
+  }
+
+  .pager__link--next {
+    text-align: left;
+  }
+}

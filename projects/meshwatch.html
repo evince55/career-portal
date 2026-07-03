@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MeshWatch — service mesh observability at $5/month | Eugene Vincent</title>
+  <meta name="description" content="Case study: production-grade observability — metrics, logs, traces, and AI incident analysis — on one $5.12/month k3s node with Istio mTLS. 60% cheaper than serverless, 99.8% uptime.">
+  <meta name="theme-color" content="#08080d">
+  <link rel="canonical" href="https://chai-homelab.com/projects/meshwatch.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="MeshWatch — service mesh observability at $5/month">
+  <meta property="og:description" content="Metrics, logs, traces, and AI incident analysis on one $5.12/month k3s node with Istio mTLS — 60% cheaper than serverless, 99.8% uptime.">
+  <meta property="og:url" content="https://chai-homelab.com/projects/meshwatch.html">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="MeshWatch — service mesh observability at $5/month">
+  <meta name="twitter:description" content="Metrics, logs, traces, and AI incident analysis on one $5.12/month k3s node — 60% cheaper than serverless, 99.8% uptime.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/case-study.css?v=7">
+  <script type="module" src="/js/pwa.js?v=7"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article class="container case-study">
+      <header class="case-study__header">
+        <p class="kicker">Case study</p>
+        <h1>MeshWatch</h1>
+        <p class="case-study__outcome">Production-grade observability — metrics, logs, traces, and AI-assisted incident analysis — on a single k3s node for <strong>$5.12/month</strong>: 60% less than a comparable serverless setup, at 99.8% uptime.</p>
+        <p class="case-study__meta mono">kubernetes · service mesh · June 2026</p>
+        <ul class="case-study__stack" aria-label="Tech stack">
+          <li class="chip">Kubernetes (k3s)</li>
+          <li class="chip">Istio</li>
+          <li class="chip">Prometheus + Grafana</li>
+          <li class="chip">Loki</li>
+          <li class="chip">Tempo</li>
+          <li class="chip">Ollama Phi-3</li>
+          <li class="chip">Flagger</li>
+        </ul>
+      </header>
+
+      <section class="case-study__section">
+        <h2>Context</h2>
+        <p>Managed observability platforms price by ingest volume and host count. For a homelab running five microservices with Prometheus scraping every 15 seconds, a managed bill crosses <strong>$12.80/month</strong> before the first alert even fires. The question behind MeshWatch: can one small k3s node deliver all three pillars of observability — metrics, logs, traces — plus an AI incident responder, without giving up reliability?</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Architecture</h2>
+        <p>Everything runs on a single k3s node (1 CPU, 2 GB RAM). Istio injects an Envoy sidecar into every service pod and enforces STRICT mutual TLS — <strong>zero plaintext traffic</strong> between any two pods, with certificates rotated automatically every 30 days. Telemetry flows through three parallel pipelines into Grafana, and Prometheus alerts feed a local LLM for root-cause analysis.</p>
+        <figure class="case-study__diagram">
+          <svg viewBox="0 0 360 292" role="img" aria-label="Architecture diagram: five service pods with Envoy sidecars under Istio strict mutual TLS feed three pipelines — Prometheus for metrics on a 15-second scrape, Loki for logs via Promtail, and Tempo for traces via OpenTelemetry. All three feed Grafana dashboards, and Prometheus alerts flow to a local Ollama Phi-3 model over an outbound-only Tailscale tunnel for root-cause analysis." xmlns="http://www.w3.org/2000/svg">
+            <title>MeshWatch architecture: pods to telemetry pipelines to Grafana, with alerts routed to a local LLM</title>
+            <defs>
+              <marker id="mw-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0 0L8 4L0 8z" class="dg-head"/>
+              </marker>
+            </defs>
+            <rect class="dg-box" x="20" y="10" width="320" height="46" rx="8"/>
+            <text class="dg-t1" x="180" y="30" text-anchor="middle">5 service pods</text>
+            <text class="dg-t2" x="180" y="47" text-anchor="middle">Envoy sidecars · Istio STRICT mTLS</text>
+            <line class="dg-arrow" x1="70" y1="56" x2="70" y2="83" marker-end="url(#mw-arrow)"/>
+            <line class="dg-arrow" x1="180" y1="56" x2="180" y2="83" marker-end="url(#mw-arrow)"/>
+            <line class="dg-arrow" x1="290" y1="56" x2="290" y2="83" marker-end="url(#mw-arrow)"/>
+            <rect class="dg-box" x="20" y="86" width="100" height="50" rx="8"/>
+            <text class="dg-t1" x="70" y="107" text-anchor="middle">Prometheus</text>
+            <text class="dg-t2" x="70" y="124" text-anchor="middle">metrics · 15s</text>
+            <rect class="dg-box" x="130" y="86" width="100" height="50" rx="8"/>
+            <text class="dg-t1" x="180" y="107" text-anchor="middle">Loki</text>
+            <text class="dg-t2" x="180" y="124" text-anchor="middle">Promtail logs</text>
+            <rect class="dg-box" x="240" y="86" width="100" height="50" rx="8"/>
+            <text class="dg-t1" x="290" y="107" text-anchor="middle">Tempo</text>
+            <text class="dg-t2" x="290" y="124" text-anchor="middle">traces · OTel</text>
+            <line class="dg-arrow" x1="70" y1="136" x2="70" y2="163" marker-end="url(#mw-arrow)"/>
+            <line class="dg-arrow" x1="180" y1="136" x2="180" y2="163" marker-end="url(#mw-arrow)"/>
+            <line class="dg-arrow" x1="290" y1="136" x2="290" y2="163" marker-end="url(#mw-arrow)"/>
+            <rect class="dg-box" x="20" y="166" width="320" height="40" rx="8"/>
+            <text class="dg-t1" x="180" y="191" text-anchor="middle">Grafana — 20-panel dashboards</text>
+            <line class="dg-arrow" x1="180" y1="206" x2="180" y2="233" marker-end="url(#mw-arrow)"/>
+            <text class="dg-label" x="190" y="224">alerts</text>
+            <rect class="dg-box dg-box--accent" x="20" y="236" width="320" height="46" rx="8"/>
+            <text class="dg-t1" x="180" y="256" text-anchor="middle">Ollama Phi-3 (local LLM)</text>
+            <text class="dg-t2" x="180" y="273" text-anchor="middle">root-cause analysis · via Tailscale</text>
+          </svg>
+          <figcaption>Three telemetry pipelines on one node; alerts get an AI root-cause pass locally.</figcaption>
+        </figure>
+        <p>When an alert fires, the incident pipeline captures the last 5 minutes of affected metrics and ships structured JSON to Ollama Phi-3 over an outbound-only Tailscale tunnel. The model returns a root-cause write-up with remediation steps in about 2 seconds — and <strong>no metrics data ever leaves the mesh</strong>. This caught an Istio sidecar memory leak that raw Prometheus thresholds missed.</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Key decisions &amp; tradeoffs</h2>
+        <ul class="decisions">
+          <li><strong>k3s over full Kubernetes.</strong> The stripped control plane runs in ~512 MB, leaving 1.5 GB for the entire observability stack on a 2 GB node.</li>
+          <li><strong>Loki over Elasticsearch.</strong> Chunk-compressed log storage costs about a tenth as much for the same ingest rate.</li>
+          <li><strong>Local Phi-3 instead of an LLM API.</strong> At 50 alerts a day that is $0 vs roughly $30/month on API pricing. The tradeoff: a small quantized model occasionally hallucinates remediation steps, so every AI suggestion gets human sign-off before action.</li>
+          <li><strong>Canary releases with Flagger.</strong> Traffic shifts 10% → 25% → 50% → 100% with Prometheus SLO checks at each stage; if the error rate passes 0.5%, traffic reverts to stable within 30 seconds — no human in the loop.</li>
+          <li><strong>One node, eyes open.</strong> No control-plane HA means a node reboot causes a ~90-second observability blind spot — acceptable for a homelab; production would get a second node. Each Envoy sidecar also costs ~50 MB, which caps the mesh at 15 pods before memory pressure.</li>
+        </ul>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Measured outcomes</h2>
+        <dl class="outcome-grid">
+          <div class="stat"><dt class="stat__label">Monthly cost</dt><dd class="stat__value">$5.12</dd><dd class="stat__label">60% below serverless parity</dd></div>
+          <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value">99.8%</dd><dd class="stat__label">15 pods, 5 services</dd></div>
+          <div class="stat"><dt class="stat__label">Avg response time</dt><dd class="stat__value">45 ms</dd><dd class="stat__label">0.2% error rate</dd></div>
+          <div class="stat"><dt class="stat__label">AI root cause</dt><dd class="stat__value">~2 s</dd><dd class="stat__label">per incident, on-node</dd></div>
+          <div class="stat"><dt class="stat__label">Annual savings</dt><dd class="stat__value">$92.16</dd><dd class="stat__label">vs serverless baseline</dd></div>
+        </dl>
+      </section>
+
+      <section class="case-study__section case-study__links">
+        <h2>Links</h2>
+        <ul>
+          <li><a href="https://github.com/chaitea321/meshwatch">Source on GitHub — chaitea321/meshwatch</a></li>
+          <li><a href="/dashboard.html">Live homelab dashboard — this cluster feeds it</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <nav class="container case-study pager" aria-label="More case studies">
+      <a class="pager__link" href="/projects/career-portal.html" rel="prev">
+        <span class="pager__dir">← Previous</span>
+        <span class="pager__title">Career Portal</span>
+      </a>
+      <a class="pager__link pager__link--next" href="/projects/minecraft-monitoring.html" rel="next">
+        <span class="pager__dir">Next →</span>
+        <span class="pager__title">Minecraft Monitoring</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><a href="https://github.com/chaitea321">GitHub</a> · <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> · <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></p>
+      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a></p>
+    </div>
+  </footer>
+
+  <div id="palette-root"></div>
+  <script type="module" src="/js/palette.js?v=7"></script>
+</body>
+</html>

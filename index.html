@@ -3,172 +3,257 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eugene Vincent | Terminal Portfolio</title>
-  <meta name="description" content="FAANG-quality terminal-themed portfolio showcasing MeshWatch, Minecraft monitoring, and cloud-native architectures.">
-  <meta name="keywords" content="portfolio, devops, azure, kubernetes, meshwatch, minecraft, sre, fullstack">
-  <meta property="og:title" content="Eugene Vincent | Terminal Portfolio">
-  <meta property="og:description" content="FAANG-quality terminal-themed portfolio showcasing MeshWatch, Minecraft monitoring, and cloud-native architectures.">
-  <meta property="og:image" content="/icons/icon-96.png">
-  <link rel="stylesheet" href="css/styles.css?v=3">
-  <link rel="manifest" href="/manifest.json">
+  <title>Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab</title>
+  <meta name="description" content="CS student (B.S. 2024–2028, AZ-900 certified) who builds and runs production-grade infrastructure at home: k3s, Istio, Prometheus/Grafana, GitOps, Azure. Five systems in production, with live metrics.">
+  <link rel="canonical" href="https://chai-homelab.com/">
+  <meta name="theme-color" content="#08080d">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://chai-homelab.com/">
+  <meta property="og:title" content="Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab">
+  <meta property="og:description" content="CS student who builds and runs production-grade infrastructure at home: k3s, Istio, Prometheus/Grafana, GitOps, Azure — with live metrics to prove it.">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab">
+  <meta name="twitter:description" content="CS student who builds and runs production-grade infrastructure at home — with live metrics to prove it.">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
-  <meta name="theme-color" content="#0a0a14">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org/2014-09-07/schema.jsonld",
-      "@type": "Person",
-      "name": "Eugene Vincent",
-      "url": "https://chai-homelab.com",
-      "jobTitle": "Full Stack Engineer",
-      "description": "Full Stack Engineer specializing in Azure DevOps, cloud-native architectures, and software reliability engineering.",
-      "email": "eugene.vince55@gmail.com",
-      "alumniOf": {
-        "@type": "CollegeOrUniversity",
-        "name": "University of Illinois"
-      },
-      "knowsAbout": ["Kubernetes", "Azure", "DevOps", "SRE", "Service Mesh", "Prometheus", "Istio", "React", "Node.js"],
-      "sameAs": ["https://github.com/chaitea321", "https://linkedin.com/in/eugene-vincent-42472024b"]
-    }
-  </script>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/home.css?v=7">
+  <noscript><style>.reveal { opacity: 1; transform: none; }</style></noscript>
 </head>
 <body>
-  <a href="#terminal-output" class="skip-link">Skip to terminal</a>
-  <div id="crt-overlay"></div>
-  <div id="grain-overlay"></div>
-  <header class="terminal-header" role="banner">
-    <div class="header-fade-in">
-      <h1 class="glitch" data-text="Eugene Vincent" aria-label="Eugene Vincent - Terminal Portfolio">Eugene Vincent</h1>
-      <p class="subtitle">Full Stack Engineer | Azure DevOps | SRE</p>
-    </div>
-    <button id="audio-toggle" class="hidden-btn" aria-label="Toggle keystroke sounds" role="switch" aria-checked="false">
-      <span class="audio-icon" aria-hidden="true">🔇</span>
-      <span class="sr-only">Sound effects</span>
-    </button>
-    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
-      <span class="theme-icon-synthwave">&#x260c;</span>
-      <span class="theme-icon-retro" style="display:none;">&#x2630;</span>
-    </button>
-  </header>
-  <main class="terminal-container">
-    <div class="terminal-window">
-      <div class="terminal-titlebar">
-        <span class="traffic-light red" aria-hidden="true"></span>
-        <span class="traffic-light yellow" aria-hidden="true"></span>
-        <span class="traffic-light green" aria-hidden="true"></span>
-        <span class="title-text">eugene@homelab:~ — chai-homelab.com</span>
-        <button id="terminal-help-btn" class="terminal-help-btn" aria-label="Open command help overlay">?</button>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/" aria-current="page">Home</a>
+        <a class="nav-link" href="/projects.html">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
       </div>
-      <div class="terminal-body">
-        <div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-label="Terminal output" tabindex="0"></div>
-        <div class="command-line">
-          <span class="prompt" aria-hidden="true">$</span>
-          <input type="text" id="command-input" class="terminal-input" autocomplete="off" autofocus aria-label="Command input" placeholder="Type a command…">
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- 1 · Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__bg-fallback"></div>
+        <canvas id="hero-canvas" class="hero__canvas" hidden></canvas>
+        <div class="hero__fade"></div>
+      </div>
+      <div class="container hero__inner">
+        <span class="kicker">Aurora, IL · open to internships &amp; early roles</span>
+        <h1 class="hero__title" id="hero-title">Eugene Vincent</h1>
+        <p class="hero__tagline">Full-stack engineer with SRE/DevOps depth.</p>
+        <p class="hero__sub">I build and run production-grade infrastructure — <span class="glow-text">at home</span>. k3s, Istio, Prometheus/Grafana, GitOps, Azure: designed, deployed, and monitored on my own rack.</p>
+        <div class="hero__ctas">
+          <a class="btn btn--primary" href="/projects.html">View projects</a>
+          <a class="btn btn--ghost" href="/contact.html">Contact me</a>
+        </div>
+        <ul class="hero__proof" aria-label="Proof points">
+          <li class="chip" data-live-item><span class="pulse" aria-hidden="true"></span><span><span data-live-uptime>99.7%</span> homelab uptime</span></li>
+          <li class="chip">AZ-900 certified</li>
+          <li class="chip">5 systems in production</li>
+          <li><a class="chip" href="https://github.com/chaitea321">github.com/chaitea321</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2 · Featured projects -->
+    <section class="section" aria-labelledby="featured-title">
+      <div class="container reveal">
+        <span class="kicker">Selected work</span>
+        <h2 class="section__title" id="featured-title">Featured projects</h2>
+        <div class="grid-3">
+          <article class="card project-card">
+            <p class="card__meta">Kubernetes · Observability</p>
+            <h3 class="card__title"><a href="/projects/meshwatch.html">MeshWatch</a></h3>
+            <p>Full observability — metrics, logs, traces, AI incident analysis — on one k3s node for <span class="project-card__number">$5.12/mo</span>, 60% cheaper than serverless equivalents.</p>
+            <ul class="project-card__stack" aria-label="Stack">
+              <li class="chip">k3s</li>
+              <li class="chip">Istio</li>
+              <li class="chip">Prometheus</li>
+              <li class="chip">Ollama Phi-3</li>
+            </ul>
+            <p class="project-card__link"><a href="/projects/meshwatch.html">Read the case study<span aria-hidden="true"> →</span></a></p>
+          </article>
+          <article class="card project-card">
+            <p class="card__meta">IoT · Game server</p>
+            <h3 class="card__title"><a href="/projects/minecraft-monitoring.html">Minecraft Monitoring</a></h3>
+            <p>A PaperMC server wired into the cluster's observability stack: <span class="project-card__number">99.8%</span> uptime, automated TPS-drop alerts, and a 10-command Discord bot.</p>
+            <ul class="project-card__stack" aria-label="Stack">
+              <li class="chip">PaperMC</li>
+              <li class="chip">JMX + RCON</li>
+              <li class="chip">Discord.py</li>
+              <li class="chip">Grafana</li>
+            </ul>
+            <p class="project-card__link"><a href="/projects/minecraft-monitoring.html">Read the case study<span aria-hidden="true"> →</span></a></p>
+          </article>
+          <article class="card project-card">
+            <p class="card__meta">DevOps · GitOps</p>
+            <h3 class="card__title"><a href="/projects/monitoring-stack.html">Monitoring Stack</a></h3>
+            <p>A <span class="project-card__number">20-panel</span> Grafana dashboard, 7 alert rules across 5 services — every piece declared in Git and deployed by ArgoCD.</p>
+            <ul class="project-card__stack" aria-label="Stack">
+              <li class="chip">ArgoCD</li>
+              <li class="chip">cert-manager</li>
+              <li class="chip">External Secrets</li>
+              <li class="chip">Loki</li>
+            </ul>
+            <p class="project-card__link"><a href="/projects/monitoring-stack.html">Read the case study<span aria-hidden="true"> →</span></a></p>
+          </article>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- 3 · The homelab, live -->
+    <section class="section homelab" aria-labelledby="homelab-title">
+      <div class="container reveal">
+        <span class="kicker">Live data</span>
+        <h2 class="section__title" id="homelab-title">The homelab, live</h2>
+        <p class="homelab__lede">These numbers come from the rack under my desk. A cron job publishes fresh cluster stats every ten minutes; this page reads the same JSON the dashboard does.</p>
+        <div class="homelab__stats">
+          <div class="stat" data-live-item>
+            <span class="stat__value" data-live-uptime>99.7%</span>
+            <span class="stat__label">Server uptime</span>
+          </div>
+          <div class="stat" data-live-item>
+            <span class="stat__value" data-live-tps>21 TPS</span>
+            <span class="stat__label">Minecraft tick rate</span>
+          </div>
+          <div class="stat" data-live-item>
+            <span class="stat__value" data-live-players>3 / 20</span>
+            <span class="stat__label">Players online</span>
+          </div>
+          <div class="stat" data-live-item>
+            <span class="stat__value" data-live-scrapes>894k</span>
+            <span class="stat__label">Prometheus scrapes</span>
+          </div>
+        </div>
+        <p class="homelab__updated mono" data-live-item hidden><span data-live-updated>updated recently</span></p>
+        <p>Prometheus scrapes every service on a 15-second interval; Grafana renders it all in real time.</p>
+        <p class="homelab__cta"><a class="btn btn--ghost" href="/dashboard.html">Open the live dashboard</a></p>
+      </div>
+    </section>
+
+    <!-- 4 · Skills (mirrors SKILLS_DATA in js/utils/helpers.js — parity enforced by tests/home-live.mjs) -->
+    <section class="section" aria-labelledby="skills-title">
+      <div class="container reveal">
+        <span class="kicker">Toolbox</span>
+        <h2 class="section__title" id="skills-title">Skills</h2>
+        <div class="skills__grid">
+          <div class="skills__group">
+            <h3>Cloud</h3>
+            <ul>
+              <li>Azure (Blob Storage, Functions, AKS)</li>
+              <li>Cloudflare (DNS, CDN, Workers)</li>
+              <li>Docker &amp; Kubernetes (k3s, Istio)</li>
+            </ul>
+          </div>
+          <div class="skills__group">
+            <h3>DevOps</h3>
+            <ul>
+              <li>GitHub Actions / CI/CD Pipelines</li>
+              <li>Terraform / Infrastructure as Code</li>
+              <li>Prometheus / Grafana / Loki</li>
+              <li>OpenTelemetry / Distributed Tracing</li>
+            </ul>
+          </div>
+          <div class="skills__group">
+            <h3>Backend</h3>
+            <ul>
+              <li>Node.js / Express / NestJS</li>
+              <li>Python (FastAPI, Django)</li>
+              <li>GraphQL / REST APIs</li>
+              <li>PostgreSQL / MongoDB / Redis</li>
+            </ul>
+          </div>
+          <div class="skills__group">
+            <h3>Frontend</h3>
+            <ul>
+              <li>React.js / Next.js</li>
+              <li>TypeScript / JavaScript (ES6+)</li>
+              <li>CSS3 / Tailwind / Material UI</li>
+              <li>Progressive Web Apps</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · About -->
+    <section class="section about" aria-labelledby="about-title">
+      <div class="container reveal">
+        <span class="kicker">Background</span>
+        <h2 class="section__title" id="about-title">About</h2>
+        <p>I'm Eugene Vincent, a computer science student who treats his homelab like production: version-controlled, monitored, and alerting me before my users — mostly friends on the Minecraft server — notice anything.</p>
+        <p>Five systems run there today: a k3s cluster with Istio mTLS, GitOps deployments through ArgoCD, a Prometheus/Grafana/Loki observability stack, Azure Functions for incident routing, and this site.</p>
+        <p>I'm looking for internships and early-career roles where reliability and cost-awareness matter.</p>
+        <p class="about__edu mono">B.S. Computer Science, University of Illinois (2024–2028, expected) · AZ-900: Microsoft Azure Fundamentals</p>
+      </div>
+    </section>
+
+    <!-- 6 · Contact CTA -->
+    <section class="section contact-cta" aria-labelledby="contact-title">
+      <div class="container reveal">
+        <h2 class="section__title" id="contact-title">Let's talk</h2>
+        <p>Hiring for an internship or early-career engineering role — or want to swap homelab notes? I read everything and usually reply within a day or two.</p>
+        <a class="btn btn--primary" href="/contact.html">Get in touch</a>
+      </div>
+    </section>
   </main>
-  <footer class="terminal-footer" role="contentinfo">
-    <div class="footer-left">
-      <p>Type <span class="command">help</span> · <span class="command">Tab</span> to autocomplete · <span class="command">Shift + ?</span> reference</p>
-    </div>
-    <div class="footer-right">
-      <span id="online-status" class="status-indicator" aria-live="polite" aria-label="Network status"></span>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <nav class="footer__links" aria-label="Profiles and contact">
+        <a href="https://github.com/chaitea321">GitHub</a> ·
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a>
+      </nav>
+      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a>.</p>
     </div>
   </footer>
-  <nav class="mobile-nav" id="mobile-nav">
-    <a href="/project-explorer.html" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
-    <a href="/dashboard.html" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
-    <a href="/writeups.html" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
-    <a href="/contact.html" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
-  </nav>
-  <button class="ct-hamburger" id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false"></button>
 
-  <!-- Mobile Bottom Navigation Bar -->
-  <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
-    <ul class="bottom-nav-items">
-      <li><a href="/" class="bottom-nav-item active" aria-current="page" aria-label="Terminal">
-        <span class="nav-icon">⌨️</span>
-        <span class="nav-label">Terminal</span>
-      </a></li>
-      <li><a href="/project-explorer.html" class="bottom-nav-item" aria-label="Projects">
-        <span class="nav-icon">📂</span>
-        <span class="nav-label">Projects</span>
-      </a></li>
-      <li><a href="/dashboard.html" class="bottom-nav-item" aria-label="Dashboard">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label">Dashboard</span>
-      </a></li>
-      <li><a href="/writeups.html" class="bottom-nav-item" aria-label="Writeups">
-        <span class="nav-icon">✎</span>
-        <span class="nav-label">Writeups</span>
-      </a></li>
-      <li><a href="/contact.html" class="bottom-nav-item" aria-label="Contact">
-        <span class="nav-icon">✉️</span>
-        <span class="nav-label">Contact</span>
-      </a></li>
-    </ul>
-  </nav>
-  <script type="module" src="js/terminal.js?v=3"></script>
-  <script type="module" src="js/audio.js?v=3"></script>
-  <script type="module" src="js/performance.js?v=3"></script>
-  <script src="js/pwa.js?v=3"></script>
+  <div id="palette-root"></div>
+
+  <script type="module" src="/js/pwa.js?v=7"></script>
+  <script type="module">import '/js/palette.js?v=7';</script>
   <script type="module">
-    import { initMobileNav } from '/js/mobile-nav.js?v=3';
-    initMobileNav();
-
-    // Skip link focus management — move focus to target on click
-    document.querySelectorAll('.skip-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        const target = document.querySelector(link.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
-        }
-      });
-    });
-
-    // Focus handler on command input — only activates when tapping the command line area
-    const cmdInput = document.getElementById('command-input');
-    const cmdLine = document.querySelector('.command-line');
-    if (cmdInput) {
-      cmdInput.addEventListener('click', () => cmdInput.focus());
-      cmdInput.addEventListener('touchstart', () => cmdInput.focus(), { passive: true });
-    }
-
-    // Only focus on tapping the command-line area, not the whole terminal body
-    if (cmdLine && cmdInput) {
-      cmdLine.addEventListener('click', () => cmdInput.focus());
-      cmdLine.addEventListener('touchstart', () => cmdInput.focus(), { passive: true });
-    }
-
-    // Theme toggle button
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    if (themeBtn) {
-      themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('theme-retro');
-        const isRetro = document.body.classList.contains('theme-retro');
-        localStorage.setItem('portfolio-theme', isRetro ? 'retro' : 'synthwave');
-        updateThemeIcon(isRetro);
-      });
-
-      // Initialize icon visibility based on current theme
-      const currentTheme = localStorage.getItem('portfolio-theme');
-      updateThemeIcon(currentTheme === 'retro');
-    }
-
-    function updateThemeIcon(isRetro) {
-      const synthwaveIcon = themeBtn.querySelector('.theme-icon-synthwave');
-      const retroIcon = themeBtn.querySelector('.theme-icon-retro');
-      if (synthwaveIcon && retroIcon) {
-        synthwaveIcon.style.display = isRetro ? 'none' : 'inline';
-        retroIcon.style.display = isRetro ? 'inline' : 'none';
-      }
-    }
+    import { initHomeLive } from '/js/home-live.js?v=7';
+    import { initScrollReveal } from '/js/scroll-reveal.js?v=7';
+    initHomeLive();
+    initScrollReveal();
+  </script>
+  <script type="module">
+    // Synthwave hero — lazy, post-LCP, and skipped entirely on constrained
+    // clients. Three.js is never imported unless every check passes.
+    const boot = () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (navigator.connection && navigator.connection.saveData) return;
+      if (window.innerWidth < 768) return;
+      const canvas = document.getElementById('hero-canvas');
+      if (!canvas) return;
+      let gl = null;
+      try {
+        const probe = document.createElement('canvas');
+        gl = probe.getContext('webgl2') || probe.getContext('webgl');
+      } catch { gl = null; }
+      if (!gl) return;
+      import('/js/three-hero.js?v=7').then((mod) => {
+        canvas.hidden = false;
+        if (mod.initThreeHero(canvas)) canvas.classList.add('is-on');
+      }).catch(() => { canvas.hidden = true; });
+    };
+    window.addEventListener('load', () => {
+      if ('requestIdleCallback' in window) window.requestIdleCallback(boot, { timeout: 4000 });
+      else setTimeout(boot, 1200);
+    }, { once: true });
   </script>
 </body>
 </html>

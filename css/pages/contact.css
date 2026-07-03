@@ -1,0 +1,111 @@
+/* Contact page — chai-homelab.com v2
+   Consumes css/tokens.css + css/base.css (load those first).
+   Page-specific layout only; shared components come from base.css. */
+
+.contact-header {
+  padding-block: var(--sp-10) var(--sp-6);
+}
+
+.contact-header h1 {
+  font-size: var(--fs-5);
+  margin-bottom: var(--sp-4);
+}
+
+.contact-lede {
+  color: var(--text-2);
+  max-width: 58ch;
+}
+
+.contact-layout {
+  display: grid;
+  gap: var(--sp-8);
+  align-items: start;
+  padding-bottom: var(--sp-12);
+}
+
+@media (min-width: 768px) {
+  .contact-layout {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.contact-form-block h2,
+.contact-channels h2 {
+  font-size: var(--fs-3);
+  margin-bottom: var(--sp-5);
+}
+
+.contact-form-block form {
+  max-width: 40rem;
+}
+
+textarea.field__input {
+  resize: vertical;
+  min-height: 11rem;
+}
+
+.contact-note {
+  margin-top: var(--sp-4);
+  color: var(--text-3);
+  font-size: var(--fs-0);
+}
+
+/* Submit status region — empty until JS writes to it */
+.form-status {
+  margin-top: var(--sp-5);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-inline-start-width: 3px;
+  border-radius: var(--r-1);
+  background: var(--bg-1);
+  font-size: var(--fs-1);
+  color: var(--text-1);
+}
+
+.form-status:empty {
+  display: none;
+}
+
+.form-status--ok {
+  border-inline-start-color: var(--ok);
+}
+
+.form-status--err {
+  border-inline-start-color: var(--err);
+}
+
+/* Direct channels aside (extends .card) */
+.contact-channels__intro {
+  color: var(--text-3);
+  font-size: var(--fs-1);
+  margin-bottom: var(--sp-5);
+}
+
+.contact-channels ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.contact-channels li {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-channel__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Comfortable touch targets on the channel links */
+.contact-channels a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}

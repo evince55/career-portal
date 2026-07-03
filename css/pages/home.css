@@ -1,0 +1,244 @@
+/* Home page styles — chai-homelab.com v2.
+   Consumes css/tokens.css + css/base.css; page-specific layout only. */
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: min(88vh, 780px);
+  padding-block: var(--sp-12) var(--sp-10);
+}
+
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Static synthwave gradient — always painted, so skipping Three.js (reduced
+   motion, saveData, small viewport, no WebGL) still looks intentional. */
+.hero__bg-fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 78% 12%, color-mix(in srgb, var(--accent-magenta) 9%, transparent), transparent 70%),
+    radial-gradient(55% 55% at 15% 85%, color-mix(in srgb, var(--accent-cyan) 10%, transparent), transparent 70%),
+    var(--bg-0);
+}
+
+.hero__bg-fallback::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 18%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-cyan-dim), transparent);
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--t-slow) var(--ease);
+}
+
+.hero__canvas.is-on { opacity: 1; }
+
+.hero__fade {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 120px;
+  background: linear-gradient(transparent, var(--bg-0));
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.hero__title {
+  font-size: var(--fs-5);
+  letter-spacing: -0.02em;
+}
+
+.hero__tagline {
+  margin-top: var(--sp-4);
+  font-size: var(--fs-3);
+  font-family: var(--font-display);
+  color: var(--text-1);
+  max-width: 26ch;
+  text-wrap: balance;
+}
+
+.hero__sub {
+  margin-top: var(--sp-3);
+  color: var(--text-2);
+  max-width: 52ch;
+}
+
+.hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-6);
+}
+
+.hero__proof {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: var(--sp-8) 0 0;
+  padding: 0;
+}
+
+/* Proof chips are slightly taller pills so the linked one is a >=44px target. */
+.hero__proof .chip {
+  min-height: 2.75rem;
+  padding-inline: var(--sp-4);
+  gap: var(--sp-2);
+}
+
+.hero__proof a.chip {
+  text-decoration: none;
+  transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.hero__proof a.chip:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+/* ---------- featured projects ---------- */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--sp-5);
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.project-card .card__meta {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+}
+
+.project-card .card__title { margin: 0; }
+
+.project-card .card__title a {
+  color: var(--text-1);
+  text-decoration: none;
+}
+
+.project-card .card__title a:hover { color: var(--accent-cyan); }
+
+.project-card__number {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.project-card__stack {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+}
+
+.project-card__link {
+  margin-top: auto;
+  padding-top: var(--sp-2);
+}
+
+/* ---------- the homelab, live ---------- */
+.homelab {
+  background: var(--bg-1);
+  border-block: 1px solid var(--line);
+}
+
+.homelab__lede { max-width: 58ch; }
+
+.homelab__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--sp-6);
+  margin-block: var(--sp-6);
+}
+
+.homelab__updated {
+  color: var(--text-3);
+  font-size: var(--fs-0);
+  margin-bottom: var(--sp-5);
+}
+
+.homelab__cta { margin-top: var(--sp-5); }
+
+/* ---------- skills ---------- */
+.skills__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-6);
+}
+
+.skills__group h3 {
+  font-size: var(--fs-2);
+  margin-bottom: var(--sp-3);
+}
+
+.skills__group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skills__group li {
+  padding-block: var(--sp-1);
+  padding-left: var(--sp-4);
+  position: relative;
+}
+
+.skills__group li::before {
+  content: '\25b9'; /* small triangle */
+  position: absolute;
+  left: 0;
+  color: var(--accent-cyan);
+}
+
+/* ---------- about + contact ---------- */
+.about p + p { margin-top: var(--sp-4); }
+
+.about__edu {
+  margin-top: var(--sp-5);
+  color: var(--text-3);
+  font-size: var(--fs-0);
+}
+
+.contact-cta {
+  text-align: center;
+}
+
+.contact-cta p {
+  margin-inline: auto;
+  margin-bottom: var(--sp-6);
+  max-width: 48ch;
+}
+
+/* ---------- scroll reveal interop ----------
+   js/scroll-reveal.js adds .visible while base.css styles .is-visible;
+   cover both until the foundation reconciles the class name. */
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}

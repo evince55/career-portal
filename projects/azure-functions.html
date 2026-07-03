@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azure Functions — serverless incident response | Eugene Vincent</title>
+  <meta name="description" content="Case study: serverless incident response with two Python Azure Functions and Service Bus — Pydantic-validated events, 5-minute dedup windows, ~80% less alert noise.">
+  <meta name="theme-color" content="#08080d">
+  <link rel="canonical" href="https://chai-homelab.com/projects/azure-functions.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Azure Functions — serverless incident response">
+  <meta property="og:description" content="Two Python functions decouple alert generation from Discord delivery via Service Bus — Pydantic validation and 5-minute dedup cut alert noise ~80%.">
+  <meta property="og:url" content="https://chai-homelab.com/projects/azure-functions.html">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Azure Functions — serverless incident response">
+  <meta name="twitter:description" content="Python + Service Bus incident pipeline: Pydantic validation, 5-minute dedup, ~80% less alert noise.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/case-study.css?v=7">
+  <script type="module" src="/js/pwa.js?v=7"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article class="container case-study">
+      <header class="case-study__header">
+        <p class="kicker">Case study</p>
+        <h1>Azure Functions</h1>
+        <p class="case-study__outcome">Two Python functions decouple alert generation from Discord delivery through Azure Service Bus — Pydantic-validated events and 5-minute dedup windows cut alert noise by <strong>~80%</strong> during incidents.</p>
+        <p class="case-study__meta mono">cloud · serverless · April 2026</p>
+        <ul class="case-study__stack" aria-label="Tech stack">
+          <li class="chip">Azure Functions v2.0</li>
+          <li class="chip">Python</li>
+          <li class="chip">Service Bus</li>
+          <li class="chip">Timer Trigger</li>
+          <li class="chip">Pydantic</li>
+          <li class="chip">aiohttp</li>
+        </ul>
+      </header>
+
+      <section class="case-study__section">
+        <h2>Context</h2>
+        <p>When Prometheus fires an alert, something has to turn that event into a message a human will actually read. Baking notification logic into Alertmanager templates means every notification change is a configmap edit and an ArgoCD sync. I wanted a decoupled serverless layer that consumes incident events from a queue, validates them, and routes them to Discord — deployable and scalable on its own.</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Architecture</h2>
+        <p>Two functions on the Azure Functions v2.0 Python runtime, two triggers. A <strong>health checker</strong> runs on a 15-minute timer, polls each service's health endpoint, and emits an incident event to Service Bus on failure. An <strong>incident processor</strong> subscribes to the <code>incident-events</code> topic, validates, deduplicates, and posts a Discord embed. Service Bus is the decoupling boundary: Alertmanager and the health checker produce, the processor is the sole consumer — adding Slack or PagerDuty later means writing a new consumer, not touching the producers.</p>
+        <figure class="case-study__diagram">
+          <svg viewBox="0 0 360 324" role="img" aria-label="Architecture diagram: two producers — a health-checker function on a 15-minute timer and Prometheus Alertmanager — publish events to an Azure Service Bus incident-events topic. A Service-Bus-triggered incident processor validates messages with Pydantic and deduplicates within 5-minute windows, then posts incident embeds to a Discord webhook with three retries and exponential backoff." xmlns="http://www.w3.org/2000/svg">
+            <title>Azure Functions incident pipeline: producers into Service Bus, processor out to Discord</title>
+            <defs>
+              <marker id="af-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0 0L8 4L0 8z" class="dg-head"/>
+              </marker>
+            </defs>
+            <rect class="dg-box" x="20" y="10" width="150" height="52" rx="8"/>
+            <text class="dg-t1" x="95" y="32" text-anchor="middle">Health checker</text>
+            <text class="dg-t2" x="95" y="50" text-anchor="middle">timer · every 15 min</text>
+            <rect class="dg-box" x="190" y="10" width="150" height="52" rx="8"/>
+            <text class="dg-t1" x="265" y="32" text-anchor="middle">Alertmanager</text>
+            <text class="dg-t2" x="265" y="50" text-anchor="middle">Prometheus alerts</text>
+            <line class="dg-arrow" x1="95" y1="62" x2="95" y2="95" marker-end="url(#af-arrow)"/>
+            <line class="dg-arrow" x1="265" y1="62" x2="265" y2="95" marker-end="url(#af-arrow)"/>
+            <rect class="dg-box" x="20" y="98" width="320" height="46" rx="8"/>
+            <text class="dg-t1" x="180" y="118" text-anchor="middle">Azure Service Bus</text>
+            <text class="dg-t2" x="180" y="135" text-anchor="middle">incident-events topic</text>
+            <line class="dg-arrow" x1="180" y1="144" x2="180" y2="177" marker-end="url(#af-arrow)"/>
+            <rect class="dg-box dg-box--accent" x="20" y="180" width="320" height="52" rx="8"/>
+            <text class="dg-t1" x="180" y="202" text-anchor="middle">Incident processor</text>
+            <text class="dg-t2" x="180" y="220" text-anchor="middle">Pydantic validation · 5-min dedup</text>
+            <line class="dg-arrow" x1="180" y1="232" x2="180" y2="265" marker-end="url(#af-arrow)"/>
+            <text class="dg-label" x="188" y="253">3 retries · backoff</text>
+            <rect class="dg-box" x="20" y="268" width="320" height="46" rx="8"/>
+            <text class="dg-t1" x="180" y="288" text-anchor="middle">Discord webhook</text>
+            <text class="dg-t2" x="180" y="305" text-anchor="middle">incident embeds</text>
+          </svg>
+          <figcaption>Producers never know about Discord; the queue is the contract.</figcaption>
+        </figure>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Key decisions &amp; tradeoffs</h2>
+        <ul class="decisions">
+          <li><strong>Validate at the boundary.</strong> Every message passes a Pydantic model that enforces required fields (service, severity, timestamp, metric value) and dead-letters malformed payloads instead of dropping them silently. This caught a producer bug sending severity as <code>"WARNING"</code> instead of <code>"warning"</code>.</li>
+          <li><strong>Deduplicate on (service, alert-rule).</strong> A sustained degradation can fire the same alert every 30 seconds; the 5-minute window acknowledges duplicates without forwarding them. During a 2-hour Istio sidecar memory leak that meant ~80% less noise — and, since Service Bus bills per operation, a smaller bill too.</li>
+          <li><strong>Async webhooks.</strong> The Discord POST runs on <code>aiohttp</code> so the function never blocks on the round-trip; failures retry three times with exponential backoff, then dead-letter for manual inspection.</li>
+          <li><strong>Work with cold starts, not against them.</strong> Cold start adds 1–3 s after idle — fine for a 15-minute health check, painful on the alert path — so a heartbeat event every 5 minutes keeps the processor warm.</li>
+          <li><strong>Pin your models.</strong> Pydantic v2's migration broke field aliases that worked in v1; the version is pinned in <code>requirements.txt</code>.</li>
+        </ul>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Measured outcomes</h2>
+        <dl class="outcome-grid">
+          <div class="stat"><dt class="stat__label">Functions deployed</dt><dd class="stat__value">2</dd><dd class="stat__label">timer + Service Bus trigger</dd></div>
+          <div class="stat"><dt class="stat__label">Health checks</dt><dd class="stat__value">96/day</dd><dd class="stat__label">per service, 15-min interval</dd></div>
+          <div class="stat"><dt class="stat__label">Alert noise cut</dt><dd class="stat__value">~80%</dd><dd class="stat__label">5-min dedup, during incidents</dd></div>
+          <div class="stat"><dt class="stat__label">Webhook retries</dt><dd class="stat__value">3</dd><dd class="stat__label">exponential backoff, then DLQ</dd></div>
+        </dl>
+      </section>
+
+      <section class="case-study__section case-study__links">
+        <h2>Links</h2>
+        <ul>
+          <li><a href="/projects/monitoring-stack.html">Monitoring Stack case study — where these alerts originate</a></li>
+        </ul>
+        <p>The function app runs in a private Azure subscription, so there is no public repo or endpoint — <a href="/contact.html">happy to walk through the code</a>.</p>
+      </section>
+    </article>
+
+    <nav class="container case-study pager" aria-label="More case studies">
+      <a class="pager__link" href="/projects/monitoring-stack.html" rel="prev">
+        <span class="pager__dir">← Previous</span>
+        <span class="pager__title">Monitoring Stack</span>
+      </a>
+      <a class="pager__link pager__link--next" href="/projects/career-portal.html" rel="next">
+        <span class="pager__dir">Next →</span>
+        <span class="pager__title">Career Portal</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><a href="https://github.com/chaitea321">GitHub</a> · <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> · <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></p>
+      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a></p>
+    </div>
+  </footer>
+
+  <div id="palette-root"></div>
+  <script type="module" src="/js/palette.js?v=7"></script>
+</body>
+</html>

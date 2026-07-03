@@ -1,0 +1,292 @@
+/* Dashboard page styles — chai-homelab.com v2
+   Consumes css/tokens.css + css/base.css (load both first).
+   All classes here are page-scoped with a `db-` prefix. */
+
+/* ---------- hero / status ---------- */
+.db-hero {
+  padding-block: var(--sp-8) var(--sp-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.db-hero__title {
+  font-size: var(--fs-5);
+  margin-bottom: var(--sp-3);
+}
+
+.db-hero__lede {
+  color: var(--text-2);
+  max-width: 60ch;
+}
+
+.db-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3) var(--sp-5);
+  margin-top: var(--sp-5);
+}
+
+.db-status__state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-1);
+  font-weight: 500;
+}
+
+.db-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.db-dot--idle { background: var(--text-3); }
+.db-dot--warn { background: var(--warn); }
+.db-dot--err { background: var(--err); }
+
+.db-status__updated {
+  color: var(--text-3);
+  font-size: var(--fs-0);
+}
+
+.db-status__updated.is-stale { color: var(--warn); }
+
+.db-status__refresh { min-width: 8.5em; }
+
+.db-status__note {
+  margin-top: var(--sp-3);
+  color: var(--text-3);
+  font-size: var(--fs-0);
+}
+
+.db-error {
+  margin-top: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--err);
+  border-radius: var(--r-1);
+  color: var(--err);
+  font-size: var(--fs-1);
+  max-width: 65ch;
+}
+
+/* ---------- headline stats (gauges / bar / stat) ---------- */
+.db-live {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--sp-5);
+}
+
+.db-cell {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: var(--sp-6);
+  justify-items: center;
+  align-content: center;
+  text-align: center;
+  gap: var(--sp-3);
+}
+
+/* SVG arc gauges */
+.db-gauge__figure {
+  position: relative;
+  width: 140px;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.db-gauge__svg {
+  width: 100%;
+  height: auto;
+}
+
+.db-gauge-track,
+.db-gauge-fill {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.db-gauge-track {
+  stroke: var(--bg-2);
+  stroke-dasharray: 245.04 326.73; /* 270° of a r=52 circle */
+}
+
+.db-gauge-fill {
+  stroke: var(--accent-cyan);
+  stroke-dasharray: 0 326.73; /* set from JS per value */
+}
+
+.db-gauge__readout {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.db-gauge__max,
+.db-bar__max {
+  color: var(--text-3);
+  font-size: var(--fs-0);
+}
+
+.db-gauge__max { display: block; }
+
+/* Heap bar */
+.db-bar { width: 100%; }
+
+.db-bar__track {
+  width: 100%;
+  height: 10px;
+  background: var(--bg-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.db-bar__fill {
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent-cyan);
+}
+
+/* Gauge/bar movement only on refreshes (renderMinecraft adds .is-animated);
+   base.css neutralizes all transitions under prefers-reduced-motion. */
+.db-live.is-animated .db-gauge-fill {
+  transition: stroke-dasharray var(--t-slow) var(--ease);
+}
+
+.db-live.is-animated .db-bar__fill {
+  transition: width var(--t-slow) var(--ease);
+}
+
+/* ---------- detail cards ---------- */
+.db-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sp-5);
+}
+
+.db-meta {
+  margin: 0;
+}
+
+.db-meta > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-4);
+  padding-block: var(--sp-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.db-meta > div:last-child { border-bottom: 0; }
+
+.db-meta dt {
+  color: var(--text-3);
+  font-size: var(--fs-0);
+}
+
+.db-meta dd {
+  margin: 0;
+  color: var(--text-1);
+  font-size: var(--fs-0);
+  text-align: right;
+}
+
+.db-meta dd.is-warn { color: var(--warn); }
+
+.db-changes {
+  list-style: none;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+}
+
+.db-changes li {
+  position: relative;
+  padding: var(--sp-2) 0 var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-0);
+  color: var(--text-2);
+}
+
+.db-changes li:last-child { border-bottom: 0; }
+
+.db-changes li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(var(--sp-2) + 0.45em);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+}
+
+.db-cost__headline {
+  margin-block: var(--sp-3);
+  color: var(--text-1);
+}
+
+.db-cost__number {
+  font-size: var(--fs-4);
+  font-weight: 600;
+  color: var(--ok);
+}
+
+.db-cost__per {
+  color: var(--text-3);
+  font-size: var(--fs-1);
+}
+
+.db-cost__list {
+  list-style: none;
+  margin: 0 0 var(--sp-4);
+  padding: 0;
+}
+
+.db-cost__list li {
+  padding-block: var(--sp-1);
+  font-size: var(--fs-0);
+  color: var(--text-2);
+}
+
+/* ---------- stack section ---------- */
+.db-stack__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.db-stack__grid .card__title { font-size: var(--fs-2); }
+
+.db-stack__grid p {
+  font-size: var(--fs-0);
+  color: var(--text-3);
+}
+
+.db-stack__more {
+  margin-top: var(--sp-5);
+  font-size: var(--fs-1);
+}
+
+/* WORKAROUND (foundation bug — remove once fixed centrally): base.css sets
+   `.palette { display: flex }`, which overrides the [hidden] attribute that
+   js/palette.js toggles to close the overlay, so the palette is stuck open
+   and covers the page. Real fix belongs in css/base.css. */
+.palette[hidden] { display: none; }
+
+/* ---------- small screens ---------- */
+@media (max-width: 480px) {
+  .db-status__refresh { width: 100%; }
+
+  .db-cell { padding: var(--sp-5); }
+}

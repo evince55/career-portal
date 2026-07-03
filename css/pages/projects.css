@@ -1,0 +1,139 @@
+/* Projects index — page-specific styles.
+   Consumes css/tokens.css + css/base.css; no new colors or sizes outside tokens. */
+
+/* ---------- intro ---------- */
+.projects-intro {
+  padding-block: var(--sp-10) var(--sp-5);
+}
+
+.projects-intro__title {
+  font-size: var(--fs-5);
+  margin-bottom: var(--sp-3);
+}
+
+.projects-intro__lede {
+  max-width: 58ch;
+}
+
+/* ---------- controls (filter chips + search + count) ---------- */
+.projects-controls {
+  display: grid;
+  gap: var(--sp-4);
+  padding-block: var(--sp-2) var(--sp-5);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg-1);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-1);
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease);
+}
+
+.filter-chip:hover {
+  color: var(--text-1);
+  border-color: var(--text-3);
+}
+
+.filter-chip[aria-pressed='true'] {
+  background: var(--accent-cyan-faint);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.projects-search {
+  max-width: 420px;
+  margin-bottom: 0;
+}
+
+.projects-count {
+  color: var(--text-3);
+  font-size: var(--fs-0);
+  min-height: 1.5em; /* reserve the line so updates don't shift layout */
+}
+
+/* ---------- grid + cards ---------- */
+.projects-grid-section {
+  padding-block: 0 var(--sp-12);
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: var(--sp-5);
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.project-card__category {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.project-card__title {
+  margin-bottom: 0;
+}
+
+.project-card__outcome {
+  color: var(--text-1);
+}
+
+.project-card__stack {
+  list-style: none;
+  margin: 0;
+  margin-top: auto; /* pins stack + CTA to the card bottom */
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.project-card__cta {
+  margin: 0;
+}
+
+.project-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  font-weight: 500;
+}
+
+/* ---------- empty / no-JS states ---------- */
+.projects-empty {
+  grid-column: 1 / -1;
+  color: var(--text-3);
+  padding-block: var(--sp-8);
+  text-align: center;
+  max-width: none;
+}
+
+.projects-static {
+  grid-column: 1 / -1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Portal — zero-dependency PWA portfolio | Eugene Vincent</title>
+  <meta name="description" content="Case study: this portfolio — a zero-dependency vanilla-JS PWA with 115 passing tests, Lighthouse 95+, WCAG accessibility, and $0/month hosting on Cloudflare Pages.">
+  <meta name="theme-color" content="#08080d">
+  <link rel="canonical" href="https://chai-homelab.com/projects/career-portal.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Career Portal — zero-dependency PWA portfolio">
+  <meta property="og:description" content="This site: vanilla JS, no build step, 115 passing tests, Lighthouse 95+, $0/month hosting on Cloudflare Pages.">
+  <meta property="og:url" content="https://chai-homelab.com/projects/career-portal.html">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Career Portal — zero-dependency PWA portfolio">
+  <meta name="twitter:description" content="Vanilla JS, no build step, 115 passing tests, Lighthouse 95+, $0/month hosting.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/case-study.css?v=7">
+  <script type="module" src="/js/pwa.js?v=7"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article class="container case-study">
+      <header class="case-study__header">
+        <p class="kicker">Case study</p>
+        <h1>Career Portal</h1>
+        <p class="case-study__outcome">The site you are reading: a <strong>zero-dependency</strong> vanilla-JS PWA with 115 passing tests, Lighthouse 95+, and $0/month hosting on Cloudflare Pages.</p>
+        <p class="case-study__meta mono">web · pwa · March 2026</p>
+        <ul class="case-study__stack" aria-label="Tech stack">
+          <li class="chip">Vanilla JS (ES6)</li>
+          <li class="chip">CSS custom properties</li>
+          <li class="chip">PWA + Service Worker</li>
+          <li class="chip">node --test</li>
+          <li class="chip">Cloudflare Pages</li>
+          <li class="chip">Azure Functions</li>
+        </ul>
+      </header>
+
+      <section class="case-study__section">
+        <h2>Context</h2>
+        <p>Portfolio sites tend to be either a static template (forgettable) or a framework app with 200 KB+ of JavaScript and a build pipeline. I wanted the site itself to be the demonstration: fast, accessible, offline-capable, and readable source — with no framework tax.</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Architecture</h2>
+        <p>There is no build step. HTML pages import ES modules straight from <code>/js/</code>, styling is plain CSS with design tokens as custom properties, and everything ships as-is to Cloudflare Pages. The contact form posts to an Azure Function; the rest is static.</p>
+        <p>The first version's hook was a working terminal emulator with 28 commands. This redesign retired it for a content-first layout with a Ctrl+K command palette — the terminal was fun, but it hid the actual work behind a <code>help</code> command. One convention survived every version: every dynamic string passes through <code>escapeHtml()</code> before any <code>innerHTML</code> assignment.</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Key decisions &amp; tradeoffs</h2>
+        <ul class="decisions">
+          <li><strong>Zero build step.</strong> Files ship exactly as written — no bundler, no transpiler. The cost: no tree-shaking, so every module is hand-curated for size.</li>
+          <li><strong>Native test runner.</strong> The suite runs on <code>node --test</code> — no Jest, no Mocha. GitHub Actions runs it on every push and blocks the Cloudflare Pages deploy on any failure.</li>
+          <li><strong>Accessibility as a gate, not a feature.</strong> Skip links, landmark structure, full keyboard navigation, and <code>prefers-reduced-motion</code> honored by every animation (WCAG 2.1).</li>
+          <li><strong>Manually versioned service worker.</strong> The PWA cache uses a fetch-first strategy with an offline fallback page; the cache name must be bumped by hand on asset changes. I have forgotten twice — the stale-cache bug is subtle both times.</li>
+          <li><strong>Terminal → palette.</strong> The 28-command terminal buried the content, so v2 keeps the personality in a Ctrl+K palette and puts the case studies first. Try it.</li>
+        </ul>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Measured outcomes</h2>
+        <dl class="outcome-grid">
+          <div class="stat"><dt class="stat__label">Shipped dependencies</dt><dd class="stat__value">0</dd><dd class="stat__label">npm packages in the bundle</dd></div>
+          <div class="stat"><dt class="stat__label">Tests passing</dt><dd class="stat__value">115</dd><dd class="stat__label">native Node runner</dd></div>
+          <div class="stat"><dt class="stat__label">Lighthouse</dt><dd class="stat__value">95+</dd><dd class="stat__label">performance &amp; accessibility</dd></div>
+          <div class="stat"><dt class="stat__label">Hosting cost</dt><dd class="stat__value">$0/mo</dd><dd class="stat__label">Cloudflare Pages free tier</dd></div>
+        </dl>
+      </section>
+
+      <section class="case-study__section case-study__links">
+        <h2>Links</h2>
+        <ul>
+          <li><a href="https://github.com/chaitea321/career-portal">Source on GitHub — chaitea321/career-portal</a></li>
+          <li><a href="/">Live deployment — you are on it</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <nav class="container case-study pager" aria-label="More case studies">
+      <a class="pager__link" href="/projects/azure-functions.html" rel="prev">
+        <span class="pager__dir">← Previous</span>
+        <span class="pager__title">Azure Functions</span>
+      </a>
+      <a class="pager__link pager__link--next" href="/projects/meshwatch.html" rel="next">
+        <span class="pager__dir">Next →</span>
+        <span class="pager__title">MeshWatch</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><a href="https://github.com/chaitea321">GitHub</a> · <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> · <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></p>
+      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a></p>
+    </div>
+  </footer>
+
+  <div id="palette-root"></div>
+  <script type="module" src="/js/palette.js?v=7"></script>
+</body>
+</html>

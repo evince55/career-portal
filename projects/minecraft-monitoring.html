@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Monitoring — game-server observability with Discord control | Eugene Vincent</title>
+  <meta name="description" content="Case study: instrumenting a PaperMC Minecraft server with JMX metrics, RCON control, and a 10-command Discord bot on k3s — 99.8% uptime with automated lag alerts.">
+  <meta name="theme-color" content="#08080d">
+  <link rel="canonical" href="https://chai-homelab.com/projects/minecraft-monitoring.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Minecraft Monitoring — game-server observability with Discord control">
+  <meta property="og:description" content="A PaperMC server treated like a production service: JMX metrics, RCON control from Discord, automated lag alerts — 99.8% uptime.">
+  <meta property="og:url" content="https://chai-homelab.com/projects/minecraft-monitoring.html">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Minecraft Monitoring — game-server observability with Discord control">
+  <meta name="twitter:description" content="JMX metrics, RCON control from Discord, automated lag alerts — 99.8% uptime on k3s.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/case-study.css?v=7">
+  <script type="module" src="/js/pwa.js?v=7"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article class="container case-study">
+      <header class="case-study__header">
+        <p class="kicker">Case study</p>
+        <h1>Minecraft Monitoring</h1>
+        <p class="case-study__outcome">A PaperMC game server treated like a production service: JMX metrics, RCON control from a 10-command Discord bot, and automated lag alerts — <strong>99.8% uptime</strong> over a 30-day window.</p>
+        <p class="case-study__meta mono">devops · discord · May 2026</p>
+        <ul class="case-study__stack" aria-label="Tech stack">
+          <li class="chip">PaperMC 26.1.2</li>
+          <li class="chip">Java 25</li>
+          <li class="chip">JMX Exporter</li>
+          <li class="chip">RCON</li>
+          <li class="chip">Discord.py</li>
+          <li class="chip">Prometheus + Grafana</li>
+        </ul>
+      </header>
+
+      <section class="case-study__section">
+        <h2>Context</h2>
+        <p>Minecraft server administration usually means SSH and a screen session: type <code>list</code> into a console, eyeball raw TPS, restart by hand when it crashes. No metrics history, no alerting, and no way for the Discord community to check server status themselves. The goal was to treat a game server like any other production service — observable, alertable, and controllable from the place the community already lives.</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Architecture</h2>
+        <p>The server runs as a StatefulSet on k3s with three integration layers: a JMX exporter that exposes TPS, heap usage, GC pauses, and player count to Prometheus; the RCON protocol as a TCP control channel; and a Discord.py bot with 10 slash commands. The bot runs as a sidecar in the same pod, so RCON calls hit <code>localhost:25575</code> with zero network hops, while Prometheus queries travel the Istio mesh with mTLS enforced.</p>
+        <figure class="case-study__diagram">
+          <svg viewBox="0 0 360 264" role="img" aria-label="Architecture diagram: a Discord bot with ten slash commands reads metrics from Prometheus and sends write commands over RCON. The PaperMC server pod on k3s exposes TPS, heap, and player metrics to Prometheus through a JMX exporter on a 30-second scrape, and receives RCON commands on localhost port 25575 — all inside an Istio service mesh." xmlns="http://www.w3.org/2000/svg">
+            <title>Minecraft monitoring architecture: Discord bot reads via Prometheus and writes via RCON to the PaperMC pod</title>
+            <defs>
+              <marker id="mc-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0 0L8 4L0 8z" class="dg-head"/>
+              </marker>
+            </defs>
+            <rect class="dg-box" x="20" y="10" width="320" height="46" rx="8"/>
+            <text class="dg-t1" x="180" y="30" text-anchor="middle">Discord.py bot</text>
+            <text class="dg-t2" x="180" y="47" text-anchor="middle">10 slash commands · role checks</text>
+            <line class="dg-arrow" x1="95" y1="56" x2="95" y2="101" marker-end="url(#mc-arrow)"/>
+            <text class="dg-label" x="103" y="78">reads</text>
+            <line class="dg-arrow" x1="265" y1="56" x2="265" y2="101" marker-end="url(#mc-arrow)"/>
+            <text class="dg-label" x="257" y="92" text-anchor="end">writes</text>
+            <rect class="dg-box" x="20" y="104" width="150" height="50" rx="8"/>
+            <text class="dg-t1" x="95" y="125" text-anchor="middle">Prometheus</text>
+            <text class="dg-t2" x="95" y="142" text-anchor="middle">TPS · heap · players</text>
+            <rect class="dg-box" x="190" y="104" width="150" height="50" rx="8"/>
+            <text class="dg-t1" x="265" y="125" text-anchor="middle">RCON</text>
+            <text class="dg-t2" x="265" y="142" text-anchor="middle">localhost:25575</text>
+            <line class="dg-arrow" x1="95" y1="201" x2="95" y2="157" marker-end="url(#mc-arrow)"/>
+            <text class="dg-label" x="103" y="176">JMX · 30s</text>
+            <line class="dg-arrow" x1="265" y1="154" x2="265" y2="199" marker-end="url(#mc-arrow)"/>
+            <text class="dg-label" x="257" y="190" text-anchor="end">commands</text>
+            <rect class="dg-box dg-box--accent" x="20" y="202" width="320" height="50" rx="8"/>
+            <text class="dg-t1" x="180" y="223" text-anchor="middle">PaperMC 26.1.2 · Java 25</text>
+            <text class="dg-t2" x="180" y="240" text-anchor="middle">k3s StatefulSet · Istio mTLS · ZGC</text>
+          </svg>
+          <figcaption>Reads go through Prometheus (no server load); writes go through RCON in the same pod.</figcaption>
+        </figure>
+        <p>Prometheus alert rules fire on two thresholds — TPS below 18 (lag) and heap above 400 MB (memory pressure). Either one posts a Discord embed with the last 5 minutes of metrics, deduplicated within a 5-minute window so a sustained degradation cannot storm the channel.</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Key decisions &amp; tradeoffs</h2>
+        <ul class="decisions">
+          <li><strong>Split reads from writes.</strong> Read commands (<code>/status</code>, <code>/players</code>, <code>/tps</code>) query Prometheus and render Discord embeds with zero server load; write commands (<code>/restart</code>, <code>/whitelist</code>, <code>/ban</code>) open an RCON session, execute, and close within 200 ms.</li>
+          <li><strong>Role checks before every write.</strong> No RCON socket opens until the Discord role check passes.</li>
+          <li><strong>Lock RCON down with the mesh.</strong> RCON has no real auth beyond a shared password, so an Istio authorization policy allows only the bot's service account to reach port 25575.</li>
+          <li><strong>Slower scrape for game metrics.</strong> The JMX exporter adds ~30 MB of heap — noticeable on a 2 GB node — so game-server metrics scrape at 30s instead of 15s.</li>
+          <li><strong>ZGC on Java 25.</strong> Kept the last GC pause at 45 ms, comfortably under the ~100 ms mark where players notice rubberbanding; pause percentiles in Grafana let me correlate player complaints with GC events.</li>
+          <li><strong>Plan around Discord's command cache.</strong> Slash-command metadata sits behind a 1-hour global cache, so bot deployments are scheduled around that window.</li>
+        </ul>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Measured outcomes</h2>
+        <dl class="outcome-grid">
+          <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value">99.8%</dd><dd class="stat__label">30-day window</dd></div>
+          <div class="stat"><dt class="stat__label">Command latency</dt><dd class="stat__value">~180 ms</dd><dd class="stat__label">incl. Discord round-trip</dd></div>
+          <div class="stat"><dt class="stat__label">Last GC pause</dt><dd class="stat__value">45 ms</dd><dd class="stat__label">ZGC, Java 25</dd></div>
+          <div class="stat"><dt class="stat__label">Alert storms</dt><dd class="stat__value">0</dd><dd class="stat__label">5-min dedup window</dd></div>
+        </dl>
+      </section>
+
+      <section class="case-study__section case-study__links">
+        <h2>Links</h2>
+        <ul>
+          <li><a href="https://github.com/chaitea321/minecraft-monitoring">Source on GitHub — chaitea321/minecraft-monitoring</a></li>
+          <li><a href="/dashboard.html">Live dashboard — this server's metrics, updated every 10 minutes</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <nav class="container case-study pager" aria-label="More case studies">
+      <a class="pager__link" href="/projects/meshwatch.html" rel="prev">
+        <span class="pager__dir">← Previous</span>
+        <span class="pager__title">MeshWatch</span>
+      </a>
+      <a class="pager__link pager__link--next" href="/projects/monitoring-stack.html" rel="next">
+        <span class="pager__dir">Next →</span>
+        <span class="pager__title">Monitoring Stack</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><a href="https://github.com/chaitea321">GitHub</a> · <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> · <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></p>
+      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a></p>
+    </div>
+  </footer>
+
+  <div id="palette-root"></div>
+  <script type="module" src="/js/palette.js?v=7"></script>
+</body>
+</html>

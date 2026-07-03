@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring Stack — GitOps monitoring with ArgoCD | Eugene Vincent</title>
+  <meta name="description" content="Case study: a GitOps monitoring platform — ArgoCD App of Apps, External Secrets with Azure Key Vault, cert-manager TLS, 20 Grafana panels — zero manual production applies.">
+  <meta name="theme-color" content="#08080d">
+  <link rel="canonical" href="https://chai-homelab.com/projects/monitoring-stack.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Monitoring Stack — GitOps monitoring with ArgoCD">
+  <meta property="og:description" content="Every component — Prometheus, Loki, TLS certs, secrets — declared in Git and reconciled by ArgoCD. Zero manual kubectl applies in production.">
+  <meta property="og:url" content="https://chai-homelab.com/projects/monitoring-stack.html">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Monitoring Stack — GitOps monitoring with ArgoCD">
+  <meta name="twitter:description" content="ArgoCD App of Apps, External Secrets, cert-manager TLS — zero manual production applies.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/case-study.css?v=7">
+  <script type="module" src="/js/pwa.js?v=7"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article class="container case-study">
+      <header class="case-study__header">
+        <p class="kicker">Case study</p>
+        <h1>Monitoring Stack</h1>
+        <p class="case-study__outcome">A monitoring platform where <strong>Git is the single source of truth</strong>: ArgoCD reconciles Prometheus, Loki, TLS certificates, and secrets — with zero manual <code>kubectl apply</code> in production.</p>
+        <p class="case-study__meta mono">devops · gitops · May 2026</p>
+        <ul class="case-study__stack" aria-label="Tech stack">
+          <li class="chip">ArgoCD</li>
+          <li class="chip">kube-prometheus-stack</li>
+          <li class="chip">Loki + Promtail</li>
+          <li class="chip">External Secrets Operator</li>
+          <li class="chip">cert-manager</li>
+          <li class="chip">Azure Key Vault</li>
+        </ul>
+      </header>
+
+      <section class="case-study__section">
+        <h2>Context</h2>
+        <p>Manual Kubernetes deployments drift. A <code>kubectl apply</code> here, a <code>helm upgrade</code> there, and within a week nobody is sure what is actually running. The goal: a monitoring platform where every change is a reviewed Git commit and the cluster self-heals to the declared state.</p>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Architecture</h2>
+        <p>ArgoCD sits at the top, watching a repo structured with the <strong>App-of-Apps</strong> pattern: a root Application points at a directory of child Applications, each deploying one component into its own namespace — kube-prometheus-stack (v85.2.1 Helm chart) for Prometheus, Alertmanager, and Grafana; Loki with Promtail for logs; External Secrets Operator; and cert-manager. Namespace isolation means a misconfigured Loki deploy cannot block a Prometheus rolling update.</p>
+        <figure class="case-study__diagram">
+          <svg viewBox="0 0 360 344" role="img" aria-label="Architecture diagram: a Git repository using the App-of-Apps pattern is synced by ArgoCD, which reconciles four child applications, each in its own namespace: kube-prometheus-stack with Prometheus and Grafana, Loki plus Promtail for logs with 7-day retention, External Secrets Operator syncing from Azure Key Vault, and cert-manager provisioning Let's Encrypt TLS." xmlns="http://www.w3.org/2000/svg">
+            <title>Monitoring stack architecture: Git synced by ArgoCD, reconciling four child applications in separate namespaces</title>
+            <defs>
+              <marker id="ms-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0 0L8 4L0 8z" class="dg-head"/>
+              </marker>
+            </defs>
+            <rect class="dg-box" x="20" y="10" width="320" height="46" rx="8"/>
+            <text class="dg-t1" x="180" y="30" text-anchor="middle">Git repository</text>
+            <text class="dg-t2" x="180" y="47" text-anchor="middle">App-of-Apps · single source of truth</text>
+            <line class="dg-arrow" x1="180" y1="56" x2="180" y2="85" marker-end="url(#ms-arrow)"/>
+            <text class="dg-label" x="188" y="75">sync</text>
+            <rect class="dg-box dg-box--accent" x="20" y="88" width="320" height="40" rx="8"/>
+            <text class="dg-t1" x="180" y="113" text-anchor="middle">ArgoCD</text>
+            <line class="dg-arrow" x1="180" y1="128" x2="180" y2="157" marker-end="url(#ms-arrow)"/>
+            <text class="dg-label" x="188" y="147">reconciles</text>
+            <rect class="dg-group" x="20" y="160" width="320" height="172" rx="10"/>
+            <text class="dg-t2" x="180" y="182" text-anchor="middle">child Applications — one namespace each</text>
+            <rect class="dg-box" x="32" y="194" width="140" height="56" rx="8"/>
+            <text class="dg-t1" x="102" y="217" text-anchor="middle">kube-prometheus</text>
+            <text class="dg-t2" x="102" y="236" text-anchor="middle">Prometheus · Grafana</text>
+            <rect class="dg-box" x="188" y="194" width="140" height="56" rx="8"/>
+            <text class="dg-t1" x="258" y="217" text-anchor="middle">Loki + Promtail</text>
+            <text class="dg-t2" x="258" y="236" text-anchor="middle">logs · 7d retention</text>
+            <rect class="dg-box" x="32" y="262" width="140" height="56" rx="8"/>
+            <text class="dg-t1" x="102" y="285" text-anchor="middle">External Secrets</text>
+            <text class="dg-t2" x="102" y="304" text-anchor="middle">← Azure Key Vault</text>
+            <rect class="dg-box" x="188" y="262" width="140" height="56" rx="8"/>
+            <text class="dg-t1" x="258" y="285" text-anchor="middle">cert-manager</text>
+            <text class="dg-t2" x="258" y="304" text-anchor="middle">← Let's Encrypt</text>
+          </svg>
+          <figcaption>One root Application, four children — each in its own namespace, all reconciled from Git.</figcaption>
+        </figure>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Key decisions &amp; tradeoffs</h2>
+        <ul class="decisions">
+          <li><strong>App of Apps, with a known weak point.</strong> Per-namespace child apps isolate blast radius, but the root Application is a single point of failure — if ArgoCD cannot reach the repo, nothing reconciles. Mitigation: a local ArgoCD backup and a documented manual recovery path.</li>
+          <li><strong>Secrets never touch Git.</strong> An <code>ExternalSecret</code> CRD references Azure Key Vault, and the operator syncs it into a native Kubernetes Secret on a 1-hour refresh — no app code changes. Tradeoff: a rotation can be stale for up to 60 minutes, so critical rotations get a manual refresh.</li>
+          <li><strong>TLS as a controller, not a chore.</strong> cert-manager provisions Let's Encrypt certificates via HTTP-01 and renews 30 days before expiry: zero manual cert operations across 5 ingress routes, and expired certs — the top cause of cascade failures in my earlier homelab — became structurally impossible. Lesson learned: Let's Encrypt rate limits (50 certs per domain per week) bite during testing, so iteration happens on the staging issuer.</li>
+          <li><strong>Dashboards as code.</strong> The 20-panel Grafana dashboard lives as JSON in a ConfigMap that ArgoCD reconciles — an edit is a Git commit, not a click in the Grafana UI.</li>
+        </ul>
+      </section>
+
+      <section class="case-study__section">
+        <h2>Measured outcomes</h2>
+        <dl class="outcome-grid">
+          <div class="stat"><dt class="stat__label">Services monitored</dt><dd class="stat__value">5</dd><dd class="stat__label">across 4 namespaces</dd></div>
+          <div class="stat"><dt class="stat__label">Alert rules</dt><dd class="stat__value">7</dd><dd class="stat__label">TPS to node pressure</dd></div>
+          <div class="stat"><dt class="stat__label">Grafana panels</dt><dd class="stat__value">20</dd><dd class="stat__label">primary dashboard</dd></div>
+          <div class="stat"><dt class="stat__label">Log retention</dt><dd class="stat__value">7 days</dd><dd class="stat__label">~1.2 GB indexed</dd></div>
+          <div class="stat"><dt class="stat__label">Manual applies</dt><dd class="stat__value">0</dd><dd class="stat__label">everything is GitOps</dd></div>
+        </dl>
+      </section>
+
+      <section class="case-study__section case-study__links">
+        <h2>Links</h2>
+        <ul>
+          <li><a href="/dashboard.html">Live homelab dashboard — served by this stack</a></li>
+          <li><a href="/projects/meshwatch.html">MeshWatch case study — the observability layer this platform deploys</a></li>
+        </ul>
+        <p>This platform runs on the private homelab, so there is no public repo — <a href="/contact.html">ask me for a walkthrough</a>.</p>
+      </section>
+    </article>
+
+    <nav class="container case-study pager" aria-label="More case studies">
+      <a class="pager__link" href="/projects/minecraft-monitoring.html" rel="prev">
+        <span class="pager__dir">← Previous</span>
+        <span class="pager__title">Minecraft Monitoring</span>
+      </a>
+      <a class="pager__link pager__link--next" href="/projects/azure-functions.html" rel="next">
+        <span class="pager__dir">Next →</span>
+        <span class="pager__title">Azure Functions</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><a href="https://github.com/chaitea321">GitHub</a> · <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> · <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></p>
+      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a></p>
+    </div>
+  </footer>
+
+  <div id="palette-root"></div>
+  <script type="module" src="/js/palette.js?v=7"></script>
+</body>
+</html>

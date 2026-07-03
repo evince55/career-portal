@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page not found · Eugene Vincent</title>
+  <meta name="description" content="That page doesn't exist on chai-homelab.com. Head back to the homepage or browse Eugene Vincent's projects.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#08080d">
+  <meta property="og:title" content="404 — Page not found · Eugene Vincent">
+  <meta property="og:description" content="This pod was evicted. The page you're after doesn't exist on chai-homelab.com.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/misc.css?v=7">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" class="misc-main">
+    <div class="container misc-inner">
+      <h1>
+        <span class="misc-code" aria-hidden="true">404</span>
+        <span class="misc-title">This pod was evicted</span>
+        <span class="visually-hidden">— error 404, page not found</span>
+      </h1>
+      <p class="misc-lede">
+        The page you're after doesn't exist — maybe it moved, maybe the URL has a typo,
+        maybe the scheduler had other plans. Either way, nothing is broken on your end.
+      </p>
+      <div class="misc-actions">
+        <a class="btn btn--primary" href="/">Back to Home</a>
+        <a class="btn btn--ghost" href="/projects.html">Browse projects</a>
+      </div>
+      <p class="misc-hint">Tip: press Ctrl+K (or tap ⌘K above) to jump anywhere on the site.</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><span class="mono">EV_</span> · Eugene Vincent</p>
+      <p>
+        <a href="https://github.com/chaitea321" target="_blank" rel="noopener">GitHub</a> ·
+        <a href="https://www.linkedin.com/in/eugene-vincent-42472024b" target="_blank" rel="noopener">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">Email</a> ·
+        <a href="https://github.com/chaitea321/career-portal" target="_blank" rel="noopener">Vanilla JS, no framework — view source</a>
+      </p>
+    </div>
+  </footer>
+
+  <div id="palette-root"></div>
+  <script type="module">
+    import { initPalette } from '/js/palette.js?v=7';
+    if (!document.querySelector('.palette')) initPalette();
+  </script>
+  <script type="module" src="/js/pwa.js?v=7"></script>
+</body>
+</html>

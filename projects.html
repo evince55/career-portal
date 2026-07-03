@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — Eugene Vincent</title>
+  <meta name="description" content="Five production systems with measured outcomes: k3s service-mesh observability, Minecraft server monitoring, a GitOps platform, serverless incident response on Azure, and this PWA.">
+  <link rel="canonical" href="https://chai-homelab.com/projects.html">
+  <meta name="theme-color" content="#08080d">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://chai-homelab.com/projects.html">
+  <meta property="og:title" content="Projects — Eugene Vincent">
+  <meta property="og:description" content="Five production systems with measured outcomes: k3s service-mesh observability, Minecraft server monitoring, a GitOps platform, serverless incident response on Azure, and this PWA.">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Projects — Eugene Vincent">
+  <meta name="twitter:description" content="Five production systems with measured outcomes — from service-mesh observability on k3s to serverless incident response on Azure.">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/projects.css?v=7">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="container projects-intro">
+      <p class="kicker">Portfolio</p>
+      <h1 class="projects-intro__title">Projects</h1>
+      <p class="projects-intro__lede">
+        Five systems I designed, built, and run — most of them live on my homelab
+        right now. Each one links to a case study with the architecture, the
+        tradeoffs, and the measured results.
+      </p>
+    </div>
+
+    <section class="container projects-controls" aria-label="Filter and search projects">
+      <div class="filter-chips" role="group" aria-label="Filter by category">
+        <button class="filter-chip" type="button" data-category="" aria-pressed="true">All</button>
+        <button class="filter-chip" type="button" data-category="cloud" aria-pressed="false">Cloud</button>
+        <button class="filter-chip" type="button" data-category="devops" aria-pressed="false">DevOps</button>
+        <button class="filter-chip" type="button" data-category="iot" aria-pressed="false">IoT</button>
+        <button class="filter-chip" type="button" data-category="web" aria-pressed="false">Web</button>
+      </div>
+      <div class="field projects-search">
+        <label class="field__label" for="project-search">Search projects</label>
+        <input class="field__input" type="search" id="project-search" name="search"
+          placeholder="e.g. Kubernetes, Grafana, serverless" autocomplete="off">
+      </div>
+      <p id="projects-count" class="projects-count mono" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="container projects-grid-section" aria-label="Project list">
+      <div id="projects-grid" class="projects-grid">
+        <noscript>
+          <ul class="projects-static" role="list">
+            <li><a href="/projects/meshwatch.html">MeshWatch</a> — service-mesh observability on k3s for $5.12/month</li>
+            <li><a href="/projects/minecraft-monitoring.html">minecraft-monitoring</a> — real-time server metrics and Discord alerting at 99.8% uptime</li>
+            <li><a href="/projects/monitoring-stack.html">Monitoring Stack</a> — GitOps monitoring platform with ArgoCD and 7 alert rules</li>
+            <li><a href="/projects/azure-functions.html">Azure Functions</a> — serverless health checks and incident alerting every 15 minutes</li>
+            <li><a href="/projects/career-portal.html">Career Portal</a> — this site: a zero-dependency vanilla JS PWA</li>
+          </ul>
+          <p class="projects-empty">Filtering and search need JavaScript — the case-study links above work without it.</p>
+        </noscript>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p>© 2026 Eugene Vincent</p>
+      <p>
+        <a href="https://github.com/chaitea321" rel="noopener">GitHub</a> ·
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">Email</a> ·
+        <a href="https://github.com/chaitea321/career-portal" rel="noopener">Vanilla JS, no framework — view source</a>
+      </p>
+    </div>
+  </footer>
+
+  <div id="palette-root"></div>
+
+  <script type="module">
+    import { getProjects } from '/js/project-catalog.js?v=7';
+    import { escapeHtml } from '/js/utils/helpers.js?v=7';
+
+    const CATEGORY_LABELS = { cloud: 'Cloud', devops: 'DevOps', iot: 'IoT', web: 'Web' };
+    const grid = document.getElementById('projects-grid');
+    const countEl = document.getElementById('projects-count');
+    const searchInput = document.getElementById('project-search');
+    const chips = Array.from(document.querySelectorAll('.filter-chip'));
+    const total = getProjects().length;
+    let category = '';
+
+    function cardHtml(project) {
+      const stack = project.techStack.slice(0, 4)
+        .map((tech) => `<li class="chip">${escapeHtml(tech.name)}</li>`)
+        .join('');
+      const label = CATEGORY_LABELS[project.category] || escapeHtml(project.category);
+      return `
+        <article class="card project-card">
+          <p class="card__meta mono project-card__category">${label}</p>
+          <h2 class="card__title project-card__title">${escapeHtml(project.name)}</h2>
+          <p class="project-card__outcome">${escapeHtml(project.outcome)}</p>
+          <ul class="project-card__stack" role="list">${stack}</ul>
+          <p class="project-card__cta">
+            <a class="project-card__link" href="${escapeHtml(project.caseStudyUrl)}">Read case study<span class="visually-hidden"> — ${escapeHtml(project.name)}</span> <span aria-hidden="true">→</span></a>
+          </p>
+        </article>`;
+    }
+
+    function render() {
+      const projects = getProjects(category, searchInput.value.trim());
+      if (projects.length === 0) {
+        grid.innerHTML = '<p class="projects-empty">No projects match. Clear the search or pick another filter.</p>';
+      } else {
+        grid.innerHTML = projects.map(cardHtml).join('');
+      }
+      countEl.textContent = `${projects.length} of ${total} projects shown`;
+    }
+
+    for (const chip of chips) {
+      chip.addEventListener('click', () => {
+        category = chip.dataset.category;
+        for (const c of chips) c.setAttribute('aria-pressed', String(c === chip));
+        render();
+      });
+    }
+    searchInput.addEventListener('input', render);
+    render();
+  </script>
+  <script type="module" src="/js/pwa.js?v=7"></script>
+  <script type="module">
+    import { initPalette } from '/js/palette.js?v=7';
+    initPalette();
+  </script>
+</body>
+</html>

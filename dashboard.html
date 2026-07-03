@@ -3,838 +3,431 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eugene Vincent | Dashboard</title>
-  <meta name="description" content="Live dashboard for MeshWatch monitoring, Minecraft server stats, and system metrics.">
-  <meta name="keywords" content="dashboard, monitoring, meshwatch, minecraft, metrics, live, stats">
-  <meta property="og:title" content="Eugene Vincent | Dashboard">
-  <meta property="og:description" content="Live dashboard for MeshWatch monitoring, Minecraft server stats, and system metrics.">
-  <meta property="og:image" content="/icons/icon-96.png">
+  <title>Live Homelab Dashboard — Eugene Vincent</title>
+  <meta name="description" content="Live metrics from Eugene Vincent's k3s homelab: Minecraft server TPS, players, JVM heap, and the Prometheus + Grafana pipeline behind them. Stats export every 10 minutes.">
+  <link rel="canonical" href="https://chai-homelab.com/dashboard.html">
+  <meta property="og:title" content="Live Homelab Dashboard — Eugene Vincent">
+  <meta property="og:description" content="Live metrics from the k3s homelab that runs everything on this site: Minecraft server TPS, players, heap, and monitoring stack.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://chai-homelab.com/dashboard.html">
+  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#08080d">
   <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
-  <meta name="theme-color" content="#0a0a14">
-  <link rel="stylesheet" href="css/styles.css?v=3">
   <link rel="manifest" href="/manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
- <script type="application/ld+json">
+  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css?v=7">
+  <link rel="stylesheet" href="/css/base.css?v=7">
+  <link rel="stylesheet" href="/css/pages/dashboard.css?v=7">
+  <script type="application/ld+json">
     {
-      "@context": "https://schema.org/2014-09-07/schema.jsonld",
+      "@context": "https://schema.org",
       "@type": "Person",
       "name": "Eugene Vincent",
       "url": "https://chai-homelab.com/dashboard.html",
-      "jobTitle": "Full Stack Engineer",
+      "jobTitle": "Full-Stack Engineer",
       "knowsAbout": ["Kubernetes", "Azure", "DevOps", "SRE", "Monitoring"],
-      "sameAs": ["https://github.com/chaitea321"]
+      "sameAs": ["https://github.com/chaitea321", "https://linkedin.com/in/eugene-vincent-42472024b"]
     }
   </script>
-  <style>
-    :root {
-      --db-bg: #0c0c14;
-      --db-card-bg: #12121e;
-      --db-card-border: rgba(188, 19, 254, 0.12);
-      --db-gauge-track: rgba(188, 19, 254, 0.08);
-      --db-gauge-fill: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
-      --db-success-dim: rgba(0, 255, 65, 0.15);
-      --db-warning-dim: rgba(255, 204, 0, 0.15);
-      --db-text-dim: rgba(255, 255, 255, 0.3);
-    }
-
-    body.theme-retro {
-      --db-bg: #0f0d0a;
-      --db-card-bg: #1a1610;
-      --db-card-border: rgba(255, 140, 0, 0.12);
-      --db-gauge-track: rgba(255, 140, 0, 0.08);
-      --db-gauge-fill: linear-gradient(90deg, #ffaa00, #ff8c00);
-      --db-success-dim: rgba(128, 255, 0, 0.15);
-      --db-warning-dim: rgba(255, 204, 0, 0.15);
-      --db-text-dim: rgba(232, 198, 122, 0.3);
-    }
-
-    .db-wrapper {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.5rem 2rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .db-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-      padding: 1.5rem 0 1rem;
-      border-bottom: 1px solid rgba(188, 19, 254, 0.12);
-      margin-bottom: 1.5rem;
-    }
-
-    .db-header h2 {
-      color: var(--neon-cyan);
-      font-size: 1.1rem;
-      letter-spacing: 1px;
-      font-weight: 600;
-    }
-
-    .db-header h2 span { color: var(--text-secondary); font-weight: 400; }
-
-    .db-nav {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-    }
-
-    .db-nav a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.8rem;
-      padding: 0.35rem 0.75rem;
-      border: 1px solid rgba(188, 19, 254, 0.2);
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-
-    .db-nav a:hover {
-      color: var(--neon-cyan);
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 10px rgba(0, 240, 252, 0.15);
-    }
-
-    /* Overview Stats Row */
-    .db-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .db-stat-card {
-      background: var(--db-card-bg);
-      border: 1px solid var(--db-card-border);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      text-align: center;
-      transition: border-color 0.25s;
-    }
-
-    .db-stat-card:hover {
-      border-color: rgba(0, 240, 252, 0.2);
-    }
-
-    .db-stat-icon {
-      font-size: 1.4rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .db-stat-value {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--neon-cyan);
-      letter-spacing: 1px;
-    }
-
-    .db-stat-label {
-      font-size: 0.65rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-top: 0.15rem;
-    }
-
-    /* Panels Grid */
-    .db-panels {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      flex: 1;
-    }
-
-    .db-panel {
-      background: var(--db-card-bg);
-      border: 1px solid var(--db-card-border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .db-panel.full {
-      grid-column: 1 / -1;
-    }
-
-    .db-panel-title {
-      color: var(--neon-pink);
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      opacity: 0.8;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .db-panel-title .badge {
-      font-size: 0.6rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      background: rgba(0, 240, 252, 0.1);
-      color: var(--neon-cyan);
-      border: 1px solid rgba(0, 240, 252, 0.15);
-    }
-
-    /* Minecraft Server Panel */
-    .db-server-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .db-gauge-group {
-      text-align: center;
-    }
-
-    .db-gauge-label {
-      font-size: 0.65rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.5rem;
-    }
-
-    .db-gauge {
-      width: 100%;
-      height: 10px;
-      background: var(--db-gauge-track);
-      border-radius: 5px;
-      overflow: hidden;
-      margin-bottom: 0.3rem;
-    }
-
-    .db-gauge-fill {
-      height: 100%;
-      border-radius: 5px;
-      background: var(--db-gauge-fill);
-      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 0 8px rgba(0, 240, 252, 0.3);
-    }
-
-    .db-gauge-value {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--neon-cyan);
-    }
-
-    .db-gauge-sub {
-      font-size: 0.65rem;
-      color: var(--text-secondary);
-    }
-
-    .db-server-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      justify-content: center;
-    }
-
-    .db-meta-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      padding: 0.25rem 0;
-      border-bottom: 1px solid rgba(188, 19, 254, 0.06);
-    }
-
-    .db-meta-label {
-      color: var(--text-secondary);
-    }
-
-    .db-meta-value {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-
-    .db-meta-value.success { color: var(--success); }
-    .db-meta-value.warning { color: var(--warning); }
-    .db-meta-value.info { color: var(--neon-cyan); }
-
-    /* Recent Changes */
-    .db-changes {
-      margin-top: 1rem;
-    }
-
-    .db-change-item {
-      display: flex;
-      gap: 0.75rem;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(188, 19, 254, 0.06);
-      font-size: 0.8rem;
-    }
-
-    .db-change-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--neon-cyan);
-      margin-top: 0.4rem;
-      flex-shrink: 0;
-      box-shadow: 0 0 6px rgba(0, 240, 252, 0.4);
-    }
-
-    .db-change-text {
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
-    /* Cost Savings */
-    .db-cost {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .db-cost-main {
-      text-align: center;
-      padding: 1rem 2rem;
-      background: var(--db-success-dim);
-      border: 1px solid rgba(0, 255, 65, 0.2);
-      border-radius: 12px;
-    }
-
-    .db-cost-number {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: var(--success);
-    }
-
-    .db-cost-label {
-      font-size: 0.65rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 0.15rem;
-    }
-
-    .db-cost-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .db-cost-row {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      font-size: 0.8rem;
-    }
-
-    .db-cost-row .label {
-      color: var(--text-secondary);
-      min-width: 100px;
-    }
-
-    .db-cost-row .value {
-      color: var(--neon-cyan);
-      font-weight: 600;
-    }
-
-    /* System Status */
-    .db-sys-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 0.75rem;
-    }
-
-    .db-sys-item {
-      text-align: center;
-      padding: 0.75rem;
-      border: 1px solid var(--db-card-border);
-      border-radius: 6px;
-    }
-
-    .db-sys-item-icon {
-      font-size: 1.2rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .db-sys-item-value {
-      font-size: 0.85rem;
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-
-    .db-sys-item-label {
-      font-size: 0.6rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 0.15rem;
-    }
-
-    /* Last updated */
-    .db-updated {
-      font-size: 0.65rem;
-      color: var(--db-text-dim);
-      text-align: right;
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid rgba(188, 19, 254, 0.06);
-    }
-
-    @media (max-width: 768px) {
-      .db-wrapper { padding: 0 0.75rem 1rem; }
-      .db-header { flex-direction: column; align-items: flex-start; }
-      .db-panels { grid-template-columns: 1fr; }
-      .db-panel.full { grid-column: 1; }
-      .db-server-info { grid-template-columns: 1fr; }
-      .db-stats { grid-template-columns: repeat(2, 1fr); }
-      .db-cost { flex-direction: column; align-items: stretch; }
-    }
-
-    @keyframes db-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-
-    .db-live-dot {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--success);
-      animation: db-pulse 2s infinite;
-      margin-right: 0.4rem;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .db-gauge-fill { transition: none; }
-      .db-live-dot { animation: none; }
-    }
-  </style>
 </head>
 <body>
-  <a href="#db-content" class="skip-link">Skip to dashboard</a>
-  <div id="crt-overlay"></div>
-  <div id="grain-overlay"></div>
-  <header class="terminal-header" role="banner">
-    <h1 class="glitch" data-text="Eugene Vincent">Eugene Vincent</h1>
-    <p class="subtitle">Full Stack Engineer | Azure DevOps | SRE</p>
-    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
-      <span class="theme-icon-synthwave">&#x260c;</span>
-      <span class="theme-icon-retro" style="display:none;">&#x2630;</span>
-    </button>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-nav" data-nav>
+    <nav class="container site-nav__inner" aria-label="Primary">
+      <a class="site-nav__brand mono" href="/">EV_</a>
+      <div class="site-nav__links">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects.html">Projects</a>
+        <a class="nav-link" href="/dashboard.html" aria-current="page">Dashboard</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+      </div>
+    </nav>
   </header>
-  <main class="terminal-container" style="flex:1;display:flex;flex-direction:column;">
-    <div class="terminal-window" style="display:flex;flex-direction:column;flex:1;">
-      <div class="terminal-titlebar">
-        <span class="traffic-light red" aria-hidden="true"></span>
-        <span class="traffic-light yellow" aria-hidden="true"></span>
-        <span class="traffic-light green" aria-hidden="true"></span>
-        <span class="title-text">eugene@homelab:~/monitoring — Live Dashboard</span>
-      </div>
-      <div class="terminal-body" style="flex:1;display:flex;flex-direction:column;">
-        <div class="db-wrapper" id="db-content">
-          <div class="db-header">
-            <h2>📊 <span>Dashboard</span></h2>
-            <div style="font-size:0.65rem;color:var(--text-secondary);margin-top:0.25rem;">
-              <span style="color:var(--success);">●</span> Minecraft stats: live (Prometheus, 10m refresh)
-              <span style="margin-left:0.75rem;">|</span>
-              <span style="margin-left:0.25rem;">Cost &amp; infra: static estimates</span>
-            </div>
-            <nav class="db-nav">
-              <a href="/">⌂ Terminal</a>
-              <a href="/project-explorer.html">📂 Projects</a>
-              <a href="/writeups.html">✎ Writeups</a>
-              <a href="/contact.html">✉ Contact</a>
-            </nav>
-          </div>
 
-          <!-- ARIA live region for screen reader announcements -->
-          <div class="sr-only" id="db-live-region" aria-live="polite" aria-atomic="true"></div>
+  <main id="main" tabindex="-1">
+    <div class="container">
 
-          <div class="db-stats" id="db-stats" role="list" aria-label="Overview statistics"></div>
+      <section class="db-hero">
+        <span class="kicker">k3s · Prometheus · Grafana</span>
+        <h1 class="db-hero__title">The homelab, live</h1>
+        <p class="db-hero__lede">Live metrics from the k3s homelab that runs everything on this site.
+          A cron job exports the Minecraft server's Prometheus stats every 10 minutes; this page reads that export.</p>
 
-          <div class="db-panels">
-            <div class="db-panel">
-              <div class="db-panel-title">
-                <span>🎮 Minecraft Server</span>
-                <span class="badge" id="db-minecraft-badge">LIVE</span>
-              </div>
-              <div class="db-server-info" id="db-minecraft"></div>
-              <div class="db-changes" id="db-changes"></div>
-              <div class="db-updated" id="db-updated"></div>
-            </div>
-
-            <div class="db-panel">
-              <div class="db-panel-title">
-                <span>💰 Cost Optimization</span>
-                <span class="badge">60% SAVINGS</span>
-              </div>
-              <div class="db-cost" id="db-cost"></div>
-            </div>
-
-            <div class="db-panel full">
-              <div class="db-panel-title">
-                <span>🔧 System Status</span>
-                <span class="badge">OVERVIEW</span>
-              </div>
-              <div class="db-sys-grid" id="db-sys"></div>
-            </div>
-          </div>
+        <div class="db-status" role="group" aria-label="Live feed status">
+          <p class="db-status__state">
+            <span class="db-dot db-dot--idle" id="db-dot" aria-hidden="true"></span>
+            <span id="db-state-text">Checking live feed…</span>
+          </p>
+          <p class="db-status__updated mono" id="db-updated">updated —</p>
+          <button type="button" class="btn btn--ghost db-status__refresh" id="db-refresh">Refresh</button>
         </div>
-      </div>
+        <p class="db-status__note" id="db-refresh-note"></p>
+        <p class="db-error" id="db-error" role="alert" hidden></p>
+        <p class="visually-hidden" id="db-live-region" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="section db-live-section" aria-labelledby="live-title">
+        <h2 class="section__title" id="live-title">Minecraft server health</h2>
+        <div class="db-live" id="db-live">
+
+          <div class="stat db-cell db-gauge" role="img" id="db-gauge-tps" aria-label="TPS not loaded yet">
+            <div class="db-gauge__figure">
+              <svg class="db-gauge__svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+                <circle class="db-gauge-track" cx="60" cy="60" r="52" transform="rotate(135 60 60)"></circle>
+                <circle class="db-gauge-fill" cx="60" cy="60" r="52" transform="rotate(135 60 60)"></circle>
+              </svg>
+              <p class="db-gauge__readout">
+                <span class="stat__value" data-value>—</span>
+                <span class="db-gauge__max mono" data-max></span>
+              </p>
+            </div>
+            <p class="stat__label">TPS · ticks per second</p>
+          </div>
+
+          <div class="stat db-cell db-gauge" role="img" id="db-gauge-players" aria-label="Players not loaded yet">
+            <div class="db-gauge__figure">
+              <svg class="db-gauge__svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+                <circle class="db-gauge-track" cx="60" cy="60" r="52" transform="rotate(135 60 60)"></circle>
+                <circle class="db-gauge-fill" cx="60" cy="60" r="52" transform="rotate(135 60 60)"></circle>
+              </svg>
+              <p class="db-gauge__readout">
+                <span class="stat__value" data-value>—</span>
+                <span class="db-gauge__max mono" data-max></span>
+              </p>
+            </div>
+            <p class="stat__label">Players online</p>
+          </div>
+
+          <div class="stat db-cell db-bar" role="img" id="db-bar-heap" aria-label="JVM heap not loaded yet">
+            <p class="db-bar__readout">
+              <span class="stat__value" data-value>—</span>
+              <span class="db-bar__max mono" data-max></span>
+            </p>
+            <div class="db-bar__track"><div class="db-bar__fill"></div></div>
+            <p class="stat__label">JVM heap used</p>
+          </div>
+
+          <div class="stat db-cell" role="img" id="db-stat-uptime" aria-label="Server uptime not loaded yet">
+            <p class="stat__value" data-value>—</p>
+            <p class="stat__label">Server uptime</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="section db-detail" aria-labelledby="detail-title">
+        <h2 class="section__title" id="detail-title">Server detail</h2>
+        <div class="db-detail__grid">
+
+          <article class="card">
+            <h3 class="card__title">Server</h3>
+            <dl class="db-meta">
+              <div><dt>Name</dt><dd class="mono" id="db-meta-name">—</dd></div>
+              <div><dt>Version</dt><dd class="mono" id="db-meta-version">—</dd></div>
+              <div><dt>RCON latency</dt><dd class="mono" id="db-meta-rcon">—</dd></div>
+              <div><dt>Discord alerts today</dt><dd class="mono" id="db-meta-alerts">—</dd></div>
+            </dl>
+          </article>
+
+          <article class="card">
+            <h3 class="card__title">Recent changes</h3>
+            <p class="card__meta">From the server's change feed.</p>
+            <ul class="db-changes" id="db-changes"></ul>
+          </article>
+
+          <article class="card">
+            <h3 class="card__title">Monitoring bill</h3>
+            <p class="card__meta">Static figures from the MeshWatch case study — not live.</p>
+            <p class="db-cost__headline">
+              <span class="db-cost__number mono">$5.12</span><span class="db-cost__per">/month</span>
+            </p>
+            <ul class="db-cost__list">
+              <li>60% less than the ~$12.80/mo serverless baseline</li>
+              <li>$92.16 saved per year</li>
+              <li>99.8% uptime on a single k3s node</li>
+            </ul>
+            <p><a href="/projects/meshwatch.html">How the 60% cut happened →</a></p>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="section db-stack" aria-labelledby="stack-title">
+        <h2 class="section__title" id="stack-title">What runs this page</h2>
+        <ul class="db-stack__grid">
+          <li class="card">
+            <h3 class="card__title">k3s + Istio</h3>
+            <p>Single-node Kubernetes with mTLS between every pod.</p>
+          </li>
+          <li class="card">
+            <h3 class="card__title">Prometheus + Grafana</h3>
+            <p>Scrapes the Minecraft server's JMX metrics — the numbers above come from this pipeline.</p>
+          </li>
+          <li class="card">
+            <h3 class="card__title">Loki + Tempo</h3>
+            <p>Log aggregation and distributed traces for the same cluster.</p>
+          </li>
+          <li class="card">
+            <h3 class="card__title">Cloudflare Pages</h3>
+            <p>Hosts this site; the stats JSON this page reads is refreshed every 10 minutes.</p>
+          </li>
+        </ul>
+        <p class="db-stack__more">Full detail in the
+          <a href="/projects/minecraft-monitoring.html">Minecraft monitoring</a> and
+          <a href="/projects/monitoring-stack.html">monitoring stack</a> case studies.</p>
+      </section>
+
     </div>
   </main>
-  <footer class="terminal-footer" role="contentinfo">
-    <div class="footer-left">
-      <p>← Back to <a href="/" style="color:var(--neon-cyan);">Terminal</a></p>
-    </div>
-    <div class="footer-right">
-      <span id="online-status" class="status-indicator" aria-live="polite" aria-label="Network status"></span>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p>© 2026 Eugene Vincent · Vanilla JS, no framework —
+        <a href="https://github.com/chaitea321/career-portal" target="_blank" rel="noopener noreferrer">view source</a></p>
+      <p>
+        <a href="https://github.com/chaitea321" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b" target="_blank" rel="noopener noreferrer">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">Email</a>
+      </p>
     </div>
   </footer>
-  <nav class="mobile-nav" id="mobile-nav">
-    <a href="/project-explorer.html" class="demo-btn" style="text-decoration:none;" aria-label="Project Explorer">📂 Projects</a>
-    <a href="/dashboard.html" class="demo-btn" style="text-decoration:none;" aria-label="Live Dashboard">📊 Dashboard</a>
-    <a href="/writeups.html" class="demo-btn" style="text-decoration:none;" aria-label="Writeups">✎ Writeups</a>
-    <a href="/contact.html" class="demo-btn" style="text-decoration:none;" aria-label="Contact">✉ Contact</a>
-  </nav>
-  <button class="ct-hamburger" id="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false"></button>
 
-  <!-- Mobile Bottom Navigation Bar -->
-  <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
-    <ul class="bottom-nav-items">
-      <li><a href="/" class="bottom-nav-item" aria-label="Terminal">
-        <span class="nav-icon">⌨️</span>
-        <span class="nav-label">Terminal</span>
-      </a></li>
-      <li><a href="/project-explorer.html" class="bottom-nav-item" aria-label="Projects">
-        <span class="nav-icon">📂</span>
-        <span class="nav-label">Projects</span>
-      </a></li>
-      <li><a href="/dashboard.html" class="bottom-nav-item active" aria-current="page" aria-label="Dashboard">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label">Dashboard</span>
-      </a></li>
-      <li><a href="/writeups.html" class="bottom-nav-item" aria-label="Writeups">
-        <span class="nav-icon">✎</span>
-        <span class="nav-label">Writeups</span>
-      </a></li>
-      <li><a href="/contact.html" class="bottom-nav-item" aria-label="Contact">
-        <span class="nav-icon">✉️</span>
-        <span class="nav-label">Contact</span>
-      </a></li>
-    </ul>
-  </nav>
+  <div id="palette-root"></div>
+  <script type="module">
+    import { initPalette } from '/js/palette.js?v=7';
+    initPalette();
+  </script>
+  <script type="module" src="/js/pwa.js?v=7"></script>
 
   <script type="module">
-    import { initMobileNav } from '/js/mobile-nav.js?v=3';
-    import { COMMAND_COUNT, escapeHtml } from '/js/utils/helpers.js?v=3';
-    import PROJECT_CATALOG from '/js/project-catalog.js?v=3';
+    // Live dashboard. All dynamic values are rendered with textContent — no
+    // innerHTML — so nothing from the stats feed is ever parsed as markup.
+    const STATS_URL = '/config/minecraft-stats.json';
+    const STALE_AFTER_MS = 20 * 60 * 1000; // --warn styling past 20 minutes
+    const GAUGE_CIRC = 2 * Math.PI * 52;   // r=52 circle in the 120x120 viewBox
+    const GAUGE_ARC = GAUGE_CIRC * 0.75;   // gauges sweep a 270° arc
 
-    initMobileNav();
-
-    // Skip link focus management
-    document.querySelectorAll('.skip-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        const target = document.querySelector(link.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
-        }
-      });
-    });
-
-    // Theme toggle button
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    if (themeBtn) {
-      themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('theme-retro');
-        const isRetro = document.body.classList.contains('theme-retro');
-        localStorage.setItem('portfolio-theme', isRetro ? 'retro' : 'synthwave');
-        updateThemeIcon(isRetro);
-      });
-
-      const currentTheme = localStorage.getItem('portfolio-theme');
-      updateThemeIcon(currentTheme === 'retro');
-    }
-
-    function updateThemeIcon(isRetro) {
-      const synthwaveIcon = themeBtn.querySelector('.theme-icon-synthwave');
-      const retroIcon = themeBtn.querySelector('.theme-icon-retro');
-      if (synthwaveIcon && retroIcon) {
-        synthwaveIcon.style.display = isRetro ? 'none' : 'inline';
-        retroIcon.style.display = isRetro ? 'inline' : 'none';
-      }
-    }
-
-    const MINECRAFT_DEFAULTS = {
-      server: { name: "Eugene's Homelab MC", version: "PaperMC 26.1.2", javaVersion: "Java 25" },
-      metrics: { tps: 20, players: 3, maxPlayers: 20, uptime: "99.8%", heapUsedMB: 300, heapMaxMB: 512 },
-      monitoring: { discordAlertsToday: 0, rconLatency: "12ms" },
+    // Last-known snapshot, shown until the first fetch lands (and kept if it fails).
+    const FALLBACK_STATS = {
+      server: { name: 'Eugene\'s Homelab MC', version: 'PaperMC 26.1.2', javaVersion: 'Java 25' },
+      metrics: { tps: 20, players: 3, maxPlayers: 20, uptime: '99.8%', heapUsedMB: 300, heapMaxMB: 512 },
+      monitoring: { discordAlertsToday: 0, rconLatency: '12ms' },
       recentChanges: [
-        "Upgraded to PaperMC 26.1.2 with Java 25 runtime",
-        "Added new Grafana panel for GC pause monitoring",
-        "Increased heap allocation from 256MB to 512MB",
-        "Implemented RCON latency tracking dashboard"
+        'Upgraded to PaperMC 26.1.2 with Java 25 runtime',
+        'Added new Grafana panel for GC pause monitoring',
+        'Increased heap allocation from 256MB to 512MB',
+        'Implemented RCON latency tracking dashboard'
       ]
     };
 
-    // === RENDER FUNCTIONS ===
+    const DOT_CLASSES = {
+      live: 'db-dot pulse',
+      stale: 'db-dot db-dot--warn',
+      offline: 'db-dot db-dot--err',
+      loading: 'db-dot db-dot--idle'
+    };
 
-    function announceDashboard(message) {
-      const liveRegion = document.getElementById('db-live-region');
-      if (liveRegion) {
-        liveRegion.textContent = message;
-        setTimeout(() => { liveRegion.textContent = ''; }, 3000);
+    function num(value, fallback) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    function setState(kind, text) {
+      const dot = document.getElementById('db-dot');
+      if (dot) dot.className = DOT_CLASSES[kind] || DOT_CLASSES.loading;
+      setText('db-state-text', text);
+    }
+
+    function announce(message) {
+      const region = document.getElementById('db-live-region');
+      if (!region) return;
+      region.textContent = message;
+      window.setTimeout(() => { region.textContent = ''; }, 3000);
+    }
+
+    function showError(message) {
+      const el = document.getElementById('db-error');
+      el.textContent = message;
+      el.hidden = false;
+    }
+
+    function hideError() {
+      const el = document.getElementById('db-error');
+      el.hidden = true;
+      el.textContent = '';
+    }
+
+    function setGauge(id, valueText, maxText, frac, label) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.setAttribute('aria-label', label);
+      el.querySelector('[data-value]').textContent = valueText;
+      el.querySelector('[data-max]').textContent = maxText;
+      const fill = el.querySelector('.db-gauge-fill');
+      const clamped = Math.max(0, Math.min(1, frac));
+      fill.style.strokeDasharray = `${(clamped * GAUGE_ARC).toFixed(2)} ${GAUGE_CIRC.toFixed(2)}`;
+    }
+
+    function setBar(id, valueText, maxText, frac, label) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.setAttribute('aria-label', label);
+      el.querySelector('[data-value]').textContent = valueText;
+      el.querySelector('[data-max]').textContent = maxText;
+      const clamped = Math.max(0, Math.min(1, frac));
+      el.querySelector('.db-bar__fill').style.width = `${(clamped * 100).toFixed(1)}%`;
+    }
+
+    function setStat(id, valueText, label) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.setAttribute('aria-label', label);
+      el.querySelector('[data-value]').textContent = valueText;
+    }
+
+    function renderChanges(changes) {
+      const list = document.getElementById('db-changes');
+      list.textContent = '';
+      const items = Array.isArray(changes) && changes.length > 0 ? changes : ['No recent changes recorded.'];
+      for (const change of items) {
+        const li = document.createElement('li');
+        li.textContent = String(change);
+        list.appendChild(li);
       }
     }
 
-    function renderStats() {
-      const projectCount = Object.keys(PROJECT_CATALOG).length;
-      document.getElementById('db-stats').innerHTML = [
-        { icon: '📦', value: String(projectCount), label: 'Projects Deployed' },
-        { icon: '⚡', value: String(COMMAND_COUNT), label: 'Terminal Commands' },
-        { icon: '💰', value: '$5.12', label: 'Monthly Cost' },
-        { icon: '📈', value: '99.9%', label: 'Infra Uptime' },
-        { icon: '🧪', value: '277', label: 'Tests Passing' }
-      ].map(s => `
-        <div class="db-stat-card">
-          <div class="db-stat-icon">${s.icon}</div>
-          <div class="db-stat-value">${s.value}</div>
-          <div class="db-stat-label">${s.label}</div>
-        </div>
-      `).join('');
+    function formatAgo(ageMs) {
+      const mins = Math.max(0, Math.floor(ageMs / 60000));
+      if (mins < 1) return 'updated just now';
+      if (mins < 120) return `updated ${mins}m ago`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 48) return `updated ${hours}h ago`;
+      return `updated ${Math.floor(hours / 24)}d ago`;
     }
 
-    function getDataFreshness() {
-      // Returns freshness indicator for live data sources
-      const now = new Date();
-      const updated = stats?.lastUpdated ? new Date(stats.lastUpdated) : null;
-      if (updated) {
-        const minutesAgo = Math.round((now - updated) / 60000);
-        if (minutesAgo < 15) return { label: 'Live', color: 'var(--success)', sub: `${minutesAgo}m ago` };
-        if (minutesAgo < 60) return { label: 'Cached', color: 'var(--warning)', sub: `${minutesAgo}m ago` };
-        return { label: 'Stale', color: 'var(--neon-pink)', sub: `${minutesAgo}m ago` };
+    // Returns true when the feed's timestamp is missing or older than 20 minutes.
+    function renderFreshness(lastUpdated) {
+      const el = document.getElementById('db-updated');
+      const parsed = lastUpdated ? Date.parse(lastUpdated) : NaN;
+      if (Number.isNaN(parsed)) {
+        el.textContent = 'no timestamp in feed';
+        el.removeAttribute('title');
+        el.classList.add('is-stale');
+        return true;
       }
-      return { label: 'Offline', color: 'var(--warning)', sub: 'No data source' };
+      const age = Date.now() - parsed;
+      const stale = age >= STALE_AFTER_MS;
+      el.textContent = formatAgo(age);
+      el.setAttribute('title', new Date(parsed).toLocaleString());
+      el.classList.toggle('is-stale', stale);
+      return stale;
     }
 
+    // animate=false on first paint (no gauge sweep from zero); true on refreshes,
+    // where CSS transitions move the arcs/bar to the new values.
     function renderMinecraft(stats, animate = false) {
-      const tps = stats.metrics.tps;
-      const players = stats.metrics.players;
-      const maxPlayers = stats.metrics.maxPlayers;
-      const heapUsedMB = stats.metrics.heapUsedMB;
-      const heapMaxMB = stats.metrics.heapMaxMB;
-
-      // Smooth gauge transitions (update widths via JS to trigger CSS transitions)
+      const live = document.getElementById('db-live');
       if (animate) {
-        const tpsFill = document.querySelector('#db-minecraft .db-gauge-group:nth-child(1) .db-gauge-fill');
-        const playersFill = document.querySelector('#db-minecraft .db-gauge-group:nth-child(2) .db-gauge-fill');
-        const heapFill = document.querySelector('#db-minecraft .db-gauge-group:nth-child(3) .db-gauge-fill');
-
-        if (tpsFill) tpsFill.style.width = Math.min(100, (tps / 20) * 100) + '%';
-        if (playersFill) playersFill.style.width = Math.min(100, (players / Math.max(maxPlayers, 1)) * 100) + '%';
-        if (heapFill) heapFill.style.width = Math.min(100, (heapUsedMB / Math.max(heapMaxMB, 1)) * 100) + '%';
-
-        // Update gauge values with subtle fade effect
-        const gauges = document.querySelectorAll('#db-minecraft .db-gauge-value');
-        if (gauges[0]) gauges[0].innerHTML = tps + '<span class="db-gauge-sub">/20</span>';
-        if (gauges[1]) gauges[1].innerHTML = players + '<span class="db-gauge-sub">/' + maxPlayers + '</span>';
-        if (gauges[2]) gauges[2].innerHTML = heapUsedMB + '<span class="db-gauge-sub">/' + heapMaxMB + ' MB</span>';
+        live.classList.add('is-animated');
       } else {
-        // Full render for initial load
-        document.getElementById('db-minecraft').innerHTML = `
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div class="db-gauge-group">
-              <div class="db-gauge-label">TPS</div>
-              <div class="db-gauge"><div class="db-gauge-fill" style="width:${Math.min(100, (tps / 20) * 100)}%"></div></div>
-              <div class="db-gauge-value">${tps}<span class="db-gauge-sub">/20</span></div>
-            </div>
-            <div class="db-gauge-group">
-              <div class="db-gauge-label">Players</div>
-              <div class="db-gauge"><div class="db-gauge-fill" style="width:${Math.min(100, (players / Math.max(maxPlayers, 1)) * 100)}%"></div></div>
-              <div class="db-gauge-value">${players}<span class="db-gauge-sub">/${maxPlayers}</span></div>
-            </div>
-            <div class="db-gauge-group">
-              <div class="db-gauge-label">Heap Usage</div>
-              <div class="db-gauge"><div class="db-gauge-fill" style="width:${Math.min(100, (heapUsedMB / Math.max(heapMaxMB, 1)) * 100)}%"></div></div>
-              <div class="db-gauge-value">${heapUsedMB}<span class="db-gauge-sub">/${heapMaxMB} MB</span></div>
-            </div>
-          </div>
-          <div class="db-server-meta" style="grid-column:1/-1;margin-top:0.5rem;">
-            <div class="db-meta-row">
-              <span class="db-meta-label">Server</span>
-              <span class="db-meta-value info">${stats.server.name}</span>
-            </div>
-            <div class="db-meta-row">
-              <span class="db-meta-label">Version</span>
-              <span class="db-meta-value">${stats.server.version} (${stats.server.javaVersion})</span>
-            </div>
-            <div class="db-meta-row">
-              <span class="db-meta-label">Uptime</span>
-              <span class="db-meta-value success">${stats.metrics.uptime}</span>
-            </div>
-            <div class="db-meta-row">
-              <span class="db-meta-label">RCON Latency</span>
-              <span class="db-meta-value info">${stats.monitoring.rconLatency}</span>
-            </div>
-            <div class="db-meta-row">
-              <span class="db-meta-label">Alerts Today</span>
-              <span class="db-meta-value ${stats.monitoring.discordAlertsToday > 0 ? 'warning' : 'success'}">${stats.monitoring.discordAlertsToday}</span>
-            </div>
-          </div>
-        `;
+        live.classList.remove('is-animated');
       }
 
+      const metrics = stats.metrics || {};
+      const server = stats.server || {};
+      const monitoring = stats.monitoring || {};
 
+      const tps = num(metrics.tps, 0);
+      const players = num(metrics.players, 0);
+      const maxPlayers = num(metrics.maxPlayers, 20);
+      const heapUsed = num(metrics.heapUsedMB, 0);
+      const heapMax = num(metrics.heapMaxMB, 512);
+      const uptime = typeof metrics.uptime === 'string' && metrics.uptime ? metrics.uptime : '—';
 
+      setGauge('db-gauge-tps', String(tps), '/ 20', tps / 20, `TPS ${tps} of 20`);
+      setGauge('db-gauge-players', String(players), `/ ${maxPlayers}`,
+        maxPlayers > 0 ? players / maxPlayers : 0, `${players} of ${maxPlayers} players online`);
+      setBar('db-bar-heap', String(heapUsed), `/ ${heapMax} MB`,
+        heapMax > 0 ? heapUsed / heapMax : 0, `JVM heap ${heapUsed} of ${heapMax} MB used`);
+      setStat('db-stat-uptime', uptime, uptime === '—' ? 'Server uptime unavailable' : `Server uptime ${uptime}`);
 
-      // Changes (always re-render, no transition needed)
-      const changesHtml = stats.recentChanges && stats.recentChanges.length > 0
-        ? stats.recentChanges.map(c => `
-          <div class="db-change-item">
-            <div class="db-change-dot"></div>
-            <div class="db-change-text">${escapeHtml(c)}</div>
-          </div>
-        `).join('')
-        : '<div class="db-change-item"><div class="db-change-text" style="color:var(--db-text-dim);">No recent changes</div></div>';
+      setText('db-meta-name', server.name || '—');
+      setText('db-meta-version', server.version
+        ? `${server.version}${server.javaVersion ? ` · ${server.javaVersion}` : ''}` : '—');
+      setText('db-meta-rcon', monitoring.rconLatency || '—');
+      const alerts = num(monitoring.discordAlertsToday, NaN);
+      const alertsEl = document.getElementById('db-meta-alerts');
+      alertsEl.textContent = Number.isNaN(alerts) ? '—' : String(alerts);
+      alertsEl.classList.toggle('is-warn', alerts > 0);
 
-      document.getElementById('db-changes').innerHTML = changesHtml;
-
-      // Updated timestamp with data source info
-      const updated = stats.lastUpdated
-        ? new Date(stats.lastUpdated).toLocaleString()
-        : 'No data source';
-      document.getElementById('db-updated').innerHTML = `
-        <span>📊 Live data from Prometheus (cron every 10 min)</span>
-        <span style="margin-left:1rem;">Last updated: ${updated}</span>
-      `;
-
-      // Update live badge with freshness indicator
-      const badge = document.getElementById('db-minecraft-badge');
-      if (badge && stats.lastUpdated) {
-        const minutesAgo = Math.round((Date.now() - new Date(stats.lastUpdated).getTime()) / 60000);
-        if (minutesAgo < 15) {
-          badge.innerHTML = '<span class="db-live-dot"></span>LIVE';
-          badge.style.color = 'var(--success)';
-        } else if (minutesAgo < 60) {
-          badge.innerHTML = `CACHED (${minutesAgo}m)`;
-          badge.style.color = 'var(--warning)';
-        } else {
-          badge.innerHTML = `STALE (${minutesAgo}m)`;
-          badge.style.color = 'var(--neon-pink)';
-        }
-      }
+      renderChanges(stats.recentChanges);
+      renderFreshness(stats.lastUpdated);
     }
 
-    function renderCost() {
-      document.getElementById('db-cost').innerHTML = `
-        <div class="db-cost-main">
-          <div class="db-cost-number">60%</div>
-          <div class="db-cost-label">Cost Reduction</div>
-        </div>
-        <div class="db-cost-details">
-          <div class="db-cost-row">
-            <span class="label">MeshWatch Monthly</span>
-            <span class="value">$5.12</span>
-          </div>
-          <div class="db-cost-row">
-            <span class="label">vs Serverless</span>
-            <span class="value" style="color:var(--text-secondary);text-decoration:line-through;">$12.80</span>
-          </div>
-          <div class="db-cost-row">
-            <span class="label">Annual Savings</span>
-            <span class="value" style="color:var(--success);">$92.16</span>
-          </div>
-          <div class="db-cost-row">
-            <span class="label">Total Infra Cost</span>
-            <span class="value">$0.50/mo</span>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderSysStatus() {
-      // Determine which Azure Functions are actually deployed
-      const azureFunctionsDeployed = false; // No Azure Functions deployed yet (only portfolio-contact exists)
-      const tailscaleConnected = false; // Would be detected via health check
-      const aiBackend = tailscaleConnected ? 'Live (Ollama)' : 'Not connected';
-      const azureStatus = azureFunctionsDeployed ? 'Deployed' : 'Awaiting deployment';
-
-      document.getElementById('db-sys').innerHTML = [
-        { icon: '☁️', value: 'Cloudflare Pages', label: 'Hosting (live)' },
-        { icon: '🔐', value: 'GitHub OAuth', label: `Auth (${azureStatus})` },
-        { icon: '🌐', value: 'Azure Functions', label: azureStatus },
-        { icon: '🤖', value: 'Ollama Phi-3', label: aiBackend },
-        { icon: '📦', value: '5 Projects', label: 'In Catalog' },
-        { icon: '📊', value: 'Prometheus + Grafana', label: 'Monitoring (live)' },
-        { icon: '⚙️', value: 'GitHub Actions', label: 'CI/CD Pipeline' },
-        { icon: '📱', value: 'PWA Ready', label: 'Offline Support' }
-      ].map(s => `
-        <div class="db-sys-item">
-          <div class="db-sys-item-icon">${s.icon}</div>
-          <div class="db-sys-item-value">${s.value}</div>
-          <div class="db-sys-item-label">${s.label}</div>
-        </div>
-      `).join('');
-    }
-
-    // === DATA FETCHING ===
-
-    async function loadMinecraftStats() {
+    async function loadStats() {
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 5000);
       try {
-        const resp = await fetch(`/config/minecraft-stats.json?t=${Date.now()}`);
-        if (resp.ok) {
-          const data = await resp.json();
-          return data;
-        }
-      } catch (e) {
-        // Fallback to defaults
+        const resp = await fetch(`${STATS_URL}?t=${Date.now()}`, { signal: controller.signal, cache: 'no-store' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.json();
+      } finally {
+        window.clearTimeout(timer);
       }
-      return MINECRAFT_DEFAULTS;
     }
 
     async function refreshDashboard() {
-      const stats = await loadMinecraftStats();
-      renderMinecraft(stats, true);
-      announceDashboard('Dashboard refreshed. Minecraft server: ' + stats.metrics.tps + ' TPS, ' + stats.metrics.players + ' players online.');
-    }
-
-    // Online status handled by pwa.js globally
-
-    // === INIT ===
-
-    function init() {
-      renderStats();
-      renderMinecraft(MINECRAFT_DEFAULTS);
-      renderCost();
-      renderSysStatus();
-
-      // Announce dashboard loaded to screen readers
-      announceDashboard('Dashboard loaded. 5 projects deployed, 277 terminal commands available. Monthly infrastructure cost $5.12 with 99.9% uptime.');
-
-      // Try to load live data
-      refreshDashboard();
-
-      // Auto-refresh: respect data saver / slow connections
-      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      const isSlowConnection = conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g');
-      const refreshInterval = isSlowConnection ? 300000 : 60000; // 5 min on slow, 1 min normal
-
-      if (!isSlowConnection) {
-        setInterval(refreshDashboard, refreshInterval);
+      const btn = document.getElementById('db-refresh');
+      btn.disabled = true;
+      btn.textContent = 'Refreshing…';
+      try {
+        const stats = await loadStats();
+        hideError();
+        renderMinecraft(stats, true);
+        const stale = renderFreshness(stats.lastUpdated);
+        setState(stale ? 'stale' : 'live', stale ? 'Live feed is stale' : 'Live');
+        const m = stats.metrics || {};
+        announce(`Dashboard refreshed: TPS ${num(m.tps, 0)} of 20, `
+          + `${num(m.players, 0)} of ${num(m.maxPlayers, 20)} players online.`);
+      } catch {
+        setState('offline', 'Live feed unreachable');
+        showError('Could not fetch live stats — the values below are the last known snapshot. '
+          + 'Try Refresh, or check back in a few minutes.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Refresh';
       }
     }
 
-    // Theme persistence
-    if (localStorage.getItem('portfolio-theme') === 'retro') {
-      document.body.classList.add('theme-retro');
+    function init() {
+      renderMinecraft(FALLBACK_STATS, false);
+      setState('loading', 'Checking live feed…');
+      refreshDashboard();
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const slowConnection = Boolean(conn
+        && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g'));
+      const note = document.getElementById('db-refresh-note');
+
+      if (reducedMotion) {
+        note.textContent = 'Auto-refresh is off because your system asks for reduced motion — use Refresh to update.';
+      } else if (slowConnection) {
+        note.textContent = 'Auto-refresh is off to save data — use Refresh to update.';
+      } else {
+        note.textContent = 'Auto-refreshes every 60 seconds.';
+        window.setInterval(refreshDashboard, 60000);
+      }
+
+      document.getElementById('db-refresh').addEventListener('click', () => refreshDashboard());
     }
 
     init();

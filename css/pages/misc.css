@@ -1,0 +1,60 @@
+/* Fallback pages (404.html, offline.html) — chai-homelab.com v2
+   Consumes css/tokens.css + css/base.css (load those first).
+   Shared centered layout for the "something's off" states. */
+
+.misc-main {
+  display: flex;
+  align-items: center;
+  padding-block: var(--sp-12);
+}
+
+.misc-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.misc-code {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(3.5rem, 4rem + 6vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--accent-cyan);
+}
+
+.misc-title {
+  display: block;
+  font-size: var(--fs-4);
+  margin-top: var(--sp-5);
+}
+
+/* offline.html uses .misc-title on the h1 directly (no giant code above it) */
+h1.misc-title {
+  font-size: var(--fs-5);
+  margin-top: var(--sp-2);
+}
+
+.misc-lede {
+  margin-top: var(--sp-5);
+  max-width: 52ch;
+  color: var(--text-2);
+}
+
+.misc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-8);
+}
+
+.misc-hint {
+  margin-top: var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  color: var(--text-3);
+}
