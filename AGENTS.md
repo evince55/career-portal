@@ -3,73 +3,82 @@
 ## Quick Start
 ```bash
 npm run dev        # serve on :3000
-npm test           # run full suite (node --test, 115 tests)
+npm test           # run full suite (node --test)
 npm run lint       # ESLint rules in .eslintrc.json
 npm run build      # lint + test, then copy to ../dist/
 ```
 
-## Architecture
+## Architecture (v2, redesigned 2026-07)
 Vanilla JS + CSS static site. **No build step** — `npm run build` just copies files to `../dist/`. Deployed to Cloudflare Pages via GitHub Actions (`.github/workflows/pages.yml`), which runs `npm test` then deploys the root directory.
 
+Design contract: `docs/superpowers/specs/2026-07-03-site-redesign-design.md` (spec) and
+`docs/superpowers/plans/2026-07-03-site-redesign-v2.md` (plan + CSS class contract).
+
 ### Entry points
-- `index.html` — main terminal UI (`js/terminal.js`)
-- `project-explorer.html` — card grid with filters/search
-- `dashboard.html` — live metrics gauges (reads `config/minecraft-stats.json`)
-- `writeups.html` — technical articles with tag filtering
+- `index.html` — content-first landing page (hero, featured projects, live homelab stats, skills)
+- `projects.html` — all projects with filter chips + search
+- `projects/<slug>.html` — 5 case-study pages (meshwatch, minecraft-monitoring, monitoring-stack, azure-functions, career-portal)
+- `dashboard.html` — live metrics (reads `config/minecraft-stats.json`, cron-updated every 10 min)
 - `contact.html` — contact form (posts to Azure Function)
-- `offline.html` — PWA fallback page
+- `offline.html` / `404.html` — PWA fallback / not-found
+- `project-explorer.html`, `writeups.html` — **redirect stubs** to projects.html (preserve inbound links; do not add content)
+
+### Design system (`css/`)
+- `css/tokens.css` — single source of truth for color/type/space/motion tokens. **WCAG AA contrast
+  is enforced by `tests/design-tokens.mjs`** — change values only if that test stays green.
+- `css/base.css` — component classes shared by all pages (nav, cards, chips, stats, forms, palette).
+  The class contract is documented in the plan (Task 3/5). Pages copy the canonical nav/footer markup.
+- `css/pages/*.css` — one file per page family. Page CSS may use tokens; it must not redefine them.
+- Fonts are **self-hosted** in `fonts/` (Space Grotesk display, JetBrains Mono data; body = system stack).
+  No Google Fonts CDN.
 
 ### JS modules (`js/`)
 | Module | Role |
 |--------|------|
-| `terminal.js` | Main controller — 28 commands, command palette (Ctrl+K), demo mode, achievements |
-| `project-catalog.js` | Project metadata (5 projects). `COMMAND_COUNT` derived from `helpers.js` |
-| `meshwatch-api.js` | GitHub OAuth PKCE + Azure Functions proxy for Prometheus metrics |
-| `ai-assistant.js` | Ollama Phi-3 via Tailscale; cached knowledge fallback with keyword matching |
-| `contact-api.js` | Contact form client — POSTs to `/api/contact`, falls back to mailto: |
-| `achievements.js` | 10 unlockable badges, localStorage persistence |
-| `audio.js` | Web Audio API keystroke sounds, WAV tone generation |
-| `performance.js` | Navigation Timing API metrics (TTFB, DCL, FullLoad) |
-| `visual-effects.js` | *(removed)* |
-| `service-worker.js` | PWA offline cache (v6), fetch-first strategy with offline.html fallback |
-| `pwa.js` | Service worker registration + online/offline status indicator |
-| `utils/helpers.js` | `escapeHtml`, `normalizeSlug`, `validateUrl`, `COMMAND_ICONS`, `COMMAND_DESCS`, `COMMAND_COUNT`, `SKILLS_DATA`, `PERF_THRESHOLDS`, `gradePerf`, `computeOverallGrade` |
+| `palette.js` | Ctrl+K command palette (nav + personality commands). WAI-APG combobox pattern. Pure parts unit-tested. |
+| `project-catalog.js` | Project metadata + v2 fields (`slug`, `outcome`, `caseStudyUrl`) |
+| `writeups-data.js` | Case-study prose source of truth (content also rendered into `projects/*.html`) |
+| `home-live.js` | Fetches minecraft-stats.json for the landing page live chips (3s timeout, graceful fallback) |
+| `three-hero.js` + `js/vendor/three.module.min.js` | Lazy synthwave hero background on index only. Never loads under reduced-motion/saveData/mobile/no-WebGL. Vendored, version pinned in the file header. |
+| `contact-api.js` | Contact form client — POSTs to Azure Function, falls back to mailto: |
+| `service-worker.js` | PWA cache **`career-portal-v14`**. Network-first for navigations, cache-first (ignoreSearch) for assets. Precache list is validated against disk by `tests/site-integrity.mjs`. |
+| `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | unchanged roles from v1 |
 
-### Azure Functions (`azure-functions/`)
-- `portfolio-contact/func.js` — Contact form handler (Resend API, falls back to console log)
-- Other function stubs referenced in README but not yet implemented
-
-### Config files
-- `config/career-fair.json` — demo mode settings, AI assistant config, mock data
-- `config/minecraft-stats.json` — updated every 10 min by cron job
-- `_headers` — Cloudflare Pages cache headers (31536000s static assets, 600s config)
+Removed in v2 (do not resurrect): `terminal.js`, `achievements.js`, `audio.js`, `ai-assistant.js`,
+`mobile-nav.js`, `three-{init,grid,geometries,manager}.js`, `css/styles.css`.
 
 ## Gotchas
-- **No build step** — files are copied as-is. Do not add a bundler or transpiler.
-- **ESLint ignores `js/terminal.js`** — the `.eslintignore` comment cites ESLint v6 but the package uses v8. The ignore is kept because terminal.js has import+comment patterns that trigger known ESLint parse bugs. If you fix it, update both files.
-- **Tests use Node.js native test runner** (`node --test`). No mocha/jest. Tests mock DOM via JSDOM-like assertions — they run in pure Node.
-- **`terminal.js` self-instantiates at module bottom** — `new Terminal()` runs on import. Test files that import it get a live instance; use `before()` hooks to manage state.
-- **Theme persistence** — terminal saves `portfolio-theme` to localStorage; other pages read it on load. Never edit `localStorage` directly in tests.
-- **`COMMAND_COUNT` in helpers.js** is derived from `Object.keys(COMMAND_ICONS).length`. Do not hardcode a number elsewhere — any new command added to `COMMAND_ICONS` automatically updates the count.
-- **Service worker cache name** is `career-portal-v6`. New pages/assets must be added to `ASSETS_TO_CACHE` in `js/service-worker.js`.
-- **Google Fonts URL** uses `css2?family=` path (not `css?family=`). All HTML files share this.
-- **Azure Functions** require `RESEND_API_KEY` and `RECIPIENT_EMAIL` env vars. Without them, the contact function logs to console and returns success (career-fair offline mode).
+- **No build step** — do not add a bundler, transpiler, or framework.
+- **Tests use the Node.js native test runner** (`node --test`), pure Node, no DOM library.
+- **Service worker cache name must be bumped** (`career-portal-v15`, …) whenever cached assets
+  change; update ASSETS_TO_CACHE and `tests/site-integrity.mjs` will catch missing files.
+- **`?v=` suffixes in HTML** are cache-busters; the SW matches with `ignoreSearch`, so they don't
+  need to stay in lockstep with the SW cache name, but keep them consistent across pages.
+- **robots.txt must stay `Allow: /`** — it was accidentally `Disallow: /` for months (fixed in v2).
+- **All dynamic text goes through `escapeHtml()`** (from `js/utils/helpers.js`) before any
+  `innerHTML` assignment, or use `textContent`.
+- **Azure Functions** require `RESEND_API_KEY` and `RECIPIENT_EMAIL` env vars; without them the
+  contact function logs to console and returns success.
+- **Google Fonts is gone** — don't reintroduce render-blocking font CSS; fonts are local woff2.
 
 ## Testing
 ```bash
-npm test                    # run all
-node --test tests/terminal.mjs   # single file
+npm test                          # run all
+node --test tests/palette.mjs    # single file
 ```
-Tests live in `tests/*.mjs`. Each exports a `describe` block. New features need new tests in the matching file. 115 tests, 0 failures.
+Tests live in `tests/*.mjs`. Key suites: `design-tokens.mjs` (AA contrast — the design system's
+guardrail), `site-integrity.mjs` (pages ↔ catalog ↔ service worker ↔ sitemap parity),
+`palette.mjs`, `home-live.mjs`, `project-catalog.mjs`, `contact-api.mjs`, `helpers.mjs`.
 
 ## Deployment
 - **Local**: `npm run dev` → http://localhost:3000
-- **Cloudflare Pages**: push to `master` → GitHub Actions runs `npm test` then deploys root dir via `cloudflare/pages-action@v1`
-- **Azure Functions**: deploy `azure-functions/` folder separately with Azure CLI; requires `.env` for API keys
+- **Cloudflare Pages**: push to `master` → GitHub Actions runs `npm test` then deploys root dir
+- **Azure Functions**: deploy `azure-functions/` folder separately with Azure CLI
 
 ## Style Conventions
 - Single quotes, semicolons, 2-space indent (enforced by ESLint)
 - ES modules only (`"type": "module"` in package.json)
-- No framework — vanilla JS, inline scripts in HTML pages are OK
-- All user-facing text goes through `escapeHtml()` before any `innerHTML` assignment
-- CSS custom properties for theming (`--neon-*`, `--bg-*`). Retro theme overrides via `body.theme-retro`
+- No framework — vanilla JS; inline module scripts in HTML pages are OK
+- CSS custom properties from `tokens.css` only; component classes from `base.css`; page-specific
+  styles in `css/pages/`
+- Copy tone: plain, concrete, outcome-led, early-career-honest

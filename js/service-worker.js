@@ -1,118 +1,130 @@
-const CACHE_NAME = 'career-portal-v13';
+const CACHE_NAME = 'career-portal-v14';
+
+// Precache: every page + the design system + module JS + fonts + live-data config.
+// Kept in sync with files on disk by tests/site-integrity.mjs.
+// NOT precached: js/vendor/three.module.min.js (large, lazy-loaded — runtime-cached
+// on first use by the fetch handler below).
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/project-explorer.html',
+  '/projects.html',
   '/dashboard.html',
-  '/writeups.html',
   '/contact.html',
   '/offline.html',
+  '/404.html',
+  '/projects/meshwatch.html',
+  '/projects/minecraft-monitoring.html',
+  '/projects/monitoring-stack.html',
+  '/projects/azure-functions.html',
+  '/projects/career-portal.html',
   '/manifest.json',
-  '/css/styles.css',
-  '/js/terminal.js',
-  '/js/audio.js',
+  '/css/tokens.css',
+  '/css/base.css',
+  '/css/pages/home.css',
+  '/css/pages/projects.css',
+  '/css/pages/case-study.css',
+  '/css/pages/dashboard.css',
+  '/css/pages/contact.css',
+  '/css/pages/misc.css',
+  '/js/palette.js',
+  '/js/home-live.js',
   '/js/project-catalog.js',
-  '/js/writeups-data.js',
-  '/js/meshwatch-api.js',
-  '/js/ai-assistant.js',
-  '/js/performance.js',
   '/js/contact-api.js',
-  '/js/mobile-nav.js',
+  '/js/performance.js',
   '/js/utils/helpers.js',
   '/js/pwa.js',
   '/js/scroll-reveal.js',
-  '/config/career-fair.json',
+  '/fonts/space-grotesk.woff2',
+  '/fonts/jetbrains-mono.woff2',
   '/config/minecraft-stats.json',
-  '/config/writeups.json',
   '/sitemap.xml',
   '/icons/icon-72.png',
   '/icons/icon-96.png',
   '/icons/icon-128.png',
   '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/screenshots/terminal-view.png'
+  '/icons/icon-512.png'
 ];
 
-// Install event - cache assets with error handling for each asset
+// Install — precache with per-asset error tolerance
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.allSettled(
-        ASSETS_TO_CACHE.map(asset => 
-          fetch(asset).then(response => {
+        ASSETS_TO_CACHE.map((asset) =>
+          fetch(asset).then((response) => {
             if (!response.ok) {
               console.warn(`[ServiceWorker] Failed to fetch: ${asset} (${response.status})`);
               return null;
             }
             return cache.put(asset, response);
-          }).catch(error => {
+          }).catch((error) => {
             console.warn(`[ServiceWorker] Error fetching ${asset}:`, error.message);
             return null;
           })
         )
-      ).then(results => {
-        const failed = results.filter(r => r.status === 'rejected' || (r.value === null));
-        if (failed.length > 0) {
-          console.warn(`[ServiceWorker] ${failed.length}/${ASSETS_TO_CACHE.length} assets failed to cache`);
-        }
-      });
+      );
     })
   );
   self.skipWaiting();
 });
 
-// Activate event - clean old caches with error handling
+// Activate — drop old cache versions
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
-          .map((name) => {
-            console.debug(`[ServiceWorker] Deleting old cache: ${name}`);
-            return caches.delete(name).catch(err => {
-              console.warn(`[ServiceWorker] Failed to delete cache ${name}:`, err.message);
-            });
-          })
+          .map((name) => caches.delete(name).catch((err) => {
+            console.warn(`[ServiceWorker] Failed to delete cache ${name}:`, err.message);
+          }))
       );
-    }).catch(err => {
+    }).catch((err) => {
       console.warn('[ServiceWorker] Cache cleanup failed:', err.message);
     })
   );
+  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to offline.html with error boundary
+// Fetch strategy:
+//  - navigations (HTML): network-first so visitors always get fresh pages;
+//    cache fallback when offline, then offline.html
+//  - everything else: cache-first (ignoreSearch so ?v= busters still hit the
+//    precache), network fallback with runtime cache-put for same-origin GETs
+//    (this is how the lazy three.js vendor file becomes available offline)
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      
-      return fetch(event.request).then((response) => {
-        const responseClone = response.clone();
-        
-        // Only cache successful GET requests with valid status codes
-        if (response && event.request.method === 'GET' && response.ok) {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          }).catch(err => {
-            console.warn('[ServiceWorker] Failed to cache request:', err.message);
-          });
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).then((response) => {
+        const clone = response.clone();
+        if (response.ok) {
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone)).catch(() => {});
         }
-        
         return response;
       }).catch(() => {
-        // Fallback to offline page when network is unavailable
-        return caches.match('/offline.html').catch(() => {
-          // Final fallback if even offline.html isn't cached
-          return new Response('You appear to be offline. Please check your connection.', {
-            status: 503,
-            headers: { 'Content-Type': 'text/plain' }
-          });
+        return caches.match(request, { ignoreSearch: true }).then((cached) => {
+          return cached || caches.match('/offline.html');
         });
+      })
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request, { ignoreSearch: true }).then((cached) => {
+      if (cached) return cached;
+      return fetch(request).then((response) => {
+        const sameOrigin = new URL(request.url).origin === self.location.origin;
+        if (response && response.ok && sameOrigin) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone)).catch(() => {});
+        }
+        return response;
       });
-    }).catch(err => {
+    }).catch((err) => {
       console.warn('[ServiceWorker] Fetch handler error:', err.message);
       return new Response('Network request failed.', {
         status: 503,
@@ -122,14 +134,14 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Message handler for cache updates with error boundary
+// Messages from pwa.js
 self.addEventListener('message', (event) => {
   try {
     if (event.data && event.data.type === 'SKIP_WAITING') {
       self.skipWaiting();
     } else if (event.data && event.data.type === 'CLEAR_CACHE') {
       caches.keys().then((cacheNames) => {
-        Promise.all(cacheNames.map(name => caches.delete(name)));
+        Promise.all(cacheNames.map((name) => caches.delete(name)));
       });
     }
   } catch (err) {
@@ -137,7 +149,6 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Handle unhandled promise rejections in service worker
 self.addEventListener('unhandledrejection', (event) => {
   console.error('[ServiceWorker] Unhandled rejection:', event.reason);
 });

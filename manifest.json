@@ -1,47 +1,38 @@
 {
-  "name": "Eugene Vincent - Terminal Portfolio",
-  "short_name": "TermCV",
-  "description": "FAANG-quality terminal-themed portfolio with synthwave aesthetic",
+  "name": "Eugene Vincent — Portfolio",
+  "short_name": "EV Portfolio",
+  "description": "Full-stack engineer with SRE/DevOps depth. Projects, case studies, and a live homelab dashboard.",
   "start_url": "/",
   "display": "standalone",
-  "orientation": [
-    "landscape",
-    "portrait"
-  ],
   "scope": "/",
-  "prefer_related_applications": true,
+  "background_color": "#08080d",
+  "theme_color": "#08080d",
   "icons": [
     {
       "src": "/icons/icon-72.png",
       "sizes": "72x72",
-      "type": "png"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-96.png",
       "sizes": "96x96",
-      "type": "png"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-128.png",
       "sizes": "128x128",
-      "type": "png"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "png"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "png"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/terminal-view.png",
-      "sizes": "1080x1920",
-      "label": "Terminal interface showing portfolio commands"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
