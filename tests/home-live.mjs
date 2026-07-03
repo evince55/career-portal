@@ -4,7 +4,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
-import { formatStats, initHomeLive, LIVE_FIELDS } from '../js/home-live.js';
+import { formatStats, initHomeLive, isStale, LIVE_FIELDS } from '../js/home-live.js';
 import { SKILLS_DATA } from '../js/utils/helpers.js';
 
 const REAL = JSON.parse(
@@ -16,7 +16,7 @@ describe('formatStats', () => {
     const now = Date.parse(REAL.lastUpdated) + 5 * 60000;
     const s = formatStats(REAL, now);
     assert.equal(s.uptime, '99.7%');
-    assert.equal(s.tps, '21 TPS');
+    assert.equal(s.tps, '20'); // clamped to Minecraft's 20 TPS cap
     assert.equal(s.players, '3 / 20');
     assert.equal(s.scrapes, '894k');
     assert.equal(s.updated, 'updated 5m ago');
@@ -40,7 +40,7 @@ describe('formatStats', () => {
 
   it('keeps present fields and nulls the missing ones (partial metrics)', () => {
     const s = formatStats({ metrics: { tps: 18 } });
-    assert.equal(s.tps, '18 TPS');
+    assert.equal(s.tps, '18');
     assert.equal(s.uptime, null);
     assert.equal(s.players, null);
     assert.equal(s.scrapes, null);
@@ -120,5 +120,33 @@ describe('index.html static content', () => {
     for (const guard of ['prefers-reduced-motion: reduce', 'saveData', 'innerWidth < 768', 'webgl']) {
       assert.ok(html.includes(guard), `missing bail-out guard: ${guard}`);
     }
+  });
+});
+
+describe('isStale', () => {
+  const NOW = Date.parse('2026-07-03T12:00:00Z');
+  it('fresh payloads are not stale', () => {
+    assert.equal(isStale({ lastUpdated: '2026-07-03T11:55:00Z' }, NOW), false);
+  });
+  it('payloads older than the threshold are stale', () => {
+    assert.equal(isStale({ lastUpdated: '2026-07-01T12:00:00Z' }, NOW), true);
+  });
+  it('missing or malformed timestamps are stale', () => {
+    assert.equal(isStale({}, NOW), true);
+    assert.equal(isStale({ lastUpdated: 'not-a-date' }, NOW), true);
+    assert.equal(isStale(null, NOW), true);
+  });
+  it('threshold is configurable', () => {
+    assert.equal(isStale({ lastUpdated: '2026-07-03T11:00:00Z' }, NOW, 30 * 60000), true);
+    assert.equal(isStale({ lastUpdated: '2026-07-03T11:00:00Z' }, NOW, 2 * 3600000), false);
+  });
+});
+
+describe('TPS clamping', () => {
+  it('over-reported TPS clamps to the 20 cap', () => {
+    assert.equal(formatStats({ metrics: { tps: 21 } }).tps, '20');
+  });
+  it('normal TPS passes through', () => {
+    assert.equal(formatStats({ metrics: { tps: 19.8 } }).tps, '19.8');
   });
 });

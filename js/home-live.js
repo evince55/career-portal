@@ -1,10 +1,17 @@
 // Home page live stats — fetches /config/minecraft-stats.json (refreshed by a
 // 10-minute cron on the homelab) and fills [data-live-*] elements on index.html.
-// Pure formatting lives in formatStats() so tests/home-live.mjs can cover it
-// without a DOM. All values are written with textContent (never innerHTML).
+// Pure formatting lives in formatStats()/isStale() so tests/home-live.mjs can
+// cover them without a DOM. All values are written with textContent (never innerHTML).
+//
+// Honesty contract: the markup ships with static seed values that stay visible
+// no matter what. The "live" affordances (pulse dot, "updated Xm ago" line) are
+// shown ONLY when the fetch succeeds AND the data is fresh. Stale or failed
+// feeds keep the numbers but drop the live claim.
 
 const STATS_URL = '/config/minecraft-stats.json';
 const FETCH_TIMEOUT_MS = 3000;
+const STALE_AFTER_MS = 60 * 60 * 1000; // 1 hour — well past the 10-min cron cadence
+const MAX_TPS = 20; // Minecraft's hard tick-rate cap; exporters can briefly over-report
 
 export const LIVE_FIELDS = ['uptime', 'tps', 'players', 'scrapes', 'updated'];
 
@@ -31,10 +38,19 @@ function relativeTime(iso, now) {
   return `updated ${Math.round(hours / 24)}d ago`;
 }
 
+/** True when the payload's lastUpdated is missing, unparsable, or older than the threshold. */
+export function isStale(json, now = Date.now(), thresholdMs = STALE_AFTER_MS) {
+  const iso = asObject(json).lastUpdated;
+  if (typeof iso !== 'string') return true;
+  const then = Date.parse(iso);
+  if (Number.isNaN(then)) return true;
+  return now - then > thresholdMs;
+}
+
 /**
  * Turn the raw stats JSON into display strings.
  * Resilient to missing/partial/garbage input: each field is null when its
- * source data is absent or malformed, so callers can hide that chip only.
+ * source data is absent or malformed, so callers can skip that update only.
  */
 export function formatStats(json, now = Date.now()) {
   const data = asObject(json);
@@ -48,7 +64,7 @@ export function formatStats(json, now = Date.now()) {
     uptime = `${metrics.uptime}%`;
   }
 
-  const tps = Number.isFinite(metrics.tps) ? `${metrics.tps} TPS` : null;
+  const tps = Number.isFinite(metrics.tps) ? String(Math.min(metrics.tps, MAX_TPS)) : null;
 
   let players = null;
   if (Number.isFinite(metrics.players)) {
@@ -66,15 +82,24 @@ export function formatStats(json, now = Date.now()) {
   };
 }
 
-function hideAllLive(doc) {
-  for (const item of doc.querySelectorAll('[data-live-item]')) {
-    item.hidden = true;
+/** Drop every live-only affordance (pulse dot, updated line); static values stay. */
+function dropLiveClaim(doc, noteText) {
+  for (const el of doc.querySelectorAll('[data-live-badge]')) {
+    el.hidden = true;
+  }
+  const note = doc.querySelector('[data-live-note]');
+  if (note) {
+    note.textContent = noteText;
+    note.hidden = false;
   }
 }
 
 /**
  * Fetch the stats (3s timeout) and populate [data-live-*] elements.
- * On any failure every [data-live-item] is hidden; static copy remains.
+ * Static seed values are never hidden; only the live affordances change:
+ *  - fresh fetch  → values updated, pulse + "updated Xm ago" shown
+ *  - stale fetch  → values updated, live claim dropped, snapshot note shown
+ *  - failed fetch → seeds kept, live claim dropped, unavailable note shown
  * Returns the formatted stats on success, null otherwise.
  */
 export async function initHomeLive(doc = typeof document === 'undefined' ? null : document) {
@@ -83,12 +108,15 @@ export async function initHomeLive(doc = typeof document === 'undefined' ? null 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   let stats;
+  let stale;
   try {
     const res = await fetch(STATS_URL, { signal: controller.signal });
     if (!res.ok) throw new Error(`stats fetch failed: ${res.status}`);
-    stats = formatStats(await res.json());
+    const json = await res.json();
+    stats = formatStats(json);
+    stale = isStale(json);
   } catch {
-    hideAllLive(doc);
+    dropLiveClaim(doc, 'Live feed unavailable right now — typical figures shown.');
     return null;
   } finally {
     clearTimeout(timer);
@@ -96,13 +124,17 @@ export async function initHomeLive(doc = typeof document === 'undefined' ? null 
 
   for (const key of LIVE_FIELDS) {
     for (const el of doc.querySelectorAll(`[data-live-${key}]`)) {
-      const item = el.closest('[data-live-item]') || el;
-      if (stats[key] == null) {
-        item.hidden = true;
-      } else {
+      if (stats[key] != null) {
         el.textContent = stats[key];
-        item.hidden = false;
       }
+    }
+  }
+
+  if (stale) {
+    dropLiveClaim(doc, `Not live right now — last snapshot from the rack: ${stats.updated || 'unknown'}.`);
+  } else {
+    for (const el of doc.querySelectorAll('[data-live-badge]')) {
+      el.hidden = false;
     }
   }
   return stats;

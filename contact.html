@@ -27,7 +27,7 @@
       "name": "Eugene Vincent",
       "url": "https://chai-homelab.com/contact.html",
       "email": "mailto:eugene.vince55@gmail.com",
-      "jobTitle": "Computer Science Student",
+      "jobTitle": "Full-Stack Engineer",
       "knowsAbout": ["Kubernetes", "Azure", "DevOps", "SRE", "Full-Stack Development"],
       "sameAs": [
         "https://github.com/chaitea321",
@@ -46,7 +46,7 @@
         <a class="nav-link" href="/projects.html">Projects</a>
         <a class="nav-link" href="/dashboard.html">Dashboard</a>
         <a class="nav-link" href="/contact.html" aria-current="page">Contact</a>
-        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">Ctrl K</span></button>
       </div>
     </nav>
   </header>
@@ -58,8 +58,8 @@
         <h1>Let's talk</h1>
         <p class="contact-lede">
           I'm a CS student (2024–2028) looking for internships and early engineering roles.
-          If you're hiring, have a question about the homelab, or just want to compare notes —
-          send a message. I read everything.
+          If you're hiring, have a question about the homelab, or just want to compare notes,
+          send a message — it lands straight in my inbox.
         </p>
       </header>
 
@@ -72,7 +72,7 @@
               <input class="field__input" type="text" id="contact-name" name="name"
                 autocomplete="name" maxlength="200" required
                 aria-describedby="contact-name-error">
-              <p class="field__error" id="contact-name-error" hidden></p>
+              <p class="field__error" role="status" id="contact-name-error" hidden></p>
             </div>
 
             <div class="field">
@@ -80,7 +80,7 @@
               <input class="field__input" type="email" id="contact-email" name="email"
                 autocomplete="email" spellcheck="false" required
                 aria-describedby="contact-email-error">
-              <p class="field__error" id="contact-email-error" hidden></p>
+              <p class="field__error" role="status" id="contact-email-error" hidden></p>
             </div>
 
             <div class="field">
@@ -88,7 +88,7 @@
               <input class="field__input" type="text" id="contact-subject" name="subject"
                 autocomplete="off" maxlength="300" required
                 aria-describedby="contact-subject-error">
-              <p class="field__error" id="contact-subject-error" hidden></p>
+              <p class="field__error" role="status" id="contact-subject-error" hidden></p>
             </div>
 
             <div class="field">
@@ -96,7 +96,7 @@
               <textarea class="field__input" id="contact-message" name="message" rows="7"
                 maxlength="5000" required
                 aria-describedby="contact-message-error"></textarea>
-              <p class="field__error" id="contact-message-error" hidden></p>
+              <p class="field__error" role="status" id="contact-message-error" hidden></p>
             </div>
 
             <button class="btn btn--primary" type="submit" id="contact-submit">Send message</button>
@@ -130,13 +130,13 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <p><span class="mono">EV_</span> · Eugene Vincent</p>
-      <p>
-        <a href="https://github.com/chaitea321" target="_blank" rel="noopener">GitHub</a> ·
-        <a href="https://www.linkedin.com/in/eugene-vincent-42472024b" target="_blank" rel="noopener">LinkedIn</a> ·
-        <a href="mailto:eugene.vince55@gmail.com">Email</a> ·
-        <a href="https://github.com/chaitea321/career-portal" target="_blank" rel="noopener">Vanilla JS, no framework — view source</a>
-      </p>
+      <p>© 2026 Eugene Vincent</p>
+      <nav class="footer__links" aria-label="Profiles and contact">
+        <a href="https://github.com/chaitea321" rel="noopener">GitHub</a> ·
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a> ·
+        <span>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal" rel="noopener">view source</a></span>
+      </nav>
     </div>
   </footer>
 
@@ -276,7 +276,7 @@
             'The form backend is unreachable right now, so I opened your email app with everything pre-filled. Nothing opened?',
             'Email me directly', buildMailto());
         } else if (result.success) {
-          setStatus('ok', 'Message sent — thanks! I read everything and usually reply within a day or two.');
+          setStatus('ok', 'Message sent — thanks! Expect a reply within a day or two.');
           form.reset();
         } else {
           setStatus('err', 'Sending failed (' + result.error + '). You can', 'email me directly', buildMailto());

@@ -177,6 +177,25 @@ pre {
 .nav-link:hover { color: var(--text-1); background: var(--bg-1); }
 .nav-link[aria-current='page'] { color: var(--accent-cyan); }
 
+/* Narrow viewports: brand row above a tight single links row — no mid-height wrap */
+@media (max-width: 560px) {
+  .site-nav__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding-block: var(--sp-2);
+  }
+  .site-nav__links {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0;
+  }
+  .nav-link {
+    padding: var(--sp-2);
+    font-size: var(--fs-0);
+  }
+}
+
 /* ---------- buttons ---------- */
 .btn {
   display: inline-flex;
@@ -208,6 +227,12 @@ pre {
 }
 
 .btn--ghost:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 
 /* ---------- cards, chips, stats ---------- */
 .card {
@@ -398,6 +423,15 @@ pre {
   font-family: var(--font-mono);
   font-size: var(--fs-0);
   white-space: pre-wrap;
+}
+/* stays in the accessibility tree for reliable aria-live announcements;
+   collapses visually while empty */
+.palette__output:empty { display: none; }
+
+.palette__item--empty {
+  color: var(--text-3);
+  cursor: default;
+  justify-content: center;
 }
 
 /* ---------- reduced motion ---------- */

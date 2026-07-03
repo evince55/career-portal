@@ -58,7 +58,7 @@
         <a class="nav-link" href="/projects.html">Projects</a>
         <a class="nav-link" href="/dashboard.html">Dashboard</a>
         <a class="nav-link" href="/contact.html">Contact</a>
-        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">Ctrl K</span></button>
       </div>
     </nav>
   </header>
@@ -81,7 +81,7 @@
           <a class="btn btn--ghost" href="/contact.html">Contact me</a>
         </div>
         <ul class="hero__proof" aria-label="Proof points">
-          <li class="chip" data-live-item><span class="pulse" aria-hidden="true"></span><span><span data-live-uptime>99.7%</span> homelab uptime</span></li>
+          <li class="chip"><span class="pulse" data-live-badge hidden aria-hidden="true"></span><span><span data-live-uptime>99.8%</span> Minecraft server uptime</span></li>
           <li class="chip">AZ-900 certified</li>
           <li class="chip">5 systems in production</li>
           <li><a class="chip" href="https://github.com/chaitea321">github.com/chaitea321</a></li>
@@ -142,25 +142,26 @@
         <h2 class="section__title" id="homelab-title">The homelab, live</h2>
         <p class="homelab__lede">These numbers come from the rack under my desk. A cron job publishes fresh cluster stats every ten minutes; this page reads the same JSON the dashboard does.</p>
         <div class="homelab__stats">
-          <div class="stat" data-live-item>
-            <span class="stat__value" data-live-uptime>99.7%</span>
+          <div class="stat">
+            <span class="stat__value" data-live-uptime>99.8%</span>
             <span class="stat__label">Server uptime</span>
           </div>
-          <div class="stat" data-live-item>
-            <span class="stat__value" data-live-tps>21 TPS</span>
-            <span class="stat__label">Minecraft tick rate</span>
+          <div class="stat">
+            <span class="stat__value" data-live-tps>20</span>
+            <span class="stat__label">Minecraft tick rate (max 20)</span>
           </div>
-          <div class="stat" data-live-item>
+          <div class="stat">
             <span class="stat__value" data-live-players>3 / 20</span>
             <span class="stat__label">Players online</span>
           </div>
-          <div class="stat" data-live-item>
+          <div class="stat">
             <span class="stat__value" data-live-scrapes>894k</span>
-            <span class="stat__label">Prometheus scrapes</span>
+            <span class="stat__label">Prometheus scrapes, total</span>
           </div>
         </div>
-        <p class="homelab__updated mono" data-live-item hidden><span data-live-updated>updated recently</span></p>
-        <p>Prometheus scrapes every service on a 15-second interval; Grafana renders it all in real time.</p>
+        <p class="homelab__updated mono" data-live-badge hidden><span data-live-updated>updated recently</span></p>
+        <p class="homelab__updated mono" data-live-note hidden></p>
+        <p>Prometheus scrapes most services on a 15-second interval; Grafana renders it all in real time.</p>
         <p class="homelab__cta"><a class="btn btn--ghost" href="/dashboard.html">Open the live dashboard</a></p>
       </div>
     </section>
@@ -216,7 +217,7 @@
         <span class="kicker">Background</span>
         <h2 class="section__title" id="about-title">About</h2>
         <p>I'm Eugene Vincent, a computer science student who treats his homelab like production: version-controlled, monitored, and alerting me before my users — mostly friends on the Minecraft server — notice anything.</p>
-        <p>Five systems run there today: a k3s cluster with Istio mTLS, GitOps deployments through ArgoCD, a Prometheus/Grafana/Loki observability stack, Azure Functions for incident routing, and this site.</p>
+        <p>Five systems run in that world today: a k3s cluster with Istio mTLS, GitOps deployments through ArgoCD, a Prometheus/Grafana/Loki observability stack, Azure Functions for incident routing — and this site, which deploys to Cloudflare Pages but reads its live stats straight from the rack.</p>
         <p>I'm looking for internships and early-career roles where reliability and cost-awareness matter.</p>
         <p class="about__edu mono">B.S. Computer Science, University of Illinois (2024–2028, expected) · AZ-900: Microsoft Azure Fundamentals</p>
       </div>
@@ -234,12 +235,13 @@
 
   <footer class="footer">
     <div class="container footer__inner">
+      <p>© 2026 Eugene Vincent</p>
       <nav class="footer__links" aria-label="Profiles and contact">
-        <a href="https://github.com/chaitea321">GitHub</a> ·
-        <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> ·
-        <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a>
+        <a href="https://github.com/chaitea321" rel="noopener">GitHub</a> ·
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a> ·
+        <span>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal" rel="noopener">view source</a></span>
       </nav>
-      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a>.</p>
     </div>
   </footer>
 

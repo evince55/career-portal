@@ -61,7 +61,6 @@ Cloudflare Pages (auto-deploy on push to master)
 |--------|------|
 | `palette.js` | Ctrl+K command palette (WAI-APG combobox pattern) |
 | `project-catalog.js` | Project metadata + v2 fields (`slug`, `outcome`, `caseStudyUrl`) |
-| `writeups-data.js` | Case-study prose source of truth |
 | `home-live.js` | Landing-page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/` | Lazy synthwave hero background (index only, vendored Three.js) |
 | `contact-api.js` | Contact form client — POSTs to Azure Function, falls back to mailto: |

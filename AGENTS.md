@@ -37,15 +37,15 @@ Design contract: `docs/superpowers/specs/2026-07-03-site-redesign-design.md` (sp
 |--------|------|
 | `palette.js` | Ctrl+K command palette (nav + personality commands). WAI-APG combobox pattern. Pure parts unit-tested. |
 | `project-catalog.js` | Project metadata + v2 fields (`slug`, `outcome`, `caseStudyUrl`) |
-| `writeups-data.js` | Case-study prose source of truth (content also rendered into `projects/*.html`) |
 | `home-live.js` | Fetches minecraft-stats.json for the landing page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/three.module.min.js` | Lazy synthwave hero background on index only. Never loads under reduced-motion/saveData/mobile/no-WebGL. Vendored, version pinned in the file header. |
 | `contact-api.js` | Contact form client — POSTs to Azure Function, falls back to mailto: |
 | `service-worker.js` | PWA cache **`career-portal-v14`**. Network-first for navigations, cache-first (ignoreSearch) for assets. Precache list is validated against disk by `tests/site-integrity.mjs`. |
 | `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | unchanged roles from v1 |
 
-Removed in v2 (do not resurrect): `terminal.js`, `achievements.js`, `audio.js`, `ai-assistant.js`,
-`mobile-nav.js`, `three-{init,grid,geometries,manager}.js`, `css/styles.css`.
+Removed in v2 (do not resurrect): `terminal.js`, `achievements.js`, `audio.js`, `ai-assistant.js`, `mobile-nav.js`,
+`three-{init,grid,geometries,manager}.js`, `css/styles.css`, `writeups-data.js` (case-study
+prose now lives directly in `projects/*.html`), `config/{career-fair,writeups,resume-content}.json`.
 
 ## Gotchas
 - **No build step** — do not add a bundler, transpiler, or framework.
@@ -66,7 +66,10 @@ Removed in v2 (do not resurrect): `terminal.js`, `achievements.js`, `audio.js`, 
 npm test                          # run all
 node --test tests/palette.mjs    # single file
 ```
-Tests live in `tests/*.mjs`. Key suites: `design-tokens.mjs` (AA contrast — the design system's
+Tests live in `tests/*.mjs`. **Re-baseline note (2026-07):** v1's 277 assertions were mostly
+terminal-implementation detail and were removed with the terminal; v2's ~100 assertions gate
+behavior that matters (AA contrast, palette, site integrity, live-stats formatting). The quality
+gate is 'suite green + integrity/token suites present', not raw assertion count. Key suites: `design-tokens.mjs` (AA contrast — the design system's
 guardrail), `site-integrity.mjs` (pages ↔ catalog ↔ service worker ↔ sitemap parity),
 `palette.mjs`, `home-live.mjs`, `project-catalog.mjs`, `contact-api.mjs`, `helpers.mjs`.
 

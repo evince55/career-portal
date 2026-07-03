@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Career Portal — zero-dependency PWA portfolio | Eugene Vincent</title>
-  <meta name="description" content="Case study: this portfolio — a zero-dependency vanilla-JS PWA with 115 passing tests, Lighthouse 95+, WCAG accessibility, and $0/month hosting on Cloudflare Pages.">
+  <meta name="description" content="Case study: this portfolio — a zero-dependency vanilla-JS PWA with 90+ automated tests, Lighthouse 95+, WCAG accessibility, and $0/month hosting on Cloudflare Pages.">
   <meta name="theme-color" content="#08080d">
   <link rel="canonical" href="https://chai-homelab.com/projects/career-portal.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Career Portal — zero-dependency PWA portfolio">
-  <meta property="og:description" content="This site: vanilla JS, no build step, 115 passing tests, Lighthouse 95+, $0/month hosting on Cloudflare Pages.">
+  <meta property="og:description" content="This site: vanilla JS, no build step, 90+ automated tests, Lighthouse 95+, $0/month hosting on Cloudflare Pages.">
   <meta property="og:url" content="https://chai-homelab.com/projects/career-portal.html">
   <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Career Portal — zero-dependency PWA portfolio">
-  <meta name="twitter:description" content="Vanilla JS, no build step, 115 passing tests, Lighthouse 95+, $0/month hosting.">
+  <meta name="twitter:description" content="Vanilla JS, no build step, 90+ automated tests, Lighthouse 95+, $0/month hosting.">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
   <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -31,10 +31,10 @@
       <a class="site-nav__brand mono" href="/">EV_</a>
       <div class="site-nav__links">
         <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="/projects.html">Projects</a>
         <a class="nav-link" href="/dashboard.html">Dashboard</a>
         <a class="nav-link" href="/contact.html">Contact</a>
-        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">Ctrl K</span></button>
       </div>
     </nav>
   </header>
@@ -44,7 +44,7 @@
       <header class="case-study__header">
         <p class="kicker">Case study</p>
         <h1>Career Portal</h1>
-        <p class="case-study__outcome">The site you are reading: a <strong>zero-dependency</strong> vanilla-JS PWA with 115 passing tests, Lighthouse 95+, and $0/month hosting on Cloudflare Pages.</p>
+        <p class="case-study__outcome">The site you are reading: a <strong>zero-dependency</strong> vanilla-JS PWA with 90+ automated tests, Lighthouse 95+, and $0/month hosting on Cloudflare Pages.</p>
         <p class="case-study__meta mono">web · pwa · March 2026</p>
         <ul class="case-study__stack" aria-label="Tech stack">
           <li class="chip">Vanilla JS (ES6)</li>
@@ -82,7 +82,7 @@
         <h2>Measured outcomes</h2>
         <dl class="outcome-grid">
           <div class="stat"><dt class="stat__label">Shipped dependencies</dt><dd class="stat__value">0</dd><dd class="stat__label">npm packages in the bundle</dd></div>
-          <div class="stat"><dt class="stat__label">Tests passing</dt><dd class="stat__value">115</dd><dd class="stat__label">native Node runner</dd></div>
+          <div class="stat"><dt class="stat__label">Automated tests</dt><dd class="stat__value">90+</dd><dd class="stat__label">native Node runner</dd></div>
           <div class="stat"><dt class="stat__label">Lighthouse</dt><dd class="stat__value">95+</dd><dd class="stat__label">performance &amp; accessibility</dd></div>
           <div class="stat"><dt class="stat__label">Hosting cost</dt><dd class="stat__value">$0/mo</dd><dd class="stat__label">Cloudflare Pages free tier</dd></div>
         </dl>
@@ -111,8 +111,13 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <p><a href="https://github.com/chaitea321">GitHub</a> · <a href="https://linkedin.com/in/eugene-vincent-42472024b">LinkedIn</a> · <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></p>
-      <p>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal">view source</a></p>
+      <p>© 2026 Eugene Vincent</p>
+      <nav class="footer__links" aria-label="Profiles and contact">
+        <a href="https://github.com/chaitea321" rel="noopener">GitHub</a> ·
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a> ·
+        <span>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal" rel="noopener">view source</a></span>
+      </nav>
     </div>
   </footer>
 

@@ -1,3 +1,3 @@
-# terminal.js is ignored — it uses import+comment patterns that trigger ESLint parse bugs in v8.x
-js/terminal.js
 js/vendor/
+# Azure Functions runtime files are CommonJS deployed separately — outside the site lint scope
+azure-functions/

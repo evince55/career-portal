@@ -34,7 +34,7 @@
         <a class="nav-link" href="/projects.html" aria-current="page">Projects</a>
         <a class="nav-link" href="/dashboard.html">Dashboard</a>
         <a class="nav-link" href="/contact.html">Contact</a>
-        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">Ctrl K</span></button>
       </div>
     </nav>
   </header>
@@ -85,12 +85,12 @@
   <footer class="footer">
     <div class="container footer__inner">
       <p>© 2026 Eugene Vincent</p>
-      <p>
+      <nav class="footer__links" aria-label="Profiles and contact">
         <a href="https://github.com/chaitea321" rel="noopener">GitHub</a> ·
         <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener">LinkedIn</a> ·
-        <a href="mailto:eugene.vince55@gmail.com">Email</a> ·
-        <a href="https://github.com/chaitea321/career-portal" rel="noopener">Vanilla JS, no framework — view source</a>
-      </p>
+        <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a> ·
+        <span>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal" rel="noopener">view source</a></span>
+      </nav>
     </div>
   </footer>
 
@@ -116,11 +116,11 @@
       return `
         <article class="card project-card">
           <p class="card__meta mono project-card__category">${label}</p>
-          <h2 class="card__title project-card__title">${escapeHtml(project.name)}</h2>
+          <h2 class="card__title project-card__title"><a href="${escapeHtml(project.caseStudyUrl)}">${escapeHtml(project.name)}</a></h2>
           <p class="project-card__outcome">${escapeHtml(project.outcome)}</p>
           <ul class="project-card__stack" role="list">${stack}</ul>
           <p class="project-card__cta">
-            <a class="project-card__link" href="${escapeHtml(project.caseStudyUrl)}">Read case study<span class="visually-hidden"> — ${escapeHtml(project.name)}</span> <span aria-hidden="true">→</span></a>
+            <a class="project-card__link" href="${escapeHtml(project.caseStudyUrl)}">Read the case study<span class="visually-hidden"> — ${escapeHtml(project.name)}</span> <span aria-hidden="true">→</span></a>
           </p>
         </article>`;
     }

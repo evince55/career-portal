@@ -42,7 +42,7 @@
         <a class="nav-link" href="/projects.html">Projects</a>
         <a class="nav-link" href="/dashboard.html" aria-current="page">Dashboard</a>
         <a class="nav-link" href="/contact.html">Contact</a>
-        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">⌘K</span></button>
+        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">Ctrl K</span></button>
       </div>
     </nav>
   </header>
@@ -185,13 +185,13 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <p>© 2026 Eugene Vincent · Vanilla JS, no framework —
-        <a href="https://github.com/chaitea321/career-portal" target="_blank" rel="noopener noreferrer">view source</a></p>
-      <p>
-        <a href="https://github.com/chaitea321" target="_blank" rel="noopener noreferrer">GitHub</a> ·
-        <a href="https://linkedin.com/in/eugene-vincent-42472024b" target="_blank" rel="noopener noreferrer">LinkedIn</a> ·
-        <a href="mailto:eugene.vince55@gmail.com">Email</a>
-      </p>
+      <p>© 2026 Eugene Vincent</p>
+      <nav class="footer__links" aria-label="Profiles and contact">
+        <a href="https://github.com/chaitea321" rel="noopener">GitHub</a> ·
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener">LinkedIn</a> ·
+        <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a> ·
+        <span>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal" rel="noopener">view source</a></span>
+      </nav>
     </div>
   </footer>
 
@@ -399,7 +399,7 @@
           + `${num(m.players, 0)} of ${num(m.maxPlayers, 20)} players online.`);
       } catch {
         setState('offline', 'Live feed unreachable');
-        showError('Could not fetch live stats — the values below are the last known snapshot. '
+        showError('Could not fetch live stats — the values below are typical figures, not live data. '
           + 'Try Refresh, or check back in a few minutes.');
       } finally {
         btn.disabled = false;

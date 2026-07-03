@@ -213,3 +213,9 @@
     text-align: left;
   }
 }
+
+/* narrow screens: let the diagram scroll instead of shrinking labels below legibility */
+@media (max-width: 480px) {
+  .case-study__diagram { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .case-study__diagram svg { min-width: 480px; }
+}

@@ -44,7 +44,7 @@ const PROJECT_CATALOG = {
     demoNote: 'Demo mode shows cached metrics. Live data requires Azure Functions + Tailscale deployment.'
   },
   'minecraft-monitoring': {
-    name: 'minecraft-monitoring',
+    name: 'Minecraft Monitoring',
     slug: 'minecraft-monitoring',
     outcome: '99.8% uptime with real-time TPS, heap, and player metrics, plus a 10-command Discord bot for alerts and control.',
     caseStudyUrl: '/projects/minecraft-monitoring.html',
@@ -81,7 +81,7 @@ const PROJECT_CATALOG = {
   'career-portal': {
     name: 'Career Portal',
     slug: 'career-portal',
-    outcome: 'Zero-dependency vanilla JS PWA scoring Lighthouse 95+, WCAG 2.1 accessible, hosted for $0.50/month.',
+    outcome: 'Zero-dependency vanilla JS PWA scoring Lighthouse 95+, WCAG 2.1 accessible, hosted free on Cloudflare Pages.',
     caseStudyUrl: '/projects/career-portal.html',
     description: 'This site: a vanilla JS portfolio PWA with a synthwave design system, command-palette navigation, WCAG 2.1 accessibility, and Azure Functions integration.',
     category: 'web',
@@ -90,7 +90,7 @@ const PROJECT_CATALOG = {
       { name: 'Vanilla JS (ES6)', level: 'Terminal Interface' },
       { name: 'CSS3 + Animations', level: 'Synthwave Theme' },
       { name: 'PWA Manifest', level: 'Offline Support' },
-      { name: 'Azure Blob Storage', level: '$0.50/month Hosting' },
+      { name: 'Cloudflare Pages', level: 'Free-tier hosting + CDN' },
       { name: 'Cloudflare CDN', level: 'Free Tier + SSL' },
       { name: 'GitHub OAuth', level: 'API Authentication' }
     ],

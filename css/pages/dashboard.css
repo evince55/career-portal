@@ -278,11 +278,6 @@
   font-size: var(--fs-1);
 }
 
-/* WORKAROUND (foundation bug — remove once fixed centrally): base.css sets
-   `.palette { display: flex }`, which overrides the [hidden] attribute that
-   js/palette.js toggles to close the overlay, so the palette is stuck open
-   and covers the page. Real fix belongs in css/base.css. */
-.palette[hidden] { display: none; }
 
 /* ---------- small screens ---------- */
 @media (max-width: 480px) {

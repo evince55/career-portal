@@ -242,3 +242,15 @@
   opacity: 1;
   transform: none;
 }
+
+/* a11y: case-study links match the 44px target the projects page uses */
+.project-card__link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* tablet: avoid a 2+1 orphan card — the odd last card spans the full row */
+@media (min-width: 640px) and (max-width: 919px) {
+  .grid-3 > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}

@@ -1,7 +1,7 @@
 {
   "name": "career-portal",
   "version": "1.0.0",
-  "description": "FAANG-quality terminal-themed portfolio for chai-homelab.com",
+  "description": "Content-first portfolio with a live homelab dashboard \u2014 zero-dependency vanilla JS PWA",
   "type": "module",
   "scripts": {
     "dev": "npx serve . -l 3000",
@@ -12,10 +12,10 @@
   },
   "keywords": [
     "portfolio",
-    "terminal",
-    "synthwave",
-    "azure",
-    "cloudflare"
+    "pwa",
+    "vanilla-js",
+    "homelab",
+    "observability"
   ],
   "author": "Chaitanya Kumar <chaitea321>",
   "license": "MIT",

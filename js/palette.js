@@ -23,7 +23,7 @@ export const PALETTE_COMMANDS = [
   { id: 'whoami', label: 'whoami', hint: 'fun', keywords: ['about', 'eugene'], run: (ctx) => ctx.print('eugene — full-stack engineer, runs production-grade infra at home') },
   { id: 'uptime', label: 'uptime', hint: 'fun', keywords: ['homelab', 'days'], run: (ctx) => {
     const days = Math.floor((Date.now() - HOMELAB_EPOCH) / 86400000);
-    ctx.print(`homelab up ${days} days (k3s · Istio · Prometheus)`);
+    ctx.print(`homelab project: day ${days} (k3s · Istio · Prometheus — rebooted more than once, monitored the whole time)`);
   } },
   { id: 'hire-me', label: 'sudo hire-me', hint: 'fun', keywords: ['job', 'recruit', 'contact'], run: (ctx) => ctx.navigate('/contact.html') },
   { id: 'coffee', label: 'brew coffee', hint: 'fun', keywords: ['break', '418'], run: (ctx) => ctx.print('418 I\'m a teapot — but the cluster never sleeps') }
@@ -43,6 +43,16 @@ export function initPalette(doc = typeof document === 'undefined' ? null : docum
   if (!doc) return null;
   const root = doc.getElementById('palette-root');
   if (!root) return null;
+  if (root.querySelector('.palette')) return null; // idempotent — pages may call this after auto-init
+
+  // The binding is Ctrl+K everywhere (Cmd+K also works on Mac); show the right glyph
+  const isMac = /Mac|iP(hone|ad|od)/.test(navigator.platform || '');
+  const keyHint = isMac ? '⌘K' : 'Ctrl K';
+  for (const el of doc.querySelectorAll('[data-palette-open]')) {
+    el.setAttribute('aria-label', `Open command palette (${isMac ? '⌘K' : 'Ctrl+K'})`);
+    const span = el.querySelector('.mono');
+    if (span) span.textContent = keyHint;
+  }
 
   let openerEl = null;
   let items = PALETTE_COMMANDS;
@@ -62,7 +72,8 @@ export function initPalette(doc = typeof document === 'undefined' ? null : docum
   input.className = 'palette__input';
   input.type = 'text';
   input.setAttribute('role', 'combobox');
-  input.setAttribute('aria-expanded', 'true');
+  input.setAttribute('aria-expanded', 'false');
+  input.setAttribute('aria-autocomplete', 'list');
   input.setAttribute('aria-controls', 'palette-list');
   input.setAttribute('aria-label', 'Type a command');
   input.placeholder = 'Type a command… (↑↓ to move, Enter to run, Esc to close)';
@@ -73,11 +84,12 @@ export function initPalette(doc = typeof document === 'undefined' ? null : docum
   list.setAttribute('role', 'listbox');
   list.setAttribute('aria-label', 'Commands');
 
+  // Permanently in the accessibility tree so screen readers reliably announce
+  // updates; base.css collapses it visually while empty (.palette__output:empty).
   const output = doc.createElement('div');
   output.className = 'palette__output';
   output.setAttribute('role', 'status');
   output.setAttribute('aria-live', 'polite');
-  output.hidden = true;
 
   panel.append(input, list, output);
   overlay.append(panel);
@@ -88,12 +100,20 @@ export function initPalette(doc = typeof document === 'undefined' ? null : docum
     open: (url) => { close(); window.open(url, '_blank', 'noopener'); },
     print: (text) => {
       output.textContent = text;
-      output.hidden = false;
     }
   };
 
   function render() {
     list.textContent = '';
+    if (!items.length) {
+      const li = doc.createElement('li');
+      li.className = 'palette__item palette__item--empty';
+      li.textContent = 'No matching commands';
+      list.append(li);
+      ctx.print('No matching commands');
+      input.setAttribute('aria-activedescendant', '');
+      return;
+    }
     items.forEach((cmd, i) => {
       const li = doc.createElement('li');
       li.className = 'palette__item';
@@ -113,15 +133,16 @@ export function initPalette(doc = typeof document === 'undefined' ? null : docum
   }
 
   function runCommand(cmd) {
-    output.hidden = true;
+    output.textContent = '';
     cmd.run(ctx);
   }
 
   function openPalette(opener) {
     openerEl = opener || null;
     overlay.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
     input.value = '';
-    output.hidden = true;
+    output.textContent = '';
     items = PALETTE_COMMANDS;
     active = 0;
     render();
@@ -130,6 +151,7 @@ export function initPalette(doc = typeof document === 'undefined' ? null : docum
 
   function close() {
     overlay.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
     if (openerEl && doc.contains(openerEl)) openerEl.focus();
     openerEl = null;
   }
