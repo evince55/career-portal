@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'assert/strict';
-import { escapeHtml, normalizeSlug } from '../js/utils/helpers.js';
+import { escapeHtml, normalizeSlug, parseStatValue } from '../js/utils/helpers.js';
 
 describe('Helper Utilities', () => {
   describe('escapeHtml', () => {
@@ -68,5 +68,25 @@ describe('Helper Utilities', () => {
     it('handles already-normalized slugs unchanged', () => {
       assert.strictEqual(normalizeSlug('already-normalized'), 'already-normalized');
     });
+  });
+});
+
+describe('parseStatValue', () => {
+  it('parses plain percentages', () => {
+    assert.deepEqual(parseStatValue('99.8%'), { prefix: '', value: 99.8, decimals: 1, suffix: '%' });
+  });
+  it('parses currency with suffix', () => {
+    assert.deepEqual(parseStatValue('$5.12/mo'), { prefix: '$', value: 5.12, decimals: 2, suffix: '/mo' });
+  });
+  it('parses count abbreviations and ratios', () => {
+    assert.deepEqual(parseStatValue('894k'), { prefix: '', value: 894, decimals: 0, suffix: 'k' });
+    assert.deepEqual(parseStatValue('3 / 20'), { prefix: '', value: 3, decimals: 0, suffix: ' / 20' });
+    assert.deepEqual(parseStatValue('~2 s'), { prefix: '~', value: 2, decimals: 0, suffix: ' s' });
+    assert.deepEqual(parseStatValue('90+'), { prefix: '', value: 90, decimals: 0, suffix: '+' });
+  });
+  it('returns null when no number exists', () => {
+    assert.equal(parseStatValue('n/a'), null);
+    assert.equal(parseStatValue(''), null);
+    assert.equal(parseStatValue(null), null);
   });
 });

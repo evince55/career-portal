@@ -112,12 +112,12 @@
 
       <section class="case-study__section">
         <h2>Measured outcomes</h2>
-        <dl class="outcome-grid">
-          <div class="stat"><dt class="stat__label">Services monitored</dt><dd class="stat__value">5</dd><dd class="stat__label">across 4 namespaces</dd></div>
-          <div class="stat"><dt class="stat__label">Alert rules</dt><dd class="stat__value">7</dd><dd class="stat__label">TPS to node pressure</dd></div>
-          <div class="stat"><dt class="stat__label">Grafana panels</dt><dd class="stat__value">20</dd><dd class="stat__label">primary dashboard</dd></div>
-          <div class="stat"><dt class="stat__label">Log retention</dt><dd class="stat__value">7 days</dd><dd class="stat__label">~1.2 GB indexed</dd></div>
-          <div class="stat"><dt class="stat__label">Manual applies</dt><dd class="stat__value">0</dd><dd class="stat__label">everything is GitOps</dd></div>
+        <dl class="outcome-grid" data-stagger>
+          <div class="stat"><dt class="stat__label">Services monitored</dt><dd class="stat__value" data-count>5</dd><dd class="stat__label">across 4 namespaces</dd></div>
+          <div class="stat"><dt class="stat__label">Alert rules</dt><dd class="stat__value" data-count>7</dd><dd class="stat__label">TPS to node pressure</dd></div>
+          <div class="stat"><dt class="stat__label">Grafana panels</dt><dd class="stat__value" data-count>20</dd><dd class="stat__label">primary dashboard</dd></div>
+          <div class="stat"><dt class="stat__label">Log retention</dt><dd class="stat__value" data-count>7 days</dd><dd class="stat__label">~1.2 GB indexed</dd></div>
+          <div class="stat"><dt class="stat__label">Manual applies</dt><dd class="stat__value" data-count>0</dd><dd class="stat__label">everything is GitOps</dd></div>
         </dl>
       </section>
 
@@ -157,5 +157,12 @@
 
   <div id="palette-root"></div>
   <script type="module" src="/js/palette.js?v=7"></script>
+  <script type="module">
+    // Motion layer (anime.js) — only for clients that want motion
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        !(navigator.connection && navigator.connection.saveData)) {
+      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+    }
+  </script>
 </body>
 </html>

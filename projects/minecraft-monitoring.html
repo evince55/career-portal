@@ -112,11 +112,11 @@
 
       <section class="case-study__section">
         <h2>Measured outcomes</h2>
-        <dl class="outcome-grid">
-          <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value">99.8%</dd><dd class="stat__label">30-day window</dd></div>
-          <div class="stat"><dt class="stat__label">Command latency</dt><dd class="stat__value">~180 ms</dd><dd class="stat__label">incl. Discord round-trip</dd></div>
-          <div class="stat"><dt class="stat__label">Last GC pause</dt><dd class="stat__value">45 ms</dd><dd class="stat__label">ZGC, Java 25</dd></div>
-          <div class="stat"><dt class="stat__label">Alert storms</dt><dd class="stat__value">0</dd><dd class="stat__label">5-min dedup window</dd></div>
+        <dl class="outcome-grid" data-stagger>
+          <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value" data-count>99.8%</dd><dd class="stat__label">30-day window</dd></div>
+          <div class="stat"><dt class="stat__label">Command latency</dt><dd class="stat__value" data-count>~180 ms</dd><dd class="stat__label">incl. Discord round-trip</dd></div>
+          <div class="stat"><dt class="stat__label">Last GC pause</dt><dd class="stat__value" data-count>45 ms</dd><dd class="stat__label">ZGC, Java 25</dd></div>
+          <div class="stat"><dt class="stat__label">Alert storms</dt><dd class="stat__value" data-count>0</dd><dd class="stat__label">5-min dedup window</dd></div>
         </dl>
       </section>
 
@@ -155,5 +155,12 @@
 
   <div id="palette-root"></div>
   <script type="module" src="/js/palette.js?v=7"></script>
+  <script type="module">
+    // Motion layer (anime.js) — only for clients that want motion
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        !(navigator.connection && navigator.connection.saveData)) {
+      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+    }
+  </script>
 </body>
 </html>

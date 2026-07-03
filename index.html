@@ -24,6 +24,20 @@
   <link rel="stylesheet" href="/css/base.css?v=7">
   <link rel="stylesheet" href="/css/pages/home.css?v=7">
   <noscript><style>.reveal { opacity: 1; transform: none; }</style></noscript>
+  <script>
+    // Pre-paint guard for the hero entrance: only motion-safe clients get the
+    // hidden initial state, and a failsafe reveals everything after 2.5s even
+    // if js/motion.js never loads.
+    (function () {
+      try {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (navigator.connection && navigator.connection.saveData) return;
+        document.documentElement.classList.add('anim');
+        setTimeout(function () { document.documentElement.classList.remove('anim'); }, 2500);
+      } catch (e) { /* show everything */ }
+    })();
+  </script>
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -94,7 +108,7 @@
       <div class="container reveal">
         <span class="kicker">Selected work</span>
         <h2 class="section__title" id="featured-title">Featured projects</h2>
-        <div class="grid-3">
+        <div class="grid-3" data-stagger>
           <article class="card project-card">
             <p class="card__meta">Kubernetes · Observability</p>
             <h3 class="card__title"><a href="/projects/meshwatch.html">MeshWatch</a></h3>
@@ -141,21 +155,21 @@
         <span class="kicker">Live data</span>
         <h2 class="section__title" id="homelab-title">The homelab, live</h2>
         <p class="homelab__lede">These numbers come from the rack under my desk. A cron job publishes fresh cluster stats every ten minutes; this page reads the same JSON the dashboard does.</p>
-        <div class="homelab__stats">
+        <div class="homelab__stats" data-stagger>
           <div class="stat">
-            <span class="stat__value" data-live-uptime>99.8%</span>
+            <span class="stat__value" data-count data-live-uptime>99.8%</span>
             <span class="stat__label">Server uptime</span>
           </div>
           <div class="stat">
-            <span class="stat__value" data-live-tps>20</span>
+            <span class="stat__value" data-count data-live-tps>20</span>
             <span class="stat__label">Minecraft tick rate (max 20)</span>
           </div>
           <div class="stat">
-            <span class="stat__value" data-live-players>3 / 20</span>
+            <span class="stat__value" data-count data-live-players>3 / 20</span>
             <span class="stat__label">Players online</span>
           </div>
           <div class="stat">
-            <span class="stat__value" data-live-scrapes>894k</span>
+            <span class="stat__value" data-count data-live-scrapes>894k</span>
             <span class="stat__label">Prometheus scrapes, total</span>
           </div>
         </div>
@@ -250,9 +264,17 @@
   <script type="module" src="/js/pwa.js?v=7"></script>
   <script type="module">import '/js/palette.js?v=7';</script>
   <script type="module">
+    // Motion layer (anime.js) — only for clients that want motion
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        !(navigator.connection && navigator.connection.saveData)) {
+      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+    }
+  </script>
+
+  <script type="module">
     import { initHomeLive } from '/js/home-live.js?v=7';
     import { initScrollReveal } from '/js/scroll-reveal.js?v=7';
-    initHomeLive();
+    window.__liveReady = initHomeLive();
     initScrollReveal();
   </script>
   <script type="module">

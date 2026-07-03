@@ -1,4 +1,4 @@
-const CACHE_NAME = 'career-portal-v14';
+const CACHE_NAME = 'career-portal-v15';
 
 // Precache: every page + the design system + module JS + fonts + live-data config.
 // Kept in sync with files on disk by tests/site-integrity.mjs.
@@ -27,6 +27,7 @@ const ASSETS_TO_CACHE = [
   '/css/pages/contact.css',
   '/css/pages/misc.css',
   '/js/palette.js',
+  '/js/motion.js',
   '/js/home-live.js',
   '/js/project-catalog.js',
   '/js/contact-api.js',

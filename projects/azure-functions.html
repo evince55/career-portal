@@ -110,11 +110,11 @@
 
       <section class="case-study__section">
         <h2>Measured outcomes</h2>
-        <dl class="outcome-grid">
-          <div class="stat"><dt class="stat__label">Functions deployed</dt><dd class="stat__value">2</dd><dd class="stat__label">timer + Service Bus trigger</dd></div>
-          <div class="stat"><dt class="stat__label">Health checks</dt><dd class="stat__value">96/day</dd><dd class="stat__label">per service, 15-min interval</dd></div>
-          <div class="stat"><dt class="stat__label">Alert noise cut</dt><dd class="stat__value">~80%</dd><dd class="stat__label">5-min dedup, during incidents</dd></div>
-          <div class="stat"><dt class="stat__label">Webhook retries</dt><dd class="stat__value">3</dd><dd class="stat__label">exponential backoff, then DLQ</dd></div>
+        <dl class="outcome-grid" data-stagger>
+          <div class="stat"><dt class="stat__label">Functions deployed</dt><dd class="stat__value" data-count>2</dd><dd class="stat__label">timer + Service Bus trigger</dd></div>
+          <div class="stat"><dt class="stat__label">Health checks</dt><dd class="stat__value" data-count>96/day</dd><dd class="stat__label">per service, 15-min interval</dd></div>
+          <div class="stat"><dt class="stat__label">Alert noise cut</dt><dd class="stat__value" data-count>~80%</dd><dd class="stat__label">5-min dedup, during incidents</dd></div>
+          <div class="stat"><dt class="stat__label">Webhook retries</dt><dd class="stat__value" data-count>3</dd><dd class="stat__label">exponential backoff, then DLQ</dd></div>
         </dl>
       </section>
 
@@ -153,5 +153,12 @@
 
   <div id="palette-root"></div>
   <script type="module" src="/js/palette.js?v=7"></script>
+  <script type="module">
+    // Motion layer (anime.js) — only for clients that want motion
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        !(navigator.connection && navigator.connection.saveData)) {
+      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+    }
+  </script>
 </body>
 </html>

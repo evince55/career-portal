@@ -352,6 +352,9 @@ pre {
   transform: translateY(12px);
 }
 
+/* applied by js/motion.js immediately before a staggered entrance animates */
+.stagger-armed { opacity: 0; }
+
 /* ---------- command palette ---------- */
 .palette[hidden] { display: none; }
 
@@ -443,4 +446,5 @@ pre {
     transition-duration: 0.01ms !important;
   }
   .reveal.reveal-armed:not(.visible) { opacity: 1; transform: none; }
+  .stagger-armed { opacity: 1; }
 }

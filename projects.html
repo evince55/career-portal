@@ -67,7 +67,7 @@
     </section>
 
     <section class="container projects-grid-section" aria-label="Project list">
-      <div id="projects-grid" class="projects-grid">
+      <div id="projects-grid" class="projects-grid" data-stagger>
         <noscript>
           <ul class="projects-static" role="list">
             <li><a href="/projects/meshwatch.html">MeshWatch</a> — service-mesh observability on k3s for $5.12/month</li>
@@ -144,6 +144,11 @@
     }
     searchInput.addEventListener('input', render);
     render();
+
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        !(navigator.connection && navigator.connection.saveData)) {
+      import('/js/motion.js?v=7').then((mod) => mod.initPageMotion()).catch(() => {});
+    }
   </script>
   <script type="module" src="/js/pwa.js?v=7"></script>
   <script type="module">

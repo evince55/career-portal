@@ -68,3 +68,21 @@ export function computeOverallGrade(grades) {
   if (letters.includes('B')) return { grade: 'B', color: 'success' };
   return { grade: 'A', color: 'success' };
 }
+
+/**
+ * Split a stat display string into { prefix, value, decimals, suffix } so the
+ * numeric part can be animated (count-up) and re-rendered faithfully.
+ * Examples: '99.8%' → {prefix:'', value:99.8, decimals:1, suffix:'%'}
+ *           '$5.12/mo' → {prefix:'$', value:5.12, decimals:2, suffix:'/mo'}
+ *           '894k' → {prefix:'', value:894, decimals:0, suffix:'k'}
+ *           '3 / 20' → {prefix:'', value:3, decimals:0, suffix:' / 20'}
+ * Returns null when no number is present (caller should skip animating).
+ */
+export function parseStatValue(text) {
+  if (typeof text !== 'string') return null;
+  const m = text.match(/^(.*?)(\d+(?:\.\d+)?)(.*)$/s);
+  if (!m) return null;
+  const [, prefix, num, suffix] = m;
+  const decimals = num.includes('.') ? num.split('.')[1].length : 0;
+  return { prefix, value: parseFloat(num), decimals, suffix };
+}

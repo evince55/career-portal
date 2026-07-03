@@ -254,3 +254,11 @@
 @media (min-width: 640px) and (max-width: 919px) {
   .grid-3 > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
+
+/* hero entrance (js/motion.js) — html.anim is set pre-paint by the inline head
+   guard (motion-safe clients only) and removed by a 2.5s failsafe, so content
+   can never stay hidden if the motion module fails to load */
+html.anim .hero__inner > *,
+html.anim .hero__proof .chip { opacity: 0; }
+html:not(.anim) .hero__inner > *,
+html:not(.anim) .hero__proof .chip { transition: opacity 400ms ease; }

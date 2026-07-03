@@ -117,12 +117,12 @@
 
       <section class="case-study__section">
         <h2>Measured outcomes</h2>
-        <dl class="outcome-grid">
-          <div class="stat"><dt class="stat__label">Monthly cost</dt><dd class="stat__value">$5.12</dd><dd class="stat__label">60% below serverless parity</dd></div>
-          <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value">99.8%</dd><dd class="stat__label">15 pods, 5 services</dd></div>
-          <div class="stat"><dt class="stat__label">Avg response time</dt><dd class="stat__value">45 ms</dd><dd class="stat__label">0.2% error rate</dd></div>
-          <div class="stat"><dt class="stat__label">AI root cause</dt><dd class="stat__value">~2 s</dd><dd class="stat__label">per incident, on-node</dd></div>
-          <div class="stat"><dt class="stat__label">Annual savings</dt><dd class="stat__value">$92.16</dd><dd class="stat__label">vs serverless baseline</dd></div>
+        <dl class="outcome-grid" data-stagger>
+          <div class="stat"><dt class="stat__label">Monthly cost</dt><dd class="stat__value" data-count>$5.12</dd><dd class="stat__label">60% below serverless parity</dd></div>
+          <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value" data-count>99.8%</dd><dd class="stat__label">15 pods, 5 services</dd></div>
+          <div class="stat"><dt class="stat__label">Avg response time</dt><dd class="stat__value" data-count>45 ms</dd><dd class="stat__label">0.2% error rate</dd></div>
+          <div class="stat"><dt class="stat__label">AI root cause</dt><dd class="stat__value" data-count>~2 s</dd><dd class="stat__label">per incident, on-node</dd></div>
+          <div class="stat"><dt class="stat__label">Annual savings</dt><dd class="stat__value" data-count>$92.16</dd><dd class="stat__label">vs serverless baseline</dd></div>
         </dl>
       </section>
 
@@ -161,5 +161,12 @@
 
   <div id="palette-root"></div>
   <script type="module" src="/js/palette.js?v=7"></script>
+  <script type="module">
+    // Motion layer (anime.js) — only for clients that want motion
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        !(navigator.connection && navigator.connection.saveData)) {
+      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+    }
+  </script>
 </body>
 </html>

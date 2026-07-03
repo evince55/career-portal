@@ -80,11 +80,11 @@
 
       <section class="case-study__section">
         <h2>Measured outcomes</h2>
-        <dl class="outcome-grid">
-          <div class="stat"><dt class="stat__label">Shipped dependencies</dt><dd class="stat__value">0</dd><dd class="stat__label">npm packages in the bundle</dd></div>
-          <div class="stat"><dt class="stat__label">Automated tests</dt><dd class="stat__value">90+</dd><dd class="stat__label">native Node runner</dd></div>
-          <div class="stat"><dt class="stat__label">Lighthouse</dt><dd class="stat__value">95+</dd><dd class="stat__label">performance &amp; accessibility</dd></div>
-          <div class="stat"><dt class="stat__label">Hosting cost</dt><dd class="stat__value">$0/mo</dd><dd class="stat__label">Cloudflare Pages free tier</dd></div>
+        <dl class="outcome-grid" data-stagger>
+          <div class="stat"><dt class="stat__label">Shipped dependencies</dt><dd class="stat__value" data-count>0</dd><dd class="stat__label">npm packages in the bundle</dd></div>
+          <div class="stat"><dt class="stat__label">Automated tests</dt><dd class="stat__value" data-count>90+</dd><dd class="stat__label">native Node runner</dd></div>
+          <div class="stat"><dt class="stat__label">Lighthouse</dt><dd class="stat__value" data-count>95+</dd><dd class="stat__label">performance &amp; accessibility</dd></div>
+          <div class="stat"><dt class="stat__label">Hosting cost</dt><dd class="stat__value" data-count>$0/mo</dd><dd class="stat__label">Cloudflare Pages free tier</dd></div>
         </dl>
       </section>
 
@@ -123,5 +123,12 @@
 
   <div id="palette-root"></div>
   <script type="module" src="/js/palette.js?v=7"></script>
+  <script type="module">
+    // Motion layer (anime.js) — only for clients that want motion
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        !(navigator.connection && navigator.connection.saveData)) {
+      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+    }
+  </script>
 </body>
 </html>
