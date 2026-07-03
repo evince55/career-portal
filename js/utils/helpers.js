@@ -86,3 +86,31 @@ export function parseStatValue(text) {
   const decimals = num.includes('.') ? num.split('.')[1].length : 0;
   return { prefix, value: parseFloat(num), decimals, suffix };
 }
+
+/**
+ * Map a human tech-stack name ('Kubernetes (k3s)', 'ArgoCD', 'Discord.py Bot')
+ * to a vendored Simple Icons slug in /icons/tech/, or null when we have no
+ * icon for it. Keyword order matters: more specific slugs first.
+ */
+const TECH_ICON_KEYWORDS = [
+  ['k3s', 'k3s'],
+  ['kubernetes', 'kubernetes'],
+  ['istio', 'istio'],
+  ['prometheus', 'prometheus'],
+  ['grafana', 'grafana'],
+  ['cloudflare', 'cloudflare'],
+  ['discord', 'discord'],
+  ['argo', 'argo'],
+  ['github', 'github'],
+  ['python', 'python'],
+  ['node', 'nodedotjs']
+];
+
+export function techIconSlug(name) {
+  if (typeof name !== 'string') return null;
+  const n = name.toLowerCase();
+  for (const [keyword, slug] of TECH_ICON_KEYWORDS) {
+    if (n.includes(keyword)) return slug;
+  }
+  return null;
+}

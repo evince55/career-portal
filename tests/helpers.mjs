@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'assert/strict';
-import { escapeHtml, normalizeSlug, parseStatValue } from '../js/utils/helpers.js';
+import { existsSync } from 'node:fs';
+import { escapeHtml, normalizeSlug, parseStatValue, techIconSlug } from '../js/utils/helpers.js';
 
 describe('Helper Utilities', () => {
   describe('escapeHtml', () => {
@@ -88,5 +89,25 @@ describe('parseStatValue', () => {
     assert.equal(parseStatValue('n/a'), null);
     assert.equal(parseStatValue(''), null);
     assert.equal(parseStatValue(null), null);
+  });
+});
+
+describe('techIconSlug', () => {
+  it('maps catalog names to vendored icon slugs', () => {
+    assert.equal(techIconSlug('Kubernetes (k3s)'), 'k3s');
+    assert.equal(techIconSlug('Istio Service Mesh'), 'istio');
+    assert.equal(techIconSlug('Prometheus + Grafana'), 'prometheus');
+    assert.equal(techIconSlug('ArgoCD'), 'argo');
+    assert.equal(techIconSlug('Discord.py Bot'), 'discord');
+  });
+  it('returns null for unknown tech', () => {
+    assert.equal(techIconSlug('cert-manager'), null);
+    assert.equal(techIconSlug(null), null);
+  });
+  it('every mapped slug has its SVG on disk', () => {
+    for (const name of ['k3s', 'kubernetes', 'istio', 'prometheus', 'grafana', 'cloudflare', 'discord', 'argo', 'github', 'python', 'node']) {
+      const slug = techIconSlug(name);
+      assert.ok(existsSync(new URL(`../icons/tech/${slug}.svg`, import.meta.url)), `missing icons/tech/${slug}.svg`);
+    }
   });
 });

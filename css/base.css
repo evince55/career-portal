@@ -257,6 +257,7 @@ pre {
 .chip {
   display: inline-flex;
   align-items: center;
+  gap: var(--sp-2);
   padding: calc(var(--sp-1) + 1px) var(--sp-3);
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -266,6 +267,28 @@ pre {
   font-size: var(--fs-0);
   white-space: nowrap;
 }
+
+/* tech logos (vendored Simple Icons, CC0) — masked so they tint via currentColor */
+.chip[data-tech]::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  flex: none;
+  background: currentColor;
+  -webkit-mask: var(--tech-icon) center / contain no-repeat;
+  mask: var(--tech-icon) center / contain no-repeat;
+}
+.chip[data-tech='k3s'] { --tech-icon: url('/icons/tech/k3s.svg'); }
+.chip[data-tech='kubernetes'] { --tech-icon: url('/icons/tech/kubernetes.svg'); }
+.chip[data-tech='istio'] { --tech-icon: url('/icons/tech/istio.svg'); }
+.chip[data-tech='prometheus'] { --tech-icon: url('/icons/tech/prometheus.svg'); }
+.chip[data-tech='grafana'] { --tech-icon: url('/icons/tech/grafana.svg'); }
+.chip[data-tech='cloudflare'] { --tech-icon: url('/icons/tech/cloudflare.svg'); }
+.chip[data-tech='discord'] { --tech-icon: url('/icons/tech/discord.svg'); }
+.chip[data-tech='argo'] { --tech-icon: url('/icons/tech/argo.svg'); }
+.chip[data-tech='github'] { --tech-icon: url('/icons/tech/github.svg'); }
+.chip[data-tech='python'] { --tech-icon: url('/icons/tech/python.svg'); }
+.chip[data-tech='nodedotjs'] { --tech-icon: url('/icons/tech/nodedotjs.svg'); }
 
 .stat { display: grid; gap: var(--sp-1); }
 

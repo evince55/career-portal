@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0b14"/>
+      <stop offset="0.6" stop-color="#08080d"/>
+      <stop offset="1" stop-color="#0e0a16"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#3fd8e8" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#3fd8e8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- synthwave grid horizon -->
+  <g stroke="url(#fade)" stroke-width="1.5">
+    <line x1="0" y1="470" x2="1200" y2="470"/>
+    <line x1="0" y1="500" x2="1200" y2="500"/>
+    <line x1="0" y1="540" x2="1200" y2="540"/>
+    <line x1="0" y1="590" x2="1200" y2="590"/>
+    <line x1="600" y1="450" x2="600" y2="630"/>
+    <line x1="600" y1="450" x2="380" y2="630"/>
+    <line x1="600" y1="450" x2="160" y2="630"/>
+    <line x1="600" y1="450" x2="-60" y2="630"/>
+    <line x1="600" y1="450" x2="820" y2="630"/>
+    <line x1="600" y1="450" x2="1040" y2="630"/>
+    <line x1="600" y1="450" x2="1260" y2="630"/>
+  </g>
+  <!-- brand -->
+  <text x="96" y="150" font-family="Menlo, monospace" font-size="34" font-weight="700" fill="#3fd8e8">EV_</text>
+  <text x="96" y="256" font-family="Helvetica Neue, Arial, sans-serif" font-size="76" font-weight="700" fill="#eceaf4">Eugene Vincent</text>
+  <text x="96" y="330" font-family="Helvetica Neue, Arial, sans-serif" font-size="38" fill="#b4b2c9">Full-stack engineer with SRE/DevOps depth.</text>
+  <text x="96" y="392" font-family="Menlo, monospace" font-size="26" fill="#8b89a3">k3s · Istio · Prometheus · Grafana · GitOps · Azure — run at home</text>
+  <text x="96" y="470" font-family="Menlo, monospace" font-size="24" fill="#3fd8e8">chai-homelab.com</text>
+  <circle cx="1064" cy="132" r="7" fill="#4ade80"/>
+  <text x="1082" y="140" font-family="Menlo, monospace" font-size="22" fill="#8b89a3">live</text>
+</svg>

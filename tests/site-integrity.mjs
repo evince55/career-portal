@@ -68,6 +68,15 @@ describe('site integrity', () => {
     }
   });
 
+  it('every data-tech chip has its vendored icon on disk', () => {
+    for (const page of PAGES) {
+      const html = read(page);
+      for (const m of html.matchAll(/data-tech="([a-z0-9]+)"/g)) {
+        assert.ok(onDisk(`icons/tech/${m[1]}.svg`), `${page}: missing icons/tech/${m[1]}.svg`);
+      }
+    }
+  });
+
   it('sitemap lists every canonical page', () => {
     const sm = read('sitemap.xml');
     for (const page of PAGES.filter((p) => p !== '404.html')) {

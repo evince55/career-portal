@@ -11,8 +11,11 @@
   <meta property="og:url" content="https://chai-homelab.com/">
   <meta property="og:title" content="Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab">
   <meta property="og:description" content="CS student who builds and runs production-grade infrastructure at home: k3s, Istio, Prometheus/Grafana, GitOps, Azure — with live metrics to prove it.">
-  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://chai-homelab.com/og/card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Eugene Vincent — full-stack engineer with SRE/DevOps depth. chai-homelab.com">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab">
   <meta name="twitter:description" content="CS student who builds and runs production-grade infrastructure at home — with live metrics to prove it.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
@@ -98,7 +101,7 @@
           <li class="chip"><span class="pulse" data-live-badge hidden aria-hidden="true"></span><span><span data-live-uptime>99.8%</span> Minecraft server uptime</span></li>
           <li class="chip">AZ-900 certified</li>
           <li class="chip">5 systems in production</li>
-          <li><a class="chip" href="https://github.com/chaitea321">github.com/chaitea321</a></li>
+          <li><a class="chip" data-tech="github" href="https://github.com/chaitea321">github.com/chaitea321</a></li>
         </ul>
       </div>
     </section>
@@ -114,9 +117,9 @@
             <h3 class="card__title"><a href="/projects/meshwatch.html">MeshWatch</a></h3>
             <p>Full observability — metrics, logs, traces, AI incident analysis — on one k3s node for <span class="project-card__number">$5.12/mo</span>, 60% cheaper than serverless equivalents.</p>
             <ul class="project-card__stack" aria-label="Stack">
-              <li class="chip">k3s</li>
-              <li class="chip">Istio</li>
-              <li class="chip">Prometheus</li>
+              <li class="chip" data-tech="k3s">k3s</li>
+              <li class="chip" data-tech="istio">Istio</li>
+              <li class="chip" data-tech="prometheus">Prometheus</li>
               <li class="chip">Ollama Phi-3</li>
             </ul>
             <p class="project-card__link"><a href="/projects/meshwatch.html">Read the case study<span aria-hidden="true"> →</span></a></p>
@@ -128,8 +131,8 @@
             <ul class="project-card__stack" aria-label="Stack">
               <li class="chip">PaperMC</li>
               <li class="chip">JMX + RCON</li>
-              <li class="chip">Discord.py</li>
-              <li class="chip">Grafana</li>
+              <li class="chip" data-tech="discord">Discord.py</li>
+              <li class="chip" data-tech="grafana">Grafana</li>
             </ul>
             <p class="project-card__link"><a href="/projects/minecraft-monitoring.html">Read the case study<span aria-hidden="true"> →</span></a></p>
           </article>
@@ -138,7 +141,7 @@
             <h3 class="card__title"><a href="/projects/monitoring-stack.html">Monitoring Stack</a></h3>
             <p>A <span class="project-card__number">20-panel</span> Grafana dashboard, 7 alert rules across 5 services — every piece declared in Git and deployed by ArgoCD.</p>
             <ul class="project-card__stack" aria-label="Stack">
-              <li class="chip">ArgoCD</li>
+              <li class="chip" data-tech="argo">ArgoCD</li>
               <li class="chip">cert-manager</li>
               <li class="chip">External Secrets</li>
               <li class="chip">Loki</li>

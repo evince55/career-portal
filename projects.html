@@ -11,8 +11,11 @@
   <meta property="og:url" content="https://chai-homelab.com/projects.html">
   <meta property="og:title" content="Projects — Eugene Vincent">
   <meta property="og:description" content="Five production systems with measured outcomes: k3s service-mesh observability, Minecraft server monitoring, a GitOps platform, serverless incident response on Azure, and this PWA.">
-  <meta property="og:image" content="https://chai-homelab.com/icons/icon-512.png">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://chai-homelab.com/og/card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Eugene Vincent — full-stack engineer with SRE/DevOps depth. chai-homelab.com">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Projects — Eugene Vincent">
   <meta name="twitter:description" content="Five production systems with measured outcomes — from service-mesh observability on k3s to serverless incident response on Azure.">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -98,7 +101,7 @@
 
   <script type="module">
     import { getProjects } from '/js/project-catalog.js?v=7';
-    import { escapeHtml } from '/js/utils/helpers.js?v=7';
+    import { techIconSlug, escapeHtml } from '/js/utils/helpers.js?v=7';
 
     const CATEGORY_LABELS = { cloud: 'Cloud', devops: 'DevOps', iot: 'IoT', web: 'Web' };
     const grid = document.getElementById('projects-grid');
@@ -110,7 +113,10 @@
 
     function cardHtml(project) {
       const stack = project.techStack.slice(0, 4)
-        .map((tech) => `<li class="chip">${escapeHtml(tech.name)}</li>`)
+        .map((tech) => {
+          const slug = techIconSlug(tech.name);
+          return `<li class="chip"${slug ? ` data-tech="${slug}"` : ''}>${escapeHtml(tech.name)}</li>`;
+        })
         .join('');
       const label = CATEGORY_LABELS[project.category] || escapeHtml(project.category);
       return `
