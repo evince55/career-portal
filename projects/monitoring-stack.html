@@ -45,7 +45,7 @@
   <main id="main">
     <article class="container case-study">
       <header class="case-study__header">
-        <p class="kicker">Case study</p>
+        <p class="kicker"><span class="ico ico--book" aria-hidden="true"></span>Case study</p>
         <h1>Monitoring Stack</h1>
         <p class="case-study__outcome">A monitoring platform where <strong>Git is the single source of truth</strong>: ArgoCD reconciles Prometheus, Loki, TLS certificates, and secrets — with zero manual <code>kubectl apply</code> in production.</p>
         <p class="case-study__meta mono">devops · gitops · May 2026</p>
@@ -60,12 +60,12 @@
       </header>
 
       <section class="case-study__section">
-        <h2>Context</h2>
+        <h2><span class="ico ico--info" aria-hidden="true"></span>Context</h2>
         <p>Manual Kubernetes deployments drift. A <code>kubectl apply</code> here, a <code>helm upgrade</code> there, and within a week nobody is sure what is actually running. The goal: a monitoring platform where every change is a reviewed Git commit and the cluster self-heals to the declared state.</p>
       </section>
 
       <section class="case-study__section">
-        <h2>Architecture</h2>
+        <h2><span class="ico ico--network" aria-hidden="true"></span>Architecture</h2>
         <p>ArgoCD sits at the top, watching a repo structured with the <strong>App-of-Apps</strong> pattern: a root Application points at a directory of child Applications, each deploying one component into its own namespace — kube-prometheus-stack (v85.2.1 Helm chart) for Prometheus, Alertmanager, and Grafana; Loki with Promtail for logs; External Secrets Operator; and cert-manager. Namespace isolation means a misconfigured Loki deploy cannot block a Prometheus rolling update.</p>
         <figure class="case-study__diagram">
           <svg viewBox="0 0 360 344" role="img" aria-label="Architecture diagram: a Git repository using the App-of-Apps pattern is synced by ArgoCD, which reconciles four child applications, each in its own namespace: kube-prometheus-stack with Prometheus and Grafana, Loki plus Promtail for logs with 7-day retention, External Secrets Operator syncing from Azure Key Vault, and cert-manager provisioning Let's Encrypt TLS." xmlns="http://www.w3.org/2000/svg">
@@ -104,7 +104,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Key decisions &amp; tradeoffs</h2>
+        <h2><span class="ico ico--scale" aria-hidden="true"></span>Key decisions &amp; tradeoffs</h2>
         <ul class="decisions">
           <li><strong>App of Apps, with a known weak point.</strong> Per-namespace child apps isolate blast radius, but the root Application is a single point of failure — if ArgoCD cannot reach the repo, nothing reconciles. Mitigation: a local ArgoCD backup and a documented manual recovery path.</li>
           <li><strong>Secrets never touch Git.</strong> An <code>ExternalSecret</code> CRD references Azure Key Vault, and the operator syncs it into a native Kubernetes Secret on a 1-hour refresh — no app code changes. Tradeoff: a rotation can be stale for up to 60 minutes, so critical rotations get a manual refresh.</li>
@@ -114,7 +114,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Measured outcomes</h2>
+        <h2><span class="ico ico--chart" aria-hidden="true"></span>Measured outcomes</h2>
         <dl class="outcome-grid" data-stagger>
           <div class="stat"><dt class="stat__label">Services monitored</dt><dd class="stat__value" data-count>5</dd><dd class="stat__label">across 4 namespaces</dd></div>
           <div class="stat"><dt class="stat__label">Alert rules</dt><dd class="stat__value" data-count>7</dd><dd class="stat__label">TPS to node pressure</dd></div>
@@ -125,7 +125,7 @@
       </section>
 
       <section class="case-study__section case-study__links">
-        <h2>Links</h2>
+        <h2><span class="ico ico--link" aria-hidden="true"></span>Links</h2>
         <ul>
           <li><a href="/dashboard.html">Live homelab dashboard — served by this stack</a></li>
           <li><a href="/projects/meshwatch.html">MeshWatch case study — the observability layer this platform deploys</a></li>
@@ -136,11 +136,11 @@
 
     <nav class="container case-study pager" aria-label="More case studies">
       <a class="pager__link" href="/projects/minecraft-monitoring.html" rel="prev">
-        <span class="pager__dir">← Previous</span>
+        <span class="pager__dir"><span class="ico ico--chevron-left" aria-hidden="true"></span>Previous</span>
         <span class="pager__title">Minecraft Monitoring</span>
       </a>
       <a class="pager__link pager__link--next" href="/projects/azure-functions.html" rel="next">
-        <span class="pager__dir">Next →</span>
+        <span class="pager__dir">Next<span class="ico ico--chevron-right" aria-hidden="true"></span></span>
         <span class="pager__title">Azure Functions</span>
       </a>
     </nav>

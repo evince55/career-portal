@@ -279,6 +279,24 @@
 }
 
 
+/* ---------- leading icons (rich UI-icon pass) ---------- */
+/* card headers: a subtle cyan glyph before the title text */
+.db-detail__grid .card__title .ico,
+.db-stack__grid .card__title .ico {
+  color: var(--accent-cyan);
+  margin-right: var(--sp-2);
+  vertical-align: -0.1em;
+  opacity: 0.9;
+}
+/* stat labels are mono/uppercase; keep the glyph tiny and tinted, aligned with the caps */
+.db-cell .stat__label .ico {
+  color: var(--accent-cyan);
+  font-size: 0.95em;
+  margin-right: var(--sp-1);
+  vertical-align: -0.1em;
+  opacity: 0.85;
+}
+
 /* ---------- small screens ---------- */
 @media (max-width: 480px) {
   .db-status__refresh { width: 100%; }

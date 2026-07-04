@@ -32,6 +32,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--sp-2);
   min-height: 44px;
   min-width: 44px;
   padding: var(--sp-2) var(--sp-4);

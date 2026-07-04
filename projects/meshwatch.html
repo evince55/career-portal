@@ -45,7 +45,7 @@
   <main id="main">
     <article class="container case-study">
       <header class="case-study__header">
-        <p class="kicker">Case study</p>
+        <p class="kicker"><span class="ico ico--book" aria-hidden="true"></span>Case study</p>
         <h1>MeshWatch</h1>
         <p class="case-study__outcome">Production-grade observability — metrics, logs, traces, and AI-assisted incident analysis — on a single k3s node for <strong>$5.12/month</strong>: 60% less than a comparable serverless setup, at 99.8% uptime.</p>
         <p class="case-study__meta mono">kubernetes · service mesh · June 2026</p>
@@ -61,12 +61,12 @@
       </header>
 
       <section class="case-study__section">
-        <h2>Context</h2>
+        <h2><span class="ico ico--info" aria-hidden="true"></span>Context</h2>
         <p>Managed observability platforms price by ingest volume and host count. For a homelab running five microservices with Prometheus scraping every 15 seconds, a managed bill crosses <strong>$12.80/month</strong> before the first alert even fires. The question behind MeshWatch: can one small k3s node deliver all three pillars of observability — metrics, logs, traces — plus an AI incident responder, without giving up reliability?</p>
       </section>
 
       <section class="case-study__section">
-        <h2>Architecture</h2>
+        <h2><span class="ico ico--network" aria-hidden="true"></span>Architecture</h2>
         <p>Everything runs on a single k3s node (1 CPU, 2 GB RAM). Istio injects an Envoy sidecar into every service pod and enforces STRICT mutual TLS — <strong>zero plaintext traffic</strong> between any two pods, with certificates rotated automatically every 30 days. Telemetry flows through three parallel pipelines into Grafana, and Prometheus alerts feed a local LLM for root-cause analysis.</p>
         <figure class="case-study__diagram">
           <svg viewBox="0 0 360 292" role="img" aria-label="Architecture diagram: five service pods with Envoy sidecars under Istio strict mutual TLS feed three pipelines — Prometheus for metrics on a 15-second scrape, Loki for logs via Promtail, and Tempo for traces via OpenTelemetry. All three feed Grafana dashboards, and Prometheus alerts flow to a local Ollama Phi-3 model over an outbound-only Tailscale tunnel for root-cause analysis." xmlns="http://www.w3.org/2000/svg">
@@ -108,7 +108,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Key decisions &amp; tradeoffs</h2>
+        <h2><span class="ico ico--scale" aria-hidden="true"></span>Key decisions &amp; tradeoffs</h2>
         <ul class="decisions">
           <li><strong>k3s over full Kubernetes.</strong> The stripped control plane runs in ~512 MB, leaving 1.5 GB for the entire observability stack on a 2 GB node.</li>
           <li><strong>Loki over Elasticsearch.</strong> Chunk-compressed log storage costs about a tenth as much for the same ingest rate.</li>
@@ -119,7 +119,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Measured outcomes</h2>
+        <h2><span class="ico ico--chart" aria-hidden="true"></span>Measured outcomes</h2>
         <dl class="outcome-grid" data-stagger>
           <div class="stat"><dt class="stat__label">Monthly cost</dt><dd class="stat__value" data-count>$5.12</dd><dd class="stat__label">60% below serverless parity</dd></div>
           <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value" data-count>99.8%</dd><dd class="stat__label">15 pods, 5 services</dd></div>
@@ -130,7 +130,7 @@
       </section>
 
       <section class="case-study__section case-study__links">
-        <h2>Links</h2>
+        <h2><span class="ico ico--link" aria-hidden="true"></span>Links</h2>
         <ul>
           <li><a href="https://github.com/chaitea321/meshwatch">Source on GitHub — chaitea321/meshwatch</a></li>
           <li><a href="/dashboard.html">Live homelab dashboard — this cluster feeds it</a></li>
@@ -140,11 +140,11 @@
 
     <nav class="container case-study pager" aria-label="More case studies">
       <a class="pager__link" href="/projects/career-portal.html" rel="prev">
-        <span class="pager__dir">← Previous</span>
+        <span class="pager__dir"><span class="ico ico--chevron-left" aria-hidden="true"></span>Previous</span>
         <span class="pager__title">Career Portal</span>
       </a>
       <a class="pager__link pager__link--next" href="/projects/minecraft-monitoring.html" rel="next">
-        <span class="pager__dir">Next →</span>
+        <span class="pager__dir">Next<span class="ico ico--chevron-right" aria-hidden="true"></span></span>
         <span class="pager__title">Minecraft Monitoring</span>
       </a>
     </nav>

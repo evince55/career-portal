@@ -54,7 +54,7 @@
     <div class="container">
 
       <section class="db-hero">
-        <span class="kicker">k3s · Prometheus · Grafana</span>
+        <span class="kicker"><span class="ico ico--activity" aria-hidden="true"></span>k3s · Prometheus · Grafana</span>
         <h1 class="db-hero__title">The homelab, live</h1>
         <p class="db-hero__lede">Live metrics from the k3s homelab that runs everything on this site.
           A cron job exports the Minecraft server's Prometheus stats every 10 minutes; this page reads that export.</p>
@@ -87,7 +87,7 @@
                 <span class="db-gauge__max mono" data-max></span>
               </p>
             </div>
-            <p class="stat__label">TPS · ticks per second</p>
+            <p class="stat__label"><span class="ico ico--gauge" aria-hidden="true"></span>TPS · ticks per second</p>
           </div>
 
           <div class="stat db-cell db-gauge" role="img" id="db-gauge-players" aria-label="Players not loaded yet">
@@ -101,7 +101,7 @@
                 <span class="db-gauge__max mono" data-max></span>
               </p>
             </div>
-            <p class="stat__label">Players online</p>
+            <p class="stat__label"><span class="ico ico--network" aria-hidden="true"></span>Players online</p>
           </div>
 
           <div class="stat db-cell db-bar" role="img" id="db-bar-heap" aria-label="JVM heap not loaded yet">
@@ -110,12 +110,12 @@
               <span class="db-bar__max mono" data-max></span>
             </p>
             <div class="db-bar__track"><div class="db-bar__fill"></div></div>
-            <p class="stat__label">JVM heap used</p>
+            <p class="stat__label"><span class="ico ico--database" aria-hidden="true"></span>JVM heap used</p>
           </div>
 
           <div class="stat db-cell" role="img" id="db-stat-uptime" aria-label="Server uptime not loaded yet">
             <p class="stat__value" data-value>—</p>
-            <p class="stat__label">Server uptime</p>
+            <p class="stat__label"><span class="ico ico--activity" aria-hidden="true"></span>Server uptime</p>
           </div>
 
         </div>
@@ -126,7 +126,7 @@
         <div class="db-detail__grid">
 
           <article class="card">
-            <h3 class="card__title">Server</h3>
+            <h3 class="card__title"><span class="ico ico--server" aria-hidden="true"></span>Server</h3>
             <dl class="db-meta">
               <div><dt>Name</dt><dd class="mono" id="db-meta-name">—</dd></div>
               <div><dt>Version</dt><dd class="mono" id="db-meta-version">—</dd></div>
@@ -136,13 +136,13 @@
           </article>
 
           <article class="card">
-            <h3 class="card__title">Recent changes</h3>
+            <h3 class="card__title"><span class="ico ico--branch" aria-hidden="true"></span>Recent changes</h3>
             <p class="card__meta">From the server's change feed.</p>
             <ul class="db-changes" id="db-changes"></ul>
           </article>
 
           <article class="card">
-            <h3 class="card__title">Monitoring bill</h3>
+            <h3 class="card__title"><span class="ico ico--scale" aria-hidden="true"></span>Monitoring bill</h3>
             <p class="card__meta">Static figures from the MeshWatch case study — not live.</p>
             <p class="db-cost__headline">
               <span class="db-cost__number mono">$5.12</span><span class="db-cost__per">/month</span>
@@ -162,19 +162,19 @@
         <h2 class="section__title" id="stack-title">What runs this page</h2>
         <ul class="db-stack__grid">
           <li class="card">
-            <h3 class="card__title">k3s + Istio</h3>
+            <h3 class="card__title"><span class="ico ico--box" aria-hidden="true"></span>k3s + Istio</h3>
             <p>Single-node Kubernetes with mTLS between every pod.</p>
           </li>
           <li class="card">
-            <h3 class="card__title">Prometheus + Grafana</h3>
+            <h3 class="card__title"><span class="ico ico--chart" aria-hidden="true"></span>Prometheus + Grafana</h3>
             <p>Scrapes the Minecraft server's JMX metrics — the numbers above come from this pipeline.</p>
           </li>
           <li class="card">
-            <h3 class="card__title">Loki + Tempo</h3>
+            <h3 class="card__title"><span class="ico ico--database" aria-hidden="true"></span>Loki + Tempo</h3>
             <p>Log aggregation and distributed traces for the same cluster.</p>
           </li>
           <li class="card">
-            <h3 class="card__title">Cloudflare Pages</h3>
+            <h3 class="card__title"><span class="ico ico--cloud" aria-hidden="true"></span>Cloudflare Pages</h3>
             <p>Hosts this site; the stats JSON this page reads is refreshed every 10 minutes.</p>
           </li>
         </ul>

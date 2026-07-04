@@ -47,6 +47,15 @@
   margin-bottom: var(--sp-4);
 }
 
+/* leading section-header glyph (rich UI-icon pass) — cyan, sized to the heading */
+.case-study__section h2 .ico {
+  color: var(--accent-cyan);
+  font-size: 0.8em;
+  margin-right: var(--sp-2);
+  vertical-align: 0;
+  opacity: 0.9;
+}
+
 .case-study__section p {
   margin-bottom: var(--sp-4);
 }
@@ -194,6 +203,11 @@
   letter-spacing: 0.08em;
   margin-bottom: var(--sp-1);
 }
+
+/* chevrons flank the direction label; they inherit its muted tone */
+.pager__dir .ico { font-size: 0.95em; vertical-align: -0.1em; }
+.pager__dir .ico--chevron-left { margin-right: var(--sp-1); }
+.pager__dir .ico--chevron-right { margin-left: var(--sp-1); }
 
 .pager__title {
   color: var(--text-1);
