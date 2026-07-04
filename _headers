@@ -11,8 +11,9 @@
 
 # Icons: let Cloudflare Pages set Content-Type by file extension (this dir holds
 # both PNG app icons and SVG logos/UI glyphs — forcing image/png broke the SVGs).
+# 1-day + revalidate (not a year) so any bad entry self-heals quickly.
 /icons/*
-  Cache-Control: public, max-age=31536000
+  Cache-Control: public, max-age=86400, must-revalidate
 
 /config/*
   Content-Type: application/json
