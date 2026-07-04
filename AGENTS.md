@@ -103,3 +103,20 @@ CSS masks.
 the WebGL shader is skipped, and a left scrim (`.hero:has(.hero__media)::after`) keeps the copy
 legible. Add the media file(s) to the service-worker precache and bump the cache name. Keep a
 poster for reduced-motion / no-autoplay clients.
+
+## Live homelab stats pipeline
+
+The dashboard + home page show live Minecraft/homelab metrics. Flow:
+homelab cron (`scripts/update-minecraft-stats.sh`, every 10 min) queries Prometheus, writes
+`config/minecraft-stats.json` locally, then POSTs it to **`/api/stats`** (a Cloudflare Pages
+Function, `functions/api/stats.js`) which stores it in **Cloudflare KV** (binding `STATS_KV`,
+key `minecraft`, bearer secret `STATS_TOKEN`). The client reads `/api/stats` (60s edge cache)
+through the shared `js/stats-source.js` `fetchStats()`, which **falls back to the committed
+`config/minecraft-stats.json`** if the endpoint is unavailable.
+
+- `/api/stats` is dynamic — **do NOT precache it** in the service worker. Keep
+  `config/minecraft-stats.json` precached as the fallback seed.
+- One-time Cloudflare config (KV namespace + binding + secret) is owner-run: see
+  `docs/cloudflare-live-stats-setup.md`. The repo/agent never holds the token.
+- `functions/` deploys automatically with the Pages project (repo-root directory); no workflow
+  change needed.

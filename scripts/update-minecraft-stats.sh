@@ -86,3 +86,21 @@ cat > minecraft-stats.json << EOF
   "lastUpdated": "$NOW"
 }
 EOF
+
+# Push the fresh stats to the live edge endpoint (Cloudflare KV via Pages Function).
+# Token lives outside git; the local write above already succeeded, so a push
+# failure must never fail the cron.
+STATS_TOKEN_FILE="${STATS_TOKEN_FILE:-$HOME/.aria-stats-token}"
+if [ -f "$STATS_TOKEN_FILE" ]; then
+  TOKEN="$(cat "$STATS_TOKEN_FILE")"
+  if curl -sf --max-time 10 -X POST 'https://chai-homelab.com/api/stats' \
+       -H "Authorization: Bearer $TOKEN" \
+       -H 'Content-Type: application/json' \
+       --data-binary @minecraft-stats.json > /dev/null; then
+    echo "[stats] pushed to edge OK"
+  else
+    echo "[stats] edge push failed (kept local copy)" >&2
+  fi
+else
+  echo "[stats] no token file at $STATS_TOKEN_FILE — skipping edge push" >&2
+fi
