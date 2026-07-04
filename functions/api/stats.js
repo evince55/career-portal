@@ -29,6 +29,7 @@ const json = (obj, status, extra) =>
   });
 
 export async function onRequestGet(context) {
+  if (!context.env.STATS_KV) return json({ error: 'no data' }, 404); // KV not bound yet
   const value = await context.env.STATS_KV.get(KEY);
   if (value == null) return json({ error: 'no data' }, 404);
   return new Response(value, {
@@ -39,7 +40,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   const token = context.env.STATS_TOKEN;
-  if (!token) return json({ error: 'server not configured' }, 503);
+  if (!token || !context.env.STATS_KV) return json({ error: 'server not configured' }, 503);
   const auth = (context.request.headers.get('Authorization') || '');
   if (!safeEqual(auth, `Bearer ${token}`)) return json({ error: 'unauthorized' }, 401);
 

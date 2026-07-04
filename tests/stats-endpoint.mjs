@@ -34,6 +34,10 @@ describe('onRequestGet', () => {
     const res = await onRequestGet({ env: { STATS_KV: mockKV(null) } });
     assert.equal(res.status, 404);
   });
+  it('404 when KV binding is missing (pre-config)', async () => {
+    const res = await onRequestGet({ env: {} });
+    assert.equal(res.status, 404);
+  });
   it('200 + 60s cache when present', async () => {
     const res = await onRequestGet({ env: { STATS_KV: mockKV(REAL) } });
     assert.equal(res.status, 200);
