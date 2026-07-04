@@ -45,7 +45,7 @@
   <main id="main">
     <article class="container case-study">
       <header class="case-study__header">
-        <p class="kicker">Case study</p>
+        <p class="kicker"><span class="ico ico--book" aria-hidden="true"></span>Case study</p>
         <h1>Azure Functions</h1>
         <p class="case-study__outcome">Two Python functions decouple alert generation from Discord delivery through Azure Service Bus — Pydantic-validated events and 5-minute dedup windows cut alert noise by <strong>~80%</strong> during incidents.</p>
         <p class="case-study__meta mono">cloud · serverless · April 2026</p>
@@ -60,12 +60,12 @@
       </header>
 
       <section class="case-study__section">
-        <h2>Context</h2>
+        <h2><span class="ico ico--info" aria-hidden="true"></span>Context</h2>
         <p>When Prometheus fires an alert, something has to turn that event into a message a human will actually read. Baking notification logic into Alertmanager templates means every notification change is a configmap edit and an ArgoCD sync. I wanted a decoupled serverless layer that consumes incident events from a queue, validates them, and routes them to Discord — deployable and scalable on its own.</p>
       </section>
 
       <section class="case-study__section">
-        <h2>Architecture</h2>
+        <h2><span class="ico ico--network" aria-hidden="true"></span>Architecture</h2>
         <p>Two functions on the Azure Functions v2.0 Python runtime, two triggers. A <strong>health checker</strong> runs on a 15-minute timer, polls each service's health endpoint, and emits an incident event to Service Bus on failure. An <strong>incident processor</strong> subscribes to the <code>incident-events</code> topic, validates, deduplicates, and posts a Discord embed. Service Bus is the decoupling boundary: Alertmanager and the health checker produce, the processor is the sole consumer — adding Slack or PagerDuty later means writing a new consumer, not touching the producers.</p>
         <figure class="case-study__diagram">
           <svg viewBox="0 0 360 324" role="img" aria-label="Architecture diagram: two producers — a health-checker function on a 15-minute timer and Prometheus Alertmanager — publish events to an Azure Service Bus incident-events topic. A Service-Bus-triggered incident processor validates messages with Pydantic and deduplicates within 5-minute windows, then posts incident embeds to a Discord webhook with three retries and exponential backoff." xmlns="http://www.w3.org/2000/svg">
@@ -101,7 +101,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Key decisions &amp; tradeoffs</h2>
+        <h2><span class="ico ico--scale" aria-hidden="true"></span>Key decisions &amp; tradeoffs</h2>
         <ul class="decisions">
           <li><strong>Validate at the boundary.</strong> Every message passes a Pydantic model that enforces required fields (service, severity, timestamp, metric value) and dead-letters malformed payloads instead of dropping them silently. This caught a producer bug sending severity as <code>"WARNING"</code> instead of <code>"warning"</code>.</li>
           <li><strong>Deduplicate on (service, alert-rule).</strong> A sustained degradation can fire the same alert every 30 seconds; the 5-minute window acknowledges duplicates without forwarding them. During a 2-hour Istio sidecar memory leak that meant ~80% less noise — and, since Service Bus bills per operation, a smaller bill too.</li>
@@ -112,7 +112,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Measured outcomes</h2>
+        <h2><span class="ico ico--chart" aria-hidden="true"></span>Measured outcomes</h2>
         <dl class="outcome-grid" data-stagger>
           <div class="stat"><dt class="stat__label">Functions deployed</dt><dd class="stat__value" data-count>2</dd><dd class="stat__label">timer + Service Bus trigger</dd></div>
           <div class="stat"><dt class="stat__label">Health checks</dt><dd class="stat__value" data-count>96/day</dd><dd class="stat__label">per service, 15-min interval</dd></div>
@@ -122,7 +122,7 @@
       </section>
 
       <section class="case-study__section case-study__links">
-        <h2>Links</h2>
+        <h2><span class="ico ico--link" aria-hidden="true"></span>Links</h2>
         <ul>
           <li><a href="/projects/monitoring-stack.html">Monitoring Stack case study — where these alerts originate</a></li>
         </ul>
@@ -132,11 +132,11 @@
 
     <nav class="container case-study pager" aria-label="More case studies">
       <a class="pager__link" href="/projects/monitoring-stack.html" rel="prev">
-        <span class="pager__dir">← Previous</span>
+        <span class="pager__dir"><span class="ico ico--chevron-left" aria-hidden="true"></span>Previous</span>
         <span class="pager__title">Monitoring Stack</span>
       </a>
       <a class="pager__link pager__link--next" href="/projects/career-portal.html" rel="next">
-        <span class="pager__dir">Next →</span>
+        <span class="pager__dir">Next<span class="ico ico--chevron-right" aria-hidden="true"></span></span>
         <span class="pager__title">Career Portal</span>
       </a>
     </nav>

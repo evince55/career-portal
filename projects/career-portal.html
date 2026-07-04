@@ -45,7 +45,7 @@
   <main id="main">
     <article class="container case-study">
       <header class="case-study__header">
-        <p class="kicker">Case study</p>
+        <p class="kicker"><span class="ico ico--book" aria-hidden="true"></span>Case study</p>
         <h1>Career Portal</h1>
         <p class="case-study__outcome">The site you are reading: a <strong>zero-dependency</strong> vanilla-JS PWA with 90+ automated tests, Lighthouse 95+, and $0/month hosting on Cloudflare Pages.</p>
         <p class="case-study__meta mono">web · pwa · March 2026</p>
@@ -60,18 +60,18 @@
       </header>
 
       <section class="case-study__section">
-        <h2>Context</h2>
+        <h2><span class="ico ico--info" aria-hidden="true"></span>Context</h2>
         <p>Portfolio sites tend to be either a static template (forgettable) or a framework app with 200 KB+ of JavaScript and a build pipeline. I wanted the site itself to be the demonstration: fast, accessible, offline-capable, and readable source — with no framework tax.</p>
       </section>
 
       <section class="case-study__section">
-        <h2>Architecture</h2>
+        <h2><span class="ico ico--network" aria-hidden="true"></span>Architecture</h2>
         <p>There is no build step. HTML pages import ES modules straight from <code>/js/</code>, styling is plain CSS with design tokens as custom properties, and everything ships as-is to Cloudflare Pages. The contact form posts to an Azure Function; the rest is static.</p>
         <p>The first version's hook was a working terminal emulator with 28 commands. This redesign retired it for a content-first layout with a Ctrl+K command palette — the terminal was fun, but it hid the actual work behind a <code>help</code> command. One convention survived every version: every dynamic string passes through <code>escapeHtml()</code> before any <code>innerHTML</code> assignment.</p>
       </section>
 
       <section class="case-study__section">
-        <h2>Key decisions &amp; tradeoffs</h2>
+        <h2><span class="ico ico--scale" aria-hidden="true"></span>Key decisions &amp; tradeoffs</h2>
         <ul class="decisions">
           <li><strong>Zero build step.</strong> Files ship exactly as written — no bundler, no transpiler. The cost: no tree-shaking, so every module is hand-curated for size.</li>
           <li><strong>Native test runner.</strong> The suite runs on <code>node --test</code> — no Jest, no Mocha. GitHub Actions runs it on every push and blocks the Cloudflare Pages deploy on any failure.</li>
@@ -82,7 +82,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Measured outcomes</h2>
+        <h2><span class="ico ico--chart" aria-hidden="true"></span>Measured outcomes</h2>
         <dl class="outcome-grid" data-stagger>
           <div class="stat"><dt class="stat__label">Shipped dependencies</dt><dd class="stat__value" data-count>0</dd><dd class="stat__label">npm packages in the bundle</dd></div>
           <div class="stat"><dt class="stat__label">Automated tests</dt><dd class="stat__value" data-count>90+</dd><dd class="stat__label">native Node runner</dd></div>
@@ -92,7 +92,7 @@
       </section>
 
       <section class="case-study__section case-study__links">
-        <h2>Links</h2>
+        <h2><span class="ico ico--link" aria-hidden="true"></span>Links</h2>
         <ul>
           <li><a href="https://github.com/chaitea321/career-portal">Source on GitHub — chaitea321/career-portal</a></li>
           <li><a href="/">Live deployment — you are on it</a></li>
@@ -102,11 +102,11 @@
 
     <nav class="container case-study pager" aria-label="More case studies">
       <a class="pager__link" href="/projects/azure-functions.html" rel="prev">
-        <span class="pager__dir">← Previous</span>
+        <span class="pager__dir"><span class="ico ico--chevron-left" aria-hidden="true"></span>Previous</span>
         <span class="pager__title">Azure Functions</span>
       </a>
       <a class="pager__link pager__link--next" href="/projects/meshwatch.html" rel="next">
-        <span class="pager__dir">Next →</span>
+        <span class="pager__dir">Next<span class="ico ico--chevron-right" aria-hidden="true"></span></span>
         <span class="pager__title">MeshWatch</span>
       </a>
     </nav>

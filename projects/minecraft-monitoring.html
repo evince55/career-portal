@@ -45,7 +45,7 @@
   <main id="main">
     <article class="container case-study">
       <header class="case-study__header">
-        <p class="kicker">Case study</p>
+        <p class="kicker"><span class="ico ico--book" aria-hidden="true"></span>Case study</p>
         <h1>Minecraft Monitoring</h1>
         <p class="case-study__outcome">A PaperMC game server treated like a production service: JMX metrics, RCON control from a 10-command Discord bot, and automated lag alerts — <strong>99.8% uptime</strong> over a 30-day window.</p>
         <p class="case-study__meta mono">devops · discord · May 2026</p>
@@ -60,12 +60,12 @@
       </header>
 
       <section class="case-study__section">
-        <h2>Context</h2>
+        <h2><span class="ico ico--info" aria-hidden="true"></span>Context</h2>
         <p>Minecraft server administration usually means SSH and a screen session: type <code>list</code> into a console, eyeball raw TPS, restart by hand when it crashes. No metrics history, no alerting, and no way for the Discord community to check server status themselves. The goal was to treat a game server like any other production service — observable, alertable, and controllable from the place the community already lives.</p>
       </section>
 
       <section class="case-study__section">
-        <h2>Architecture</h2>
+        <h2><span class="ico ico--network" aria-hidden="true"></span>Architecture</h2>
         <p>The server runs as a StatefulSet on k3s with three integration layers: a JMX exporter that exposes TPS, heap usage, GC pauses, and player count to Prometheus; the RCON protocol as a TCP control channel; and a Discord.py bot with 10 slash commands. The bot runs as a sidecar in the same pod, so RCON calls hit <code>localhost:25575</code> with zero network hops, while Prometheus queries travel the Istio mesh with mTLS enforced.</p>
         <figure class="case-study__diagram">
           <svg viewBox="0 0 360 264" role="img" aria-label="Architecture diagram: a Discord bot with ten slash commands reads metrics from Prometheus and sends write commands over RCON. The PaperMC server pod on k3s exposes TPS, heap, and player metrics to Prometheus through a JMX exporter on a 30-second scrape, and receives RCON commands on localhost port 25575 — all inside an Istio service mesh." xmlns="http://www.w3.org/2000/svg">
@@ -102,7 +102,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Key decisions &amp; tradeoffs</h2>
+        <h2><span class="ico ico--scale" aria-hidden="true"></span>Key decisions &amp; tradeoffs</h2>
         <ul class="decisions">
           <li><strong>Split reads from writes.</strong> Read commands (<code>/status</code>, <code>/players</code>, <code>/tps</code>) query Prometheus and render Discord embeds with zero server load; write commands (<code>/restart</code>, <code>/whitelist</code>, <code>/ban</code>) open an RCON session, execute, and close within 200 ms.</li>
           <li><strong>Role checks before every write.</strong> No RCON socket opens until the Discord role check passes.</li>
@@ -114,7 +114,7 @@
       </section>
 
       <section class="case-study__section">
-        <h2>Measured outcomes</h2>
+        <h2><span class="ico ico--chart" aria-hidden="true"></span>Measured outcomes</h2>
         <dl class="outcome-grid" data-stagger>
           <div class="stat"><dt class="stat__label">Uptime</dt><dd class="stat__value" data-count>99.8%</dd><dd class="stat__label">30-day window</dd></div>
           <div class="stat"><dt class="stat__label">Command latency</dt><dd class="stat__value" data-count>~180 ms</dd><dd class="stat__label">incl. Discord round-trip</dd></div>
@@ -124,7 +124,7 @@
       </section>
 
       <section class="case-study__section case-study__links">
-        <h2>Links</h2>
+        <h2><span class="ico ico--link" aria-hidden="true"></span>Links</h2>
         <ul>
           <li><a href="https://github.com/chaitea321/minecraft-monitoring">Source on GitHub — chaitea321/minecraft-monitoring</a></li>
           <li><a href="/dashboard.html">Live dashboard — this server's metrics, updated every 10 minutes</a></li>
@@ -134,11 +134,11 @@
 
     <nav class="container case-study pager" aria-label="More case studies">
       <a class="pager__link" href="/projects/meshwatch.html" rel="prev">
-        <span class="pager__dir">← Previous</span>
+        <span class="pager__dir"><span class="ico ico--chevron-left" aria-hidden="true"></span>Previous</span>
         <span class="pager__title">MeshWatch</span>
       </a>
       <a class="pager__link pager__link--next" href="/projects/monitoring-stack.html" rel="next">
-        <span class="pager__dir">Next →</span>
+        <span class="pager__dir">Next<span class="ico ico--chevron-right" aria-hidden="true"></span></span>
         <span class="pager__title">Monitoring Stack</span>
       </a>
     </nav>
