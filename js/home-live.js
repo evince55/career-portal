@@ -8,7 +8,8 @@
 // shown ONLY when the fetch succeeds AND the data is fresh. Stale or failed
 // feeds keep the numbers but drop the live claim.
 
-const STATS_URL = '/config/minecraft-stats.json';
+import { fetchStats } from './stats-source.js';
+
 const FETCH_TIMEOUT_MS = 3000;
 const STALE_AFTER_MS = 60 * 60 * 1000; // 1 hour — well past the 10-min cron cadence
 const MAX_TPS = 20; // Minecraft's hard tick-rate cap; exporters can briefly over-report
@@ -105,21 +106,15 @@ function dropLiveClaim(doc, noteText) {
 export async function initHomeLive(doc = typeof document === 'undefined' ? null : document) {
   if (!doc || typeof fetch !== 'function') return null;
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   let stats;
   let stale;
   try {
-    const res = await fetch(STATS_URL, { signal: controller.signal });
-    if (!res.ok) throw new Error(`stats fetch failed: ${res.status}`);
-    const json = await res.json();
+    const json = await fetchStats({ timeoutMs: FETCH_TIMEOUT_MS });
     stats = formatStats(json);
     stale = isStale(json);
   } catch {
     dropLiveClaim(doc, 'Live feed unavailable right now — typical figures shown.');
     return null;
-  } finally {
-    clearTimeout(timer);
   }
 
   for (const key of LIVE_FIELDS) {

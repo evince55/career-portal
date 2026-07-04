@@ -208,7 +208,7 @@
   <script type="module">
     // Live dashboard. All dynamic values are rendered with textContent — no
     // innerHTML — so nothing from the stats feed is ever parsed as markup.
-    const STATS_URL = '/config/minecraft-stats.json';
+    import { fetchStats } from '/js/stats-source.js?v=18';
     const STALE_AFTER_MS = 20 * 60 * 1000; // --warn styling past 20 minutes
     const GAUGE_CIRC = 2 * Math.PI * 52;   // r=52 circle in the 120x120 viewBox
     const GAUGE_ARC = GAUGE_CIRC * 0.75;   // gauges sweep a 270° arc
@@ -376,15 +376,7 @@
     }
 
     async function loadStats() {
-      const controller = new AbortController();
-      const timer = window.setTimeout(() => controller.abort(), 5000);
-      try {
-        const resp = await fetch(`${STATS_URL}?t=${Date.now()}`, { signal: controller.signal, cache: 'no-store' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return await resp.json();
-      } finally {
-        window.clearTimeout(timer);
-      }
+      return fetchStats({ timeoutMs: 5000 });
     }
 
     async function refreshDashboard() {
