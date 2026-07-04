@@ -22,10 +22,10 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
   <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/tokens.css?v=7">
-  <link rel="stylesheet" href="/css/base.css?v=7">
-  <link rel="stylesheet" href="/css/pages/case-study.css?v=7">
-  <script type="module" src="/js/pwa.js?v=7"></script>
+  <link rel="stylesheet" href="/css/tokens.css?v=18">
+  <link rel="stylesheet" href="/css/base.css?v=18">
+  <link rel="stylesheet" href="/css/pages/case-study.css?v=18">
+  <script type="module" src="/js/pwa.js?v=18"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -155,12 +155,12 @@
   </footer>
 
   <div id="palette-root"></div>
-  <script type="module" src="/js/palette.js?v=7"></script>
+  <script type="module" src="/js/palette.js?v=18"></script>
   <script type="module">
     // Motion layer (anime.js) — only for clients that want motion
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
         !(navigator.connection && navigator.connection.saveData)) {
-      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+      import('/js/motion.js?v=18').then((m) => m.initPageMotion()).catch(() => {});
     }
   </script>
 </body>

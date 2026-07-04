@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="x-deploy" content="icons-fix-2">
+  <meta name="x-deploy" content="icons-fix-3">
   <title>Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab</title>
   <meta name="description" content="CS student (B.S. 2024–2028, AZ-900 certified) who builds and runs production-grade infrastructure at home: k3s, Istio, Prometheus/Grafana, GitOps, Azure. Five systems in production, with live metrics.">
   <link rel="canonical" href="https://chai-homelab.com/">
@@ -24,9 +24,9 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/tokens.css?v=7">
-  <link rel="stylesheet" href="/css/base.css?v=7">
-  <link rel="stylesheet" href="/css/pages/home.css?v=7">
+  <link rel="stylesheet" href="/css/tokens.css?v=18">
+  <link rel="stylesheet" href="/css/base.css?v=18">
+  <link rel="stylesheet" href="/css/pages/home.css?v=18">
   <noscript><style>.reveal { opacity: 1; transform: none; }</style></noscript>
   <script>
     // Pre-paint guard for the hero entrance: only motion-safe clients get the
@@ -275,19 +275,19 @@
 
   <div id="palette-root"></div>
 
-  <script type="module" src="/js/pwa.js?v=7"></script>
-  <script type="module">import '/js/palette.js?v=7';</script>
+  <script type="module" src="/js/pwa.js?v=18"></script>
+  <script type="module">import '/js/palette.js?v=18';</script>
   <script type="module">
     // Motion layer (anime.js) — only for clients that want motion
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
         !(navigator.connection && navigator.connection.saveData)) {
-      import('/js/motion.js?v=7').then((m) => m.initPageMotion()).catch(() => {});
+      import('/js/motion.js?v=18').then((m) => m.initPageMotion()).catch(() => {});
     }
   </script>
 
   <script type="module">
-    import { initHomeLive } from '/js/home-live.js?v=7';
-    import { initScrollReveal } from '/js/scroll-reveal.js?v=7';
+    import { initHomeLive } from '/js/home-live.js?v=18';
+    import { initScrollReveal } from '/js/scroll-reveal.js?v=18';
     window.__liveReady = initHomeLive();
     initScrollReveal();
   </script>
@@ -308,7 +308,7 @@
         gl = probe.getContext('webgl2') || probe.getContext('webgl');
       } catch { gl = null; }
       if (!gl) return;
-      import('/js/three-hero.js?v=7').then((mod) => {
+      import('/js/three-hero.js?v=18').then((mod) => {
         canvas.hidden = false;
         if (mod.initThreeHero(canvas)) canvas.classList.add('is-on');
       }).catch(() => { canvas.hidden = true; });
