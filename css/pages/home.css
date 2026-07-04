@@ -262,3 +262,17 @@ html.anim .hero__inner > *,
 html.anim .hero__proof .chip { opacity: 0; }
 html:not(.anim) .hero__inner > *,
 html:not(.anim) .hero__proof .chip { transition: opacity 400ms ease; }
+
+/* contact CTA — Haikei layered-waves backdrop (self-hosted, decorative) */
+.contact-cta { position: relative; overflow: hidden; }
+.contact-cta > .container { position: relative; z-index: 1; }
+.contact-cta__waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 62%;
+  background: url('/img/waves.svg') bottom center / 100% 100% no-repeat;
+  opacity: 0.5;
+  pointer-events: none;
+}

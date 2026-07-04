@@ -268,6 +268,28 @@ pre {
   white-space: nowrap;
 }
 
+/* Inline mask icons — one span, tints to currentColor. Sources:
+   Lucide (/icons/ui, ISC, stroke) and Simple Icons (/icons/tech, CC0, fill). */
+.ico {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: none;
+  vertical-align: -0.125em;
+  background: currentColor;
+  -webkit-mask: var(--ico) center / contain no-repeat;
+  mask: var(--ico) center / contain no-repeat;
+}
+.ico--mail { --ico: url('/icons/ui/mail.svg'); }
+.ico--send { --ico: url('/icons/ui/send.svg'); }
+.ico--pin { --ico: url('/icons/ui/map-pin.svg'); }
+.ico--ext { --ico: url('/icons/ui/arrow-up-right.svg'); }
+.ico--terminal { --ico: url('/icons/ui/terminal.svg'); }
+.ico--server { --ico: url('/icons/ui/server.svg'); }
+.ico--activity { --ico: url('/icons/ui/activity.svg'); }
+.ico--github { --ico: url('/icons/tech/github.svg'); }
+.ico--linkedin { --ico: url('/icons/tech/linkedin.svg'); }
+
 /* tech logos (vendored Simple Icons, CC0) — masked so they tint via currentColor */
 .chip[data-tech]::before {
   content: '';
@@ -336,6 +358,9 @@ pre {
 }
 
 .footer a { color: var(--text-2); }
+.footer__links a { display: inline-flex; align-items: center; gap: var(--sp-1); }
+.footer__links .ico { font-size: 0.95em; opacity: 0.85; }
+.contact-channel__label { display: inline-flex; align-items: center; gap: var(--sp-2); }
 .footer a:hover { color: var(--accent-cyan); }
 
 .footer__inner {
