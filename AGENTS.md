@@ -41,7 +41,7 @@ Design contract: `docs/superpowers/specs/2026-07-03-site-redesign-design.md` (sp
 | `home-live.js` | Fetches minecraft-stats.json for the landing page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/three.module.min.js` | Lazy synthwave hero background on index only. Never loads under reduced-motion/saveData/mobile/no-WebGL. Vendored, version pinned in the file header. |
 | `contact-api.js` | Contact form client — POSTs to Azure Function, falls back to mailto: |
-| `service-worker.js` | PWA cache **`career-portal-v17`**. Network-first for navigations, cache-first (ignoreSearch) for assets. Precache list is validated against disk by `tests/site-integrity.mjs`. |
+| `service-worker.js` | PWA cache **`career-portal-v18`**. Network-first for navigations, cache-first (ignoreSearch) for assets. Precache list is validated against disk by `tests/site-integrity.mjs`. |
 | `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | unchanged roles from v1 |
 
 Removed in v2 (do not resurrect): `terminal.js`, `achievements.js`, `audio.js`, `ai-assistant.js`, `mobile-nav.js`,
@@ -51,7 +51,7 @@ prose now lives directly in `projects/*.html`), `config/{career-fair,writeups,re
 ## Gotchas
 - **No build step** — do not add a bundler, transpiler, or framework.
 - **Tests use the Node.js native test runner** (`node --test`), pure Node, no DOM library.
-- **Service worker cache name must be bumped** (`career-portal-v18`, …) whenever cached assets
+- **Service worker cache name must be bumped** (`career-portal-v19`, …) whenever cached assets
   change; update ASSETS_TO_CACHE and `tests/site-integrity.mjs` will catch missing files.
 - **`?v=` suffixes in HTML** are cache-busters; the SW matches with `ignoreSearch`, so they don't
   need to stay in lockstep with the SW cache name, but keep them consistent across pages.

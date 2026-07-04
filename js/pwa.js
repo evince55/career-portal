@@ -1,7 +1,9 @@
 // PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/js/service-worker.js')
+    // Versioned script URL busts any stale CDN-cached copy; updateViaCache 'none'
+    // makes the browser always revalidate the worker script on update checks.
+    navigator.serviceWorker.register('/js/service-worker.js?v=18', { updateViaCache: 'none' })
       .then((registration) => {
         console.log('PWA Service Worker registered:', registration.scope);
         

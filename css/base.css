@@ -280,34 +280,34 @@ pre {
   -webkit-mask: var(--ico) center / contain no-repeat;
   mask: var(--ico) center / contain no-repeat;
 }
-.ico--mail { --ico: url('/icons/ui/mail.svg'); }
-.ico--send { --ico: url('/icons/ui/send.svg'); }
-.ico--pin { --ico: url('/icons/ui/map-pin.svg'); }
-.ico--ext { --ico: url('/icons/ui/arrow-up-right.svg'); }
-.ico--terminal { --ico: url('/icons/ui/terminal.svg'); }
-.ico--server { --ico: url('/icons/ui/server.svg'); }
-.ico--activity { --ico: url('/icons/ui/activity.svg'); }
-.ico--github { --ico: url('/icons/tech/github.svg'); }
-.ico--linkedin { --ico: url('/icons/tech/linkedin.svg'); }
+.ico--mail { --ico: url('/icons/ui/mail.svg?t=2'); }
+.ico--send { --ico: url('/icons/ui/send.svg?t=2'); }
+.ico--pin { --ico: url('/icons/ui/map-pin.svg?t=2'); }
+.ico--ext { --ico: url('/icons/ui/arrow-up-right.svg?t=2'); }
+.ico--terminal { --ico: url('/icons/ui/terminal.svg?t=2'); }
+.ico--server { --ico: url('/icons/ui/server.svg?t=2'); }
+.ico--activity { --ico: url('/icons/ui/activity.svg?t=2'); }
+.ico--github { --ico: url('/icons/tech/github.svg?t=2'); }
+.ico--linkedin { --ico: url('/icons/tech/linkedin.svg?t=2'); }
 
 /* rich UI-icon pass — dashboard, projects, case studies (Lucide, ISC) */
-.ico--gauge { --ico: url('/icons/ui/gauge.svg'); }
-.ico--network { --ico: url('/icons/ui/network.svg'); }
-.ico--database { --ico: url('/icons/ui/database.svg'); }
-.ico--cpu { --ico: url('/icons/ui/cpu.svg'); }
-.ico--cog { --ico: url('/icons/ui/cog.svg'); }
-.ico--cloud { --ico: url('/icons/ui/cloud.svg'); }
-.ico--globe { --ico: url('/icons/ui/globe.svg'); }
-.ico--grid { --ico: url('/icons/ui/layout-grid.svg'); }
-.ico--box { --ico: url('/icons/ui/box.svg'); }
-.ico--chart { --ico: url('/icons/ui/bar-chart-3.svg'); }
-.ico--branch { --ico: url('/icons/ui/git-branch.svg'); }
-.ico--scale { --ico: url('/icons/ui/scale.svg'); }
-.ico--link { --ico: url('/icons/ui/link.svg'); }
-.ico--info { --ico: url('/icons/ui/info.svg'); }
-.ico--book { --ico: url('/icons/ui/book-open.svg'); }
-.ico--chevron-left { --ico: url('/icons/ui/chevron-left.svg'); }
-.ico--chevron-right { --ico: url('/icons/ui/chevron-right.svg'); }
+.ico--gauge { --ico: url('/icons/ui/gauge.svg?t=2'); }
+.ico--network { --ico: url('/icons/ui/network.svg?t=2'); }
+.ico--database { --ico: url('/icons/ui/database.svg?t=2'); }
+.ico--cpu { --ico: url('/icons/ui/cpu.svg?t=2'); }
+.ico--cog { --ico: url('/icons/ui/cog.svg?t=2'); }
+.ico--cloud { --ico: url('/icons/ui/cloud.svg?t=2'); }
+.ico--globe { --ico: url('/icons/ui/globe.svg?t=2'); }
+.ico--grid { --ico: url('/icons/ui/layout-grid.svg?t=2'); }
+.ico--box { --ico: url('/icons/ui/box.svg?t=2'); }
+.ico--chart { --ico: url('/icons/ui/bar-chart-3.svg?t=2'); }
+.ico--branch { --ico: url('/icons/ui/git-branch.svg?t=2'); }
+.ico--scale { --ico: url('/icons/ui/scale.svg?t=2'); }
+.ico--link { --ico: url('/icons/ui/link.svg?t=2'); }
+.ico--info { --ico: url('/icons/ui/info.svg?t=2'); }
+.ico--book { --ico: url('/icons/ui/book-open.svg?t=2'); }
+.ico--chevron-left { --ico: url('/icons/ui/chevron-left.svg?t=2'); }
+.ico--chevron-right { --ico: url('/icons/ui/chevron-right.svg?t=2'); }
 
 /* leading icon inside a mono kicker — inherits the kicker's cyan, sits a touch smaller */
 .kicker .ico { font-size: 0.9em; margin-right: var(--sp-2); vertical-align: -0.1em; }
@@ -322,17 +322,17 @@ pre {
   -webkit-mask: var(--tech-icon) center / contain no-repeat;
   mask: var(--tech-icon) center / contain no-repeat;
 }
-.chip[data-tech='k3s'] { --tech-icon: url('/icons/tech/k3s.svg'); }
-.chip[data-tech='kubernetes'] { --tech-icon: url('/icons/tech/kubernetes.svg'); }
-.chip[data-tech='istio'] { --tech-icon: url('/icons/tech/istio.svg'); }
-.chip[data-tech='prometheus'] { --tech-icon: url('/icons/tech/prometheus.svg'); }
-.chip[data-tech='grafana'] { --tech-icon: url('/icons/tech/grafana.svg'); }
-.chip[data-tech='cloudflare'] { --tech-icon: url('/icons/tech/cloudflare.svg'); }
-.chip[data-tech='discord'] { --tech-icon: url('/icons/tech/discord.svg'); }
-.chip[data-tech='argo'] { --tech-icon: url('/icons/tech/argo.svg'); }
-.chip[data-tech='github'] { --tech-icon: url('/icons/tech/github.svg'); }
-.chip[data-tech='python'] { --tech-icon: url('/icons/tech/python.svg'); }
-.chip[data-tech='nodedotjs'] { --tech-icon: url('/icons/tech/nodedotjs.svg'); }
+.chip[data-tech='k3s'] { --tech-icon: url('/icons/tech/k3s.svg?t=2'); }
+.chip[data-tech='kubernetes'] { --tech-icon: url('/icons/tech/kubernetes.svg?t=2'); }
+.chip[data-tech='istio'] { --tech-icon: url('/icons/tech/istio.svg?t=2'); }
+.chip[data-tech='prometheus'] { --tech-icon: url('/icons/tech/prometheus.svg?t=2'); }
+.chip[data-tech='grafana'] { --tech-icon: url('/icons/tech/grafana.svg?t=2'); }
+.chip[data-tech='cloudflare'] { --tech-icon: url('/icons/tech/cloudflare.svg?t=2'); }
+.chip[data-tech='discord'] { --tech-icon: url('/icons/tech/discord.svg?t=2'); }
+.chip[data-tech='argo'] { --tech-icon: url('/icons/tech/argo.svg?t=2'); }
+.chip[data-tech='github'] { --tech-icon: url('/icons/tech/github.svg?t=2'); }
+.chip[data-tech='python'] { --tech-icon: url('/icons/tech/python.svg?t=2'); }
+.chip[data-tech='nodedotjs'] { --tech-icon: url('/icons/tech/nodedotjs.svg?t=2'); }
 
 .stat { display: grid; gap: var(--sp-1); }
 

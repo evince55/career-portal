@@ -4,9 +4,15 @@
 /js/*
   Content-Type: application/javascript
 
+# Service worker must never be long-cached, or clients get stuck on an old
+# version. Kept out of the CDN cache so updates always reach the browser.
+/js/service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Icons: let Cloudflare Pages set Content-Type by file extension (this dir holds
+# both PNG app icons and SVG logos/UI glyphs — forcing image/png broke the SVGs).
 /icons/*
   Cache-Control: public, max-age=31536000
-  Content-Type: image/png
 
 /config/*
   Content-Type: application/json
