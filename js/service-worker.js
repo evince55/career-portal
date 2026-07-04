@@ -1,4 +1,4 @@
-const CACHE_NAME = 'career-portal-v16';
+const CACHE_NAME = 'career-portal-v17';
 
 // Precache: every page + the design system + module JS + fonts + live-data config.
 // Kept in sync with files on disk by tests/site-integrity.mjs.
@@ -40,6 +40,22 @@ const ASSETS_TO_CACHE = [
   '/config/minecraft-stats.json',
   '/sitemap.xml',
   '/icons/ui/mail.svg',
+  '/icons/ui/gauge.svg',
+  '/icons/ui/network.svg',
+  '/icons/ui/database.svg',
+  '/icons/ui/cpu.svg',
+  '/icons/ui/cog.svg',
+  '/icons/ui/cloud.svg',
+  '/icons/ui/globe.svg',
+  '/icons/ui/layout-grid.svg',
+  '/icons/ui/box.svg',
+  '/icons/ui/bar-chart-3.svg',
+  '/icons/ui/git-branch.svg',
+  '/icons/ui/scale.svg',
+  '/icons/ui/link.svg',
+  '/icons/ui/info.svg',
+  '/icons/ui/book-open.svg',
+  '/icons/ui/chevron-left.svg',
   '/icons/ui/send.svg',
   '/icons/ui/map-pin.svg',
   '/icons/ui/arrow-up-right.svg',

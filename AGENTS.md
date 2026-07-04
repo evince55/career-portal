@@ -41,7 +41,7 @@ Design contract: `docs/superpowers/specs/2026-07-03-site-redesign-design.md` (sp
 | `home-live.js` | Fetches minecraft-stats.json for the landing page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/three.module.min.js` | Lazy synthwave hero background on index only. Never loads under reduced-motion/saveData/mobile/no-WebGL. Vendored, version pinned in the file header. |
 | `contact-api.js` | Contact form client — POSTs to Azure Function, falls back to mailto: |
-| `service-worker.js` | PWA cache **`career-portal-v16`**. Network-first for navigations, cache-first (ignoreSearch) for assets. Precache list is validated against disk by `tests/site-integrity.mjs`. |
+| `service-worker.js` | PWA cache **`career-portal-v17`**. Network-first for navigations, cache-first (ignoreSearch) for assets. Precache list is validated against disk by `tests/site-integrity.mjs`. |
 | `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | unchanged roles from v1 |
 
 Removed in v2 (do not resurrect): `terminal.js`, `achievements.js`, `audio.js`, `ai-assistant.js`, `mobile-nav.js`,
@@ -51,7 +51,7 @@ prose now lives directly in `projects/*.html`), `config/{career-fair,writeups,re
 ## Gotchas
 - **No build step** — do not add a bundler, transpiler, or framework.
 - **Tests use the Node.js native test runner** (`node --test`), pure Node, no DOM library.
-- **Service worker cache name must be bumped** (`career-portal-v17`, …) whenever cached assets
+- **Service worker cache name must be bumped** (`career-portal-v18`, …) whenever cached assets
   change; update ASSETS_TO_CACHE and `tests/site-integrity.mjs` will catch missing files.
 - **`?v=` suffixes in HTML** are cache-busters; the SW matches with `ignoreSearch`, so they don't
   need to stay in lockstep with the SW cache name, but keep them consistent across pages.
@@ -86,3 +86,20 @@ guardrail), `site-integrity.mjs` (pages ↔ catalog ↔ service worker ↔ sitem
 - CSS custom properties from `tokens.css` only; component classes from `base.css`; page-specific
   styles in `css/pages/`
 - Copy tone: plain, concrete, outcome-led, early-career-honest
+
+## Hero backdrop & media drop-in
+
+The home hero backdrop is a single full-screen fragment shader (`js/three-hero.js`,
+synthwave sun + perspective grid + starfield), loaded lazily and only for motion-safe,
+non-saveData, ≥768px, WebGL-capable clients; otherwise the CSS gradient `.hero__bg-fallback`
+shows. `.ico` UI glyphs come from `/icons/ui` (Lucide, ISC) and brand logos from `/icons/tech`
+(Simple Icons CC0 + an authored LinkedIn mark), all tinted via the `.ico` / `.chip[data-tech]`
+CSS masks.
+
+**To use a Higgsfield (or any) hero video/image:** drop a `.hero__media` element with
+`data-hero-media` inside `.hero__bg` in `index.html` — e.g.
+`<video class="hero__media" data-hero-media autoplay muted loop playsinline poster="/img/hero-poster.jpg"><source src="/img/hero.webm" type="video/webm"></video>`
+(a plain `<img class="hero__media" data-hero-media>` also works). It takes over automatically:
+the WebGL shader is skipped, and a left scrim (`.hero:has(.hero__media)::after`) keeps the copy
+legible. Add the media file(s) to the service-worker precache and bump the cache name. Keep a
+poster for reduced-motion / no-autoplay clients.
