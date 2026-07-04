@@ -1,10 +1,5 @@
 {
   "version": 1,
-  "routes": [
-    { "pattern": "/dashboard", "destination": "/dashboard.html" },
-    { "pattern": "/project-explorer", "destination": "/project-explorer.html" },
-    { "pattern": "/writeups", "destination": "/writeups.html" },
-    { "pattern": "/contact", "destination": "/contact.html" },
-    { "pattern": "/offline", "destination": "/offline.html" }
-  ]
+  "include": ["/api/*"],
+  "exclude": []
 }

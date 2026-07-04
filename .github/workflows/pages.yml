@@ -22,9 +22,11 @@ jobs:
         run: npm test
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: career-portal
-          directory: .
+          # wrangler-action is Cloudflare's current, maintained deploy path; the
+          # old cloudflare/pages-action@v1 is archived and fails to deploy the
+          # functions/ directory on GitHub's forced Node 24 runner.
+          command: pages deploy . --project-name=career-portal --branch=master --commit-dirty=true
