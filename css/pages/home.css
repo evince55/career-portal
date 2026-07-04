@@ -48,6 +48,25 @@
 
 .hero__canvas.is-on { opacity: 1; }
 
+/* Optional media backdrop (Higgsfield export, etc.). Covers the hero, sits
+   above the CSS fallback but below the copy; a left scrim keeps text legible. */
+.hero__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.hero:has(.hero__media)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(90deg, var(--bg-0) 0%, color-mix(in srgb, var(--bg-0) 55%, transparent) 45%, transparent 78%);
+  pointer-events: none;
+}
+
 .hero__fade {
   position: absolute;
   inset-inline: 0;

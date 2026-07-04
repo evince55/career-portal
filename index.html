@@ -85,6 +85,15 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__bg" aria-hidden="true">
         <div class="hero__bg-fallback"></div>
+        <!-- Optional media backdrop (e.g. a Higgsfield export). Drop a poster +
+             video here and it takes over automatically; the WebGL shader is
+             skipped. Keep the poster for reduced-motion / no-autoplay clients:
+             <video class="hero__media" data-hero-media autoplay muted loop
+                    playsinline poster="/img/hero-poster.jpg">
+               <source src="/img/hero.webm" type="video/webm">
+               <source src="/img/hero.mp4" type="video/mp4">
+             </video>
+             (or a plain <img class="hero__media" data-hero-media ...> ) -->
         <canvas id="hero-canvas" class="hero__canvas" hidden></canvas>
         <div class="hero__fade"></div>
       </div>
@@ -288,6 +297,8 @@
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       if (navigator.connection && navigator.connection.saveData) return;
       if (window.innerWidth < 768) return;
+      // A dropped-in media backdrop (Higgsfield video/image) wins; skip the shader.
+      if (document.querySelector('.hero__bg [data-hero-media]')) return;
       const canvas = document.getElementById('hero-canvas');
       if (!canvas) return;
       let gl = null;

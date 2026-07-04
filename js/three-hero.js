@@ -1,42 +1,89 @@
-// Hero background — restrained synthwave: wireframe horizon + sparse particle drift.
-// Vendored library pinned at three@0.185.1 (js/vendor/three.module.min.js, which
-// imports its sibling js/vendor/three.core.min.js — the official r185 split build).
+// Hero background — a cinematic synthwave scene rendered as a single full-screen
+// fragment shader (sun with scanline bands, perspective grid, drifting starfield).
+// One draw call, all work on the GPU; far cheaper than geometry.
+//
+// Vendored library pinned at three@0.185.1 (js/vendor/three.module.min.js).
 // This module is ONLY ever loaded via dynamic import from index.html, after the
 // window load event + requestIdleCallback, and never under prefers-reduced-motion,
 // saveData, viewports < 768px, or missing WebGL. Keep it out of any eager script.
+//
+// A Higgsfield (or any) poster/video can layer in front of this later — the scene
+// is the always-available WebGL backdrop and the CSS gradient is the no-WebGL one.
 import * as THREE from '/js/vendor/three.module.min.js';
 
-const BG = 0x08080d; // --bg-0
-const CYAN = 0x3fd8e8; // --accent-cyan
-const MAGENTA = 0xf45fd0; // --accent-magenta
-const TILE = 40; // horizon tile depth; displacement is periodic on this length
+const FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform float uTime;
+uniform vec2  uRes;
+uniform vec3  uSkyTop;   // deep sky
+uniform vec3  uSkyGlow;  // horizon haze
+uniform vec3  uSun;      // sun / bloom
+uniform vec3  uGrid;     // grid + accents
 
-// A gently displaced plane: flat "valley" down the middle, low hills at the
-// sides. Displacement is periodic along y (period 20) so two tiles scroll
-// seamlessly toward the camera.
-function buildHorizonGeometry() {
-  const geo = new THREE.PlaneGeometry(64, TILE, 48, 30);
-  const pos = geo.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    const side = Math.max(0, Math.abs(x) - 6);
-    const wave = 0.6 + 0.4 * Math.sin(x * 0.5) * Math.sin((y * Math.PI) / 10);
-    pos.setZ(i, side * 0.28 * wave);
+float hash(vec2 p) { return fract(sin(dot(p, vec2(41.3, 289.1))) * 43758.5453); }
+
+void main() {
+  vec2 uv = vUv;
+  float aspect = uRes.x / max(uRes.y, 1.0);
+  float sunX = 0.66; // sun / grid vanishing point, right of the hero copy
+  float horizon = 0.44;
+  vec3 col = mix(uSkyGlow, uSkyTop, smoothstep(horizon, 1.0, uv.y));
+
+  // drifting starfield above the horizon
+  if (uv.y > horizon) {
+    vec2 cell = floor(uv * vec2(200.0 * aspect, 200.0));
+    float s = hash(cell);
+    float tw = 0.6 + 0.4 * sin(uTime * 1.6 + s * 40.0);
+    col += step(0.994, s) * tw * 0.55;
   }
-  return geo;
+
+  // the sun — cyan→magenta disc with horizontal scanline bands on its lower half.
+  // Sits right-of-centre so the left-aligned hero copy stays on dark pixels.
+  vec2 p = vec2((uv.x - sunX) * aspect, uv.y - (horizon + 0.02));
+  float d = length(p);
+  float sunR = 0.19;
+  float disc = smoothstep(sunR, sunR - 0.005, d);
+  float bands = step(0.5, sin((uv.y - horizon) * 150.0));
+  float lower = step(uv.y, horizon + 0.02);
+  disc *= 1.0 - lower * bands;
+  vec3 sunCol = mix(uSun, uSkyGlow + uGrid * 0.2, clamp((horizon + sunR - uv.y) / (sunR * 2.0), 0.0, 1.0));
+  col = mix(col, sunCol, disc);
+  col += uSun * smoothstep(sunR * 2.4, 0.0, d) * 0.28; // bloom
+
+  // perspective grid below the horizon
+  if (uv.y < horizon) {
+    float depth = horizon - uv.y;
+    float persp = 1.0 / (depth + 0.03);
+    float rows = fract(depth * persp * 1.4 - uTime * 0.18);
+    float rowLine = smoothstep(0.07, 0.0, min(rows, 1.0 - rows));
+    float cols = fract((uv.x - sunX) * persp * 0.9);
+    float colLine = smoothstep(0.06, 0.0, min(cols, 1.0 - cols));
+    float grid = max(rowLine, colLine);
+    float fade = smoothstep(0.0, 0.06, depth) * smoothstep(0.42, 0.02, depth);
+    col += uGrid * grid * fade * 0.55;
+    col = mix(col, uSkyTop * 0.4, smoothstep(horizon, horizon - 0.08, uv.y) * 0.35);
+  }
+
+  // keep the left half dark so the hero copy stays legible
+  col *= mix(0.24, 1.0, smoothstep(0.04, 0.62, uv.x));
+
+  // fade to the page background at the very top; hold strength lower down
+  float alpha = smoothstep(1.0, 0.5, uv.y) * 0.6 + 0.35;
+  gl_FragColor = vec4(col, clamp(alpha, 0.0, 0.92));
 }
+`;
 
-function buildParticleGeometry(count, spread) {
-  const positions = new Float32Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * spread;
-    positions[i * 3 + 1] = Math.random() * 9 + 0.3;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * spread;
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  return geo;
+const VERT = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4(position.xy, 0.0, 1.0);
+}
+`;
+
+function toVec3(hex) {
+  return new THREE.Vector3(((hex >> 16) & 255) / 255, ((hex >> 8) & 255) / 255, (hex & 255) / 255);
 }
 
 export function initThreeHero(canvas) {
@@ -45,47 +92,40 @@ export function initThreeHero(canvas) {
   const renderer = new THREE.WebGLRenderer({
     canvas,
     alpha: true,
-    antialias: true,
+    antialias: false,
     powerPreference: 'low-power'
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-  renderer.setClearColor(BG, 0); // transparent: the CSS gradient fallback shows through
+  renderer.setClearColor(0x08080d, 0);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(BG, 8, 46);
+  const camera = new THREE.Camera();
 
-  const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 120);
-  camera.position.set(0, 2.1, 11);
-  camera.lookAt(0, 1.2, -10);
+  const uniforms = {
+    uTime: { value: 0 },
+    uRes: { value: new THREE.Vector2(1, 1) },
+    uSkyTop: { value: toVec3(0x0b0a16) },
+    uSkyGlow: { value: toVec3(0x2a0f2b) },
+    uSun: { value: toVec3(0x3fd8e8) },
+    uGrid: { value: toVec3(0x3fd8e8) }
+  };
 
-  const horizonGeo = buildHorizonGeometry();
-  const horizonMat = new THREE.MeshBasicMaterial({
-    color: CYAN,
-    wireframe: true,
+  const material = new THREE.ShaderMaterial({
+    vertexShader: VERT,
+    fragmentShader: FRAG,
+    uniforms,
     transparent: true,
-    opacity: 0.13
+    depthTest: false,
+    depthWrite: false
   });
-  const tiles = [new THREE.Mesh(horizonGeo, horizonMat), new THREE.Mesh(horizonGeo, horizonMat)];
-  tiles[0].position.set(0, 0, -TILE / 4);
-  tiles[1].position.set(0, 0, -TILE / 4 - TILE);
-  for (const tile of tiles) tile.rotation.x = -Math.PI / 2;
-
-  const cyanPts = new THREE.Points(
-    buildParticleGeometry(220, 70),
-    new THREE.PointsMaterial({ color: CYAN, size: 0.06, transparent: true, opacity: 0.5, sizeAttenuation: true })
-  );
-  const magentaPts = new THREE.Points(
-    buildParticleGeometry(110, 70),
-    new THREE.PointsMaterial({ color: MAGENTA, size: 0.08, transparent: true, opacity: 0.4, sizeAttenuation: true })
-  );
-  scene.add(tiles[0], tiles[1], cyanPts, magentaPts);
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+  scene.add(quad);
 
   function resize() {
     const w = canvas.clientWidth || (canvas.parentElement && canvas.parentElement.clientWidth) || 1;
     const h = canvas.clientHeight || 1;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
+    uniforms.uRes.value.set(w, h);
   }
 
   let rafId = 0;
@@ -97,12 +137,7 @@ export function initThreeHero(canvas) {
     rafId = requestAnimationFrame(frame);
     const dt = Math.min((t - last) / 1000, 0.1) || 0;
     last = t;
-    for (const tile of tiles) {
-      tile.position.z += dt * 1.5;
-      if (tile.position.z >= TILE * 0.75) tile.position.z -= TILE * 2;
-    }
-    cyanPts.rotation.y += dt * 0.012;
-    magentaPts.rotation.y -= dt * 0.009;
+    uniforms.uTime.value += dt;
     renderer.render(scene, camera);
   }
 
@@ -150,17 +185,15 @@ export function initThreeHero(canvas) {
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('resize', resize);
     if (io) io.disconnect();
-    horizonGeo.dispose();
-    horizonMat.dispose();
-    cyanPts.geometry.dispose();
-    cyanPts.material.dispose();
-    magentaPts.geometry.dispose();
-    magentaPts.material.dispose();
+    quad.geometry.dispose();
+    material.dispose();
     renderer.dispose();
   }
   window.addEventListener('pagehide', dispose, { once: true });
 
   resize();
+  // render one frame immediately so the scene is present the moment it fades in
+  renderer.render(scene, camera);
   sync();
 
   return { pause, resume, dispose };
