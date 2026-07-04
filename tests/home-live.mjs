@@ -113,7 +113,7 @@ describe('index.html static content', () => {
 
   it('never loads Three.js eagerly (dynamic import only)', () => {
     assert.ok(!/<script[^>]*src="[^"]*three/.test(html), 'three must not be a script src');
-    assert.ok(html.includes("import('/js/three-hero.js?v=7')"), 'three-hero must load via dynamic import');
+    assert.ok(/import\(['"]\/js\/three-hero\.js(\?[^'"]*)?['"]\)/.test(html), 'three-hero must load via dynamic import');
   });
 
   it('bails out of Three.js on constrained clients before importing', () => {
