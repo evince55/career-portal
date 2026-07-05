@@ -45,6 +45,30 @@ def fetch(expr, timeout=10):
         return None
 
 
+def parse_range(text):
+    """Value array of a Prometheus range-query response (data.result[0].values), or []."""
+    d = json.loads(text)
+    if d.get("status") != "success":
+        return []
+    result = d.get("data", {}).get("result", [])
+    if not result:
+        return []
+    return [round(float(v[1]), 2) for v in result[0].get("values", [])]
+
+
+def fetch_range(expr, hours=24, step=3600, timeout=15):
+    import time
+    end = int(time.time())
+    start = end - hours * 3600
+    qs = urllib.parse.urlencode({"query": expr, "start": start, "end": end, "step": step})
+    url = PROM.replace("/query", "/query_range") + "?" + qs
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
+            return parse_range(resp.read().decode())
+    except Exception:
+        return []
+
+
 def load_base():
     try:
         with open(STATS_PATH) as f:
@@ -85,6 +109,57 @@ def build():
     if up is not None and 0 <= up <= 1:
         m["uptime"] = f"{round(up * 100, 1)}%"
 
+    mspt = fetch(f'minecraft_tick_average{{{JOB}}}')
+    if mspt is not None and mspt >= 0:
+        m["mspt"] = round(mspt, 1)
+    rcon = fetch(f'scrape_duration_seconds{{{JOB},endpoint="rcon-metrics"}}')
+    if rcon is not None and rcon >= 0:
+        m["rconMs"] = round(rcon * 1000)
+    load = fetch(f'java_lang_OperatingSystem_SystemLoadAverage{{{JOB}}}')
+    if load is not None and load >= 0:
+        m["systemLoad"] = round(load, 2)
+    threads = fetch(f'jvm_threads_current{{{JOB}}}')
+    if threads is not None and threads >= 0:
+        m["threads"] = round(threads)
+    gc = fetch(f'sum(jvm_gc_collection_seconds_count{{{JOB}}})')
+    if gc is not None and gc >= 0:
+        m["gcCount"] = round(gc)
+    upsec = fetch(f'time() - process_start_time_seconds{{{JOB},endpoint="jmx-metrics"}}')
+    if upsec is not None and upsec > 0:
+        m["processUptimeDays"] = round(upsec / 86400, 1)
+
+    runtime = base.setdefault("runtime", {})
+    classes = fetch(f'jvm_classes_currently_loaded{{{JOB}}}')
+    if classes is not None and classes >= 0:
+        runtime["classesLoaded"] = round(classes)
+    gct = fetch(f'sum(jvm_gc_collection_seconds_sum{{{JOB}}})')
+    if gct is not None and gct >= 0:
+        runtime["gcTimeSec"] = round(gct, 1)
+    cpu = fetch(f'process_cpu_seconds_total{{{JOB},endpoint="jmx-metrics"}}')
+    if cpu is not None and cpu >= 0:
+        runtime["cpuHours"] = round(cpu / 3600, 1)
+    tpk = fetch(f'jvm_threads_peak{{{JOB}}}')
+    if tpk is not None and tpk >= 0:
+        runtime["threadPeak"] = round(tpk)
+
+    mon = base.setdefault("monitoring", {})
+    healthy = fetch(f'sum(up{{{JOB}}})')
+    total = fetch(f'count(up{{{JOB}}})')
+    if healthy is not None:
+        mon["targetsHealthy"] = round(healthy)
+    if total is not None:
+        mon["targetsTotal"] = round(total)
+    for dead in ("prometheusScrapes", "rconLatency", "discordAlertsToday", "grafanaPanels"):
+        mon.pop(dead, None)
+
+    base["trends"] = {
+        "heap": fetch_range(f'sum(jvm_memory_used_bytes{{{JOB},area="heap"}})/1048576'),
+        "mspt": fetch_range(f'minecraft_tick_average{{{JOB}}}'),
+        "load": fetch_range(f'java_lang_OperatingSystem_SystemLoadAverage{{{JOB}}}'),
+        "cpu": fetch_range(f'rate(process_cpu_seconds_total{{{JOB},endpoint="jmx-metrics"}}[10m])*100'),
+    }
+    base.pop("recentChanges", None)
+
     base["lastUpdated"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return base
 
@@ -98,6 +173,11 @@ def selftest():
     assert parse_instant('{"status":"error"}') is None
     # The exact real-response shape the OLD code (d['result'] / r['values']) failed on:
     assert parse_instant('{"status":"success","data":{"result":[{"value":[1.0,"1861"]}]}}') == 1861.0
+    assert parse_range(
+        '{"status":"success","data":{"result":[{"metric":{},'
+        '"values":[[1,"3.1"],[2,"3.4"],[3,"3.2"]]}]}}') == [3.1, 3.4, 3.2]
+    assert parse_range('{"status":"success","data":{"result":[]}}') == []
+    assert parse_range('{"status":"error"}') == []
     print("prom_stats selftest OK")
 
 
