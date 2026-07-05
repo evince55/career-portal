@@ -111,6 +111,7 @@
             </p>
             <div class="db-bar__track"><div class="db-bar__fill"></div></div>
             <p class="stat__label"><span class="ico ico--database" aria-hidden="true"></span>JVM heap used</p>
+            <svg class="sparkline" aria-hidden="true" viewBox="0 0 120 28" preserveAspectRatio="none"><path id="db-spark-heap"></path></svg>
           </div>
 
           <div class="stat db-cell" role="img" id="db-stat-uptime" aria-label="Server uptime not loaded yet">
@@ -130,15 +131,28 @@
             <dl class="db-meta">
               <div><dt>Name</dt><dd class="mono" id="db-meta-name">—</dd></div>
               <div><dt>Version</dt><dd class="mono" id="db-meta-version">—</dd></div>
-              <div><dt>RCON latency</dt><dd class="mono" id="db-meta-rcon">—</dd></div>
-              <div><dt>Discord alerts today</dt><dd class="mono" id="db-meta-alerts">—</dd></div>
+              <div><dt>Process uptime</dt><dd class="mono" id="db-meta-uptime">—</dd></div>
+              <div><dt>RCON round-trip</dt><dd class="mono" id="db-meta-rcon">—</dd></div>
+              <div><dt>System load</dt><dd class="mono" id="db-meta-load">—</dd></div>
+              <div><dt>JVM threads</dt><dd class="mono" id="db-meta-threads">—</dd></div>
+              <div><dt>GC collections</dt><dd class="mono" id="db-meta-gc">—</dd></div>
+              <div><dt>Monitoring targets</dt><dd class="mono" id="db-meta-targets">—</dd></div>
             </dl>
           </article>
 
           <article class="card">
-            <h3 class="card__title"><span class="ico ico--branch" aria-hidden="true"></span>Recent changes</h3>
-            <p class="card__meta">From the server's change feed.</p>
-            <ul class="db-changes" id="db-changes"></ul>
+            <h3 class="card__title"><span class="ico ico--activity" aria-hidden="true"></span>Runtime</h3>
+            <p class="card__meta">Live JVM &amp; process internals.</p>
+            <dl class="db-meta">
+              <div><dt>Classes loaded</dt><dd class="mono" id="db-rt-classes">—</dd></div>
+              <div><dt>GC time (total)</dt><dd class="mono" id="db-rt-gctime">—</dd></div>
+              <div><dt>CPU time</dt><dd class="mono" id="db-rt-cpu">—</dd></div>
+              <div><dt>Thread peak</dt><dd class="mono" id="db-rt-threadpeak">—</dd></div>
+            </dl>
+            <div class="db-spark-row">
+              <div><span class="db-spark-label mono">MSPT (24h)</span><svg class="sparkline" aria-hidden="true" viewBox="0 0 120 28" preserveAspectRatio="none"><path id="db-spark-mspt"></path></svg></div>
+              <div><span class="db-spark-label mono">Load (24h)</span><svg class="sparkline" aria-hidden="true" viewBox="0 0 120 28" preserveAspectRatio="none"><path id="db-spark-load"></path></svg></div>
+            </div>
           </article>
 
           <article class="card">
@@ -209,6 +223,7 @@
     // Live dashboard. All dynamic values are rendered with textContent — no
     // innerHTML — so nothing from the stats feed is ever parsed as markup.
     import { fetchStats } from '/js/stats-source.js?v=18';
+    import { sparklinePath } from '/js/sparkline.js?v=18';
     const STALE_AFTER_MS = 20 * 60 * 1000; // --warn styling past 20 minutes
     const GAUGE_CIRC = 2 * Math.PI * 52;   // r=52 circle in the 120x120 viewBox
     const GAUGE_ARC = GAUGE_CIRC * 0.75;   // gauges sweep a 270° arc
@@ -216,14 +231,15 @@
     // Last-known snapshot, shown until the first fetch lands (and kept if it fails).
     const FALLBACK_STATS = {
       server: { name: 'Eugene\'s Homelab MC', version: 'PaperMC 26.1.2', javaVersion: 'Java 25' },
-      metrics: { tps: 20, players: 3, maxPlayers: 20, uptime: '99.8%', heapUsedMB: 300, heapMaxMB: 512 },
-      monitoring: { discordAlertsToday: 0, rconLatency: '12ms' },
-      recentChanges: [
-        'Upgraded to PaperMC 26.1.2 with Java 25 runtime',
-        'Added new Grafana panel for GC pause monitoring',
-        'Increased heap allocation from 256MB to 512MB',
-        'Implemented RCON latency tracking dashboard'
-      ]
+      metrics: { tps: 20, players: 1, maxPlayers: 20, uptime: '100.0%', heapUsedMB: 861, heapMaxMB: 3072,
+        mspt: 3.4, rconMs: 763, systemLoad: 1.4, threads: 43, gcCount: 1839, processUptimeDays: 6.0 },
+      runtime: { classesLoaded: 35853, gcTimeSec: 77.9, cpuHours: 6.6, threadPeak: 47 },
+      monitoring: { targetsHealthy: 2, targetsTotal: 2 },
+      trends: {
+        heap: [1500, 1136, 2089, 1195, 2127, 768, 628, 1931, 1056, 1732, 928, 1822, 982, 1928, 1994, 674, 1600, 2219, 861],
+        mspt: [0.1, 0.1, 0.1, 4.7, 4.8, 3.1, 3.8, 0.1, 0.1, 0.1, 0.1, 4.2, 3.7, 0.1, 3.3, 3.6],
+        load: [2.0, 2.38, 1.87, 2.28, 0.53, 3.24, 6.65, 2.62, 2.12, 3.94, 1.94, 1.53, 4.33, 1.4]
+      }
     };
 
     const DOT_CLASSES = {
@@ -296,17 +312,6 @@
       el.querySelector('[data-value]').textContent = valueText;
     }
 
-    function renderChanges(changes) {
-      const list = document.getElementById('db-changes');
-      list.textContent = '';
-      const items = Array.isArray(changes) && changes.length > 0 ? changes : ['No recent changes recorded.'];
-      for (const change of items) {
-        const li = document.createElement('li');
-        li.textContent = String(change);
-        list.appendChild(li);
-      }
-    }
-
     function formatAgo(ageMs) {
       const mins = Math.max(0, Math.floor(ageMs / 60000));
       if (mins < 1) return 'updated just now';
@@ -365,13 +370,28 @@
       setText('db-meta-name', server.name || '—');
       setText('db-meta-version', server.version
         ? `${server.version}${server.javaVersion ? ` · ${server.javaVersion}` : ''}` : '—');
-      setText('db-meta-rcon', monitoring.rconLatency || '—');
-      const alerts = num(monitoring.discordAlertsToday, NaN);
-      const alertsEl = document.getElementById('db-meta-alerts');
-      alertsEl.textContent = Number.isNaN(alerts) ? '—' : String(alerts);
-      alertsEl.classList.toggle('is-warn', alerts > 0);
+      setText('db-meta-uptime', Number.isFinite(metrics.processUptimeDays) ? `${metrics.processUptimeDays} d` : '—');
+      setText('db-meta-rcon', Number.isFinite(metrics.rconMs) ? `${metrics.rconMs} ms` : '—');
+      setText('db-meta-load', Number.isFinite(metrics.systemLoad) ? String(metrics.systemLoad) : '—');
+      setText('db-meta-threads', Number.isFinite(metrics.threads) ? String(metrics.threads) : '—');
+      setText('db-meta-gc', Number.isFinite(metrics.gcCount) ? metrics.gcCount.toLocaleString() : '—');
+      setText('db-meta-targets', (Number.isFinite(monitoring.targetsHealthy) && Number.isFinite(monitoring.targetsTotal))
+        ? `${monitoring.targetsHealthy}/${monitoring.targetsTotal} healthy` : '—');
 
-      renderChanges(stats.recentChanges);
+      const rt = stats.runtime || {};
+      setText('db-rt-classes', Number.isFinite(rt.classesLoaded) ? rt.classesLoaded.toLocaleString() : '—');
+      setText('db-rt-gctime', Number.isFinite(rt.gcTimeSec) ? `${rt.gcTimeSec} s` : '—');
+      setText('db-rt-cpu', Number.isFinite(rt.cpuHours) ? `${rt.cpuHours} h` : '—');
+      setText('db-rt-threadpeak', Number.isFinite(rt.threadPeak) ? String(rt.threadPeak) : '—');
+
+      const trends = stats.trends || {};
+      const spark = (id, arr) => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('d', sparklinePath(Array.isArray(arr) ? arr : [], 120, 28, 2));
+      };
+      spark('db-spark-heap', trends.heap);
+      spark('db-spark-mspt', trends.mspt);
+      spark('db-spark-load', trends.load);
       renderFreshness(stats.lastUpdated);
     }
 

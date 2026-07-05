@@ -303,3 +303,32 @@
 
   .db-cell { padding: var(--sp-5); }
 }
+
+/* sparkline trends (js/sparkline.js) — decorative; the numbers are the a11y source */
+.sparkline {
+  width: 100%;
+  max-width: 160px;
+  height: 28px;
+  margin-top: var(--sp-2);
+  display: block;
+}
+.sparkline path {
+  fill: none;
+  stroke: var(--accent-cyan);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+.db-spark-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+}
+.db-spark-label {
+  font-size: var(--fs-0);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
