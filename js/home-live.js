@@ -14,18 +14,12 @@ const FETCH_TIMEOUT_MS = 3000;
 const STALE_AFTER_MS = 60 * 60 * 1000; // 1 hour — well past the 10-min cron cadence
 const MAX_TPS = 20; // Minecraft's hard tick-rate cap; exporters can briefly over-report
 
-export const LIVE_FIELDS = ['uptime', 'tps', 'players', 'scrapes', 'updated'];
+export const LIVE_FIELDS = ['uptime', 'tps', 'players', 'mspt', 'updated'];
 
 function asObject(value) {
   return value && typeof value === 'object' ? value : {};
 }
 
-function formatCount(n) {
-  if (!Number.isFinite(n) || n < 0) return null;
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1).replace(/\.0$/, '')}M`;
-  if (n >= 1e3) return `${Math.round(n / 1e3)}k`;
-  return String(n);
-}
 
 function relativeTime(iso, now) {
   if (typeof iso !== 'string') return null;
@@ -78,7 +72,7 @@ export function formatStats(json, now = Date.now()) {
     uptime,
     tps,
     players,
-    scrapes: formatCount(monitoring.prometheusScrapes),
+    mspt: Number.isFinite(metrics.mspt) ? `${metrics.mspt} ms` : null,
     updated: relativeTime(data.lastUpdated, now)
   };
 }

@@ -1,12 +1,13 @@
 {
   "server": {"name": "Eugene's Homelab MC", "version": "PaperMC 26.1.2", "javaVersion": "Java 25", "lastRestart": "2026-06-10T18:30:00Z"},
-  "metrics": {"tps": 21, "players": 3, "maxPlayers": 20, "uptime": "99.7%", "heapUsedMB": 330, "heapMaxMB": 512},
-  "monitoring": {"discordAlertsToday": 0, "rconLatency": "15ms", "prometheusScrapes": 894000, "grafanaPanels": 5},
-  "recentChanges": [
-    "Upgraded to PaperMC 26.1.2 with Java 25 runtime",
-    "Added new Grafana panel for GC pause monitoring",
-    "Increased heap allocation from 256MB to 512MB",
-    "Implemented RCON latency tracking dashboard"
-  ],
+  "metrics": {"tps": 20, "players": 1, "maxPlayers": 20, "uptime": "100.0%", "heapUsedMB": 861, "heapMaxMB": 3072, "mspt": 3.4, "rconMs": 763, "systemLoad": 1.4, "threads": 43, "gcCount": 1839, "processUptimeDays": 6.0},
+  "runtime": {"classesLoaded": 35853, "gcTimeSec": 77.9, "cpuHours": 6.6, "threadPeak": 47},
+  "monitoring": {"targetsHealthy": 2, "targetsTotal": 2},
+  "trends": {
+    "heap": [1500, 1136, 2089, 1195, 2127, 1231, 768, 628, 1931, 1056, 743, 1732, 928, 1822, 982, 1928, 1046, 1994, 1115, 2064, 674, 1600, 2219, 1822, 861],
+    "mspt": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 4.7, 4.8, 3.1, 3.8, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 4.2, 3.7, 0.1, 3.3, 3.6],
+    "load": [2.01, 2.0, 2.38, 1.87, 1.93, 2.28, 0.53, 2.39, 3.24, 6.65, 2.73, 2.62, 1.37, 2.12, 1.19, 3.94, 4.29, 2.58, 1.94, 0.75, 1.53, 2.78, 4.33, 3.58, 1.4],
+    "cpu": [2.34, 11.94, 2.27, 2.32, 2.32, 2.32, 14.02, 13.18, 10.79, 12.71, 2.32, 2.3, 2.32, 2.38, 2.32, 2.29, 2.3, 2.34, 2.31, 2.29, 14.63, 10.78, 2.32, 11.21, 10.87]
+  },
   "lastUpdated": "2026-06-17T06:50:02Z"
 }

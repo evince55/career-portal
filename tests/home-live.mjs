@@ -15,10 +15,10 @@ describe('formatStats', () => {
   it('formats the real minecraft-stats.json shape', () => {
     const now = Date.parse(REAL.lastUpdated) + 5 * 60000;
     const s = formatStats(REAL, now);
-    assert.equal(s.uptime, '99.7%');
+    assert.equal(s.uptime, '100.0%');
     assert.equal(s.tps, '20'); // clamped to Minecraft's 20 TPS cap
-    assert.equal(s.players, '3 / 20');
-    assert.equal(s.scrapes, '894k');
+    assert.equal(s.players, '1 / 20');
+    assert.equal(s.mspt, '3.4 ms');
     assert.equal(s.updated, 'updated 5m ago');
   });
 
@@ -43,7 +43,7 @@ describe('formatStats', () => {
     assert.equal(s.tps, '18');
     assert.equal(s.uptime, null);
     assert.equal(s.players, null);
-    assert.equal(s.scrapes, null);
+    assert.equal(s.mspt, null);
     assert.equal(s.updated, null);
   });
 
@@ -62,12 +62,11 @@ describe('formatStats', () => {
     assert.equal(formatStats({ metrics: { players: 4 } }).players, '4');
   });
 
-  it('formats scrape counts across magnitudes', () => {
-    assert.equal(formatStats({ monitoring: { prometheusScrapes: 999 } }).scrapes, '999');
-    assert.equal(formatStats({ monitoring: { prometheusScrapes: 12345 } }).scrapes, '12k');
-    assert.equal(formatStats({ monitoring: { prometheusScrapes: 2500000 } }).scrapes, '2.5M');
-    assert.equal(formatStats({ monitoring: { prometheusScrapes: 1000000 } }).scrapes, '1M');
-    assert.equal(formatStats({ monitoring: { prometheusScrapes: -5 } }).scrapes, null);
+  it('formats MSPT (server tick time) with a ms suffix', () => {
+    assert.equal(formatStats({ metrics: { mspt: 3.4 } }).mspt, '3.4 ms');
+    assert.equal(formatStats({ metrics: { mspt: 18 } }).mspt, '18 ms');
+    assert.equal(formatStats({ metrics: {} }).mspt, null);
+    assert.equal(formatStats({ metrics: { mspt: 'x' } }).mspt, null);
   });
 
   it('formats relative update times (minutes, hours, days, clamped future)', () => {
