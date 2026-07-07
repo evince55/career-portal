@@ -132,7 +132,7 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  padding: var(--sp-3) var(--sp-4);
+  padding: 0 var(--sp-4);
   border-bottom: 1px solid var(--line);
   color: var(--text-3);
 }
@@ -140,6 +140,9 @@
 .exp__search {
   flex: 1;
   min-width: 0;
+  /* Own the bar's vertical space so the input itself is a full-height tap
+     target (was ~22px, below the 44px touch minimum). */
+  min-height: 44px;
   background: none;
   border: 0;
   color: var(--text-1);
