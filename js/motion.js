@@ -78,19 +78,33 @@ function initCounters(doc) {
 
 /* ---------- staggered grid reveals ([data-stagger]) ---------- */
 function initStaggerGrids(doc) {
+  // No way to reveal without an observer, so don't hide anything in that case.
+  if (typeof IntersectionObserver === 'undefined') return;
+  const armed = [];
   for (const grid of doc.querySelectorAll('[data-stagger]')) {
     const children = Array.from(grid.children);
     if (!children.length) continue;
-    for (const child of children) child.classList.add('stagger-armed');
-    onEnter(grid, () => {
-      children.forEach((child, i) => {
+    for (const child of children) { child.classList.add('stagger-armed'); armed.push(child); }
+    // Observe each child, not the grid. A single-column grid on mobile is far
+    // taller than the viewport, so a grid-level intersection threshold can never
+    // be reached and every card would stay hidden. Per-child observation reveals
+    // each card as it scrolls in and fires reliably at any viewport width.
+    children.forEach((child) => {
+      onEnter(child, () => {
         child.classList.remove('stagger-armed');
         child.animate(
           [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }],
-          { duration: 620, delay: i * 80, easing: EASE, fill: 'both' }
+          { duration: 620, easing: EASE, fill: 'both' }
         ).onfinish = function () { try { this.commitStyles(); this.cancel(); } catch (e) {} };
       });
     });
+  }
+  // Failsafe: content must never stay hidden. If an observer never fires (odd
+  // viewport, IO quirk), reveal anything still armed so cards can't be lost.
+  if (armed.length) {
+    setTimeout(() => {
+      for (const child of armed) child.classList.remove('stagger-armed');
+    }, 2500);
   }
 }
 
