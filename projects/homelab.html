@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Monitoring Stack — Case Study · Eugene Vincent</title>
-  <meta name="description" content="Production monitoring as code: ArgoCD app-of-apps, External Secrets with Azure Key Vault, cert-manager TLS, a 20-panel Grafana dashboard and 7 alert rules across 5 services.">
+  <title>The Homelab — Case Study · Eugene Vincent</title>
+  <meta name="description" content="A single-node k3s cluster run like production: GitOps with ArgoCD, full Prometheus/Grafana/Loki observability, Istio mTLS, and a Discord incident bot. 99.8% uptime, $0/mo.">
   <meta name="theme-color" content="#07070b">
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
   <link rel="preload" href="../fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -94,70 +94,78 @@
   </header>
   <main id="main" class="container">
     <nav class="cs-breadcrumb" aria-label="Breadcrumb">
-      <a href="../projects.html">Projects</a><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"></use></svg><span>Monitoring Stack</span>
+      <a href="../projects.html">Projects</a><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"></use></svg><span>The Homelab</span>
     </nav>
     <header class="cs-hero">
-      <div class="cs-hero__cat"><span class="kicker" style="margin:0"><svg class="ico" aria-hidden="true"><use href="#i-gauge"></use></svg>GitOps · Kubernetes</span></div>
-      <h1 class="cs-hero__title">Monitoring Stack</h1>
-      <p class="cs-hero__thesis">Production monitoring as code — a <b>20-panel</b> Grafana dashboard and <b>7</b> alert rules, every object declared in Git and deployed by ArgoCD.</p>
+      <div class="cs-hero__cat"><span class="kicker" style="margin:0"><svg class="ico" aria-hidden="true"><use href="#i-network"></use></svg>Infrastructure · k3s</span></div>
+      <h1 class="cs-hero__title">The Homelab</h1>
+      <p class="cs-hero__thesis">One k3s node under my desk, run like production — <b>GitOps</b>, full observability, and a bot that tells me before my users do.</p>
       <div class="cs-hero__stats">
-        <div class="cs-hstat"><span class="cs-hstat__v">20</span><span class="cs-hstat__l">Grafana panels</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v">7</span><span class="cs-hstat__l">alert rules</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v">5</span><span class="cs-hstat__l">services monitored</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v">99.8%</span><span class="cs-hstat__l">server uptime</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v">5</span><span class="cs-hstat__l">systems in production</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v">$0</span><span class="cs-hstat__l">/mo cloud spend</span></div>
       </div>
       <ul class="cs-hero__stack" aria-label="Stack">
+        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-k3s"></use></svg>k3s</li>
+        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-istio"></use></svg>Istio</li>
+        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>Prometheus</li>
+        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-grafana"></use></svg>Grafana</li>
+        <li class="chip">Loki</li>
         <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-argo"></use></svg>ArgoCD</li>
-        <li class="chip">External Secrets</li>
-        <li class="chip">cert-manager</li>
-        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>kube-prometheus-stack</li>
-        <li class="chip">Loki + Promtail</li>
+        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-discord"></use></svg>Discord.py</li>
       </ul>
     </header>
     <section class="cs-section" aria-labelledby="cs-problem-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-info"></use></svg>The problem</span>
-      <h2 class="cs-section__title" id="cs-problem-h">A monitoring setup you can rebuild from scratch</h2>
+      <h2 class="cs-section__title" id="cs-problem-h">Learning SRE by running something that can actually break</h2>
       <div class="cs-prose">
-        <p>Click-configured dashboards and hand-installed exporters drift the moment you look away, and they’re impossible to reproduce. I wanted the whole observability stack — dashboards, alerts, secrets, TLS — to be a Git repo I could apply to an empty cluster.</p>
-        <p>That meant solving the boring-but-critical parts properly: where secrets come from, how certificates are issued, and how updates roll out without manual steps.</p>
-        
+        <p>Reading about Kubernetes and GitOps only gets you so far. I wanted a system with real users — friends on a Minecraft server — where an outage is embarrassing, so the incentives to monitor, automate, and recover are real.</p>
+        <p>The catch: it all runs on one machine at home. Every choice had to earn its keep on a single node, stay free to host, and be reproducible if I ever wiped it.</p>
+        <ul>
+          <li><strong>One node</strong> — no spare capacity to hide sloppy resource use behind.</li>
+          <li><strong>$0 budget</strong> — Cloudflare Pages, Azure free tier, Tailscale personal.</li>
+          <li><strong>Reproducible</strong> — if the disk dies, Git should rebuild the cluster.</li>
+        </ul>
       </div>
     </section>
     <section class="cs-section" aria-labelledby="cs-arch-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-network"></use></svg>Architecture</span>
-      <h2 class="cs-section__title" id="cs-arch-h">App-of-apps, secrets, TLS, then the stack</h2>
-      <p class="cs-prose">ArgoCD’s app-of-apps pattern owns everything; External Secrets pulls credentials from Azure Key Vault; cert-manager issues TLS; and kube-prometheus-stack plus Loki provide the signals.</p>
-      <div class="arch-map reveal" role="img" aria-label="Layered architecture: ArgoCD app-of-apps GitOps, External Secrets with Azure Key Vault, cert-manager TLS, the kube-prometheus-stack, and Loki with Promtail for logs.">
-        <div class="arch-layer"><span class="arch-layer__label">GitOps</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-argo"></use></svg>ArgoCD app-of-apps</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">Secrets</span><div class="arch-layer__nodes"><span class="arch-node">External Secrets</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-cloud"></use></svg>Azure Key Vault</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">TLS</span><div class="arch-layer__nodes"><span class="arch-node">cert-manager</span><span class="arch-node">Let’s Encrypt</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">Metrics</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>kube-prometheus-stack</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-grafana"></use></svg>Grafana</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">Logs</span><div class="arch-layer__nodes"><span class="arch-node">Loki + Promtail</span></div></div>
+      <h2 class="cs-section__title" id="cs-arch-h">One node, layered like a real platform</h2>
+      <p class="cs-prose">Traffic enters through Cloudflare and an Istio gateway; workloads run on k3s with mTLS; everything is observed, declared in Git, and alerts route out through a Discord bot and a serverless watchdog.</p>
+      <div class="arch-map reveal" role="img" aria-label="Layered architecture: Cloudflare and Istio ingress, k3s workloads with Istio mTLS, a Prometheus/Grafana/Loki observability layer, ArgoCD GitOps delivery, and Discord plus Azure Functions alerting.">
+        <div class="arch-layer"><span class="arch-layer__label">Ingress</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-cloudflare"></use></svg>Cloudflare</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-istio"></use></svg>Istio gateway</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Workloads</span><div class="arch-layer__nodes"><span class="arch-node">PaperMC</span><span class="arch-node">site services</span><span class="arch-node">exporters</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Platform</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-k3s"></use></svg>k3s</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-istio"></use></svg>Istio mTLS</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Observability</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>Prometheus</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-grafana"></use></svg>Grafana</span><span class="arch-node">Loki</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Delivery</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-argo"></use></svg>ArgoCD (GitOps)</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Alerting</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-discord"></use></svg>Discord bot</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-cloud"></use></svg>Azure Functions</span></div></div>
       </div>
     </section>
     <section class="cs-section" aria-labelledby="cs-dec-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-git-branch"></use></svg>Key decisions</span>
       <h2 class="cs-section__title" id="cs-dec-h">What I chose, and why</h2>
       <div class="cs-decisions">
-        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">ArgoCD app-of-apps</h3><p class="cs-decision__vs">over <b>many independent app manifests</b></p><p class="cs-decision__why">One root application manages the rest, so the whole stack installs (and uninstalls) as a single, ordered unit.</p></article>
-        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">External Secrets + Key Vault</h3><p class="cs-decision__vs">over <b>secrets committed to Git</b></p><p class="cs-decision__why">Credentials stay in Azure Key Vault and are synced in at runtime — GitOps without leaking secrets into the repo.</p></article>
-        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">cert-manager automation</h3><p class="cs-decision__vs">over <b>manual certificate renewal</b></p><p class="cs-decision__why">Let’s Encrypt certs issue and renew themselves, so TLS never silently expires.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">k3s</h3><p class="cs-decision__vs">over <b>full kubeadm Kubernetes</b></p><p class="cs-decision__why">k3s gives me the real Kubernetes API in a single lightweight binary that fits one node — the concepts transfer, the overhead doesn’t.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">GitOps with ArgoCD</h3><p class="cs-decision__vs">over <b>kubectl apply by hand</b></p><p class="cs-decision__why">Every object lives in Git and reconciles automatically, so the cluster is reproducible and I can’t forget what I changed at 2am.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">A Discord incident bot</h3><p class="cs-decision__vs">over <b>a paid pager service</b></p><p class="cs-decision__why">Alerts land where I already am, for free, and double as a control surface — status, restart, and lag checks over slash commands.</p></article>
       </div>
     </section>
     <section class="cs-section" aria-labelledby="cs-out-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-bar-chart-3"></use></svg>Measured outcomes</span>
       <h2 class="cs-section__title" id="cs-out-h">The results</h2>
       <div class="cs-outcomes">
-        <div class="cs-outcome"><span class="cs-outcome__v">20</span><span class="cs-outcome__l">Dashboard panels</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">99.8%</span><span class="cs-outcome__l">Uptime</span><span class="cs-outcome__sub">measured, not claimed</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">5</span><span class="cs-outcome__l">Services in prod</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">20</span><span class="cs-outcome__l">Grafana panels</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v">7</span><span class="cs-outcome__l">Alert rules</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v">5</span><span class="cs-outcome__l">Services</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v">7d</span><span class="cs-outcome__l">Log retention</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">$0</span><span class="cs-outcome__l">Monthly cost</span><span class="cs-outcome__sub">free tiers + self-host</span></div>
       </div>
       
     </section>
     <nav class="cs-next" aria-label="Related project">
-      <a class="cs-next__card" href="minecraft-monitoring.html">
-        <span><span class="cs-next__k">Next project</span><span class="cs-next__t">Minecraft Monitoring</span></span>
-        <span class="cs-next__go">What it all watches <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></span>
+      <a class="cs-next__card" href="aria.html">
+        <span><span class="cs-next__k">Next project</span><span class="cs-next__t">Aria</span></span>
+        <span class="cs-next__go">A from-scratch iOS player <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></span>
       </a>
     </nav>
   </main>

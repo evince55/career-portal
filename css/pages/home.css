@@ -1,5 +1,8 @@
-/* Home page styles — chai-homelab.com v2.
-   Consumes css/tokens.css + css/base.css; page-specific layout only. */
+/* ============================================================================
+   Home page — chai-homelab.com v3
+   Consumes tokens.css + base.css. Page character: CINEMATIC.
+   Texture = the living cluster mesh; motion = larger, slower hero reveals.
+   ========================================================================== */
 
 /* ---------- hero ---------- */
 .hero {
@@ -7,34 +10,33 @@
   overflow: hidden;
   display: flex;
   align-items: center;
-  min-height: min(88vh, 780px);
-  padding-block: var(--sp-12) var(--sp-10);
+  min-height: min(92vh, 880px);
+  padding-block: var(--sp-16) var(--sp-12);
 }
 
-.hero__bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
+.hero__bg { position: absolute; inset: 0; z-index: 0; }
 
-/* Static synthwave gradient — always painted, so skipping Three.js (reduced
-   motion, saveData, small viewport, no WebGL) still looks intentional. */
+/* Always-painted static fallback (reduced-motion, saveData, small, no-canvas). */
 .hero__bg-fallback {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(60% 50% at 78% 12%, color-mix(in srgb, var(--accent-magenta) 9%, transparent), transparent 70%),
-    radial-gradient(55% 55% at 15% 85%, color-mix(in srgb, var(--accent-cyan) 10%, transparent), transparent 70%),
+    radial-gradient(52% 46% at 74% 40%, color-mix(in srgb, var(--accent-core) 26%, transparent), transparent 70%),
+    radial-gradient(60% 60% at 88% 8%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 72%),
+    radial-gradient(50% 60% at 8% 92%, color-mix(in srgb, var(--accent-core) 12%, transparent), transparent 70%),
     var(--bg-0);
 }
-
-.hero__bg-fallback::after {
+/* faint static node dots so the fallback still reads as "mesh", not just a blob */
+.hero__bg-fallback::before {
   content: '';
   position: absolute;
-  inset-inline: 0;
-  bottom: 18%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent-cyan-dim), transparent);
+  inset: 0;
+  background-image: radial-gradient(currentColor 1px, transparent 1.4px);
+  background-size: 34px 34px;
+  color: var(--accent);
+  opacity: 0.06;
+  -webkit-mask: linear-gradient(90deg, transparent, black 60%);
+  mask: linear-gradient(90deg, transparent, black 60%);
 }
 
 .hero__canvas {
@@ -42,62 +44,47 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  color: var(--accent);            /* hero-cluster.js reads this as the mesh colour */
   opacity: 0;
-  transition: opacity var(--t-slow) var(--ease);
+  transition: opacity var(--t-slower) var(--ease);
 }
-
 .hero__canvas.is-on { opacity: 1; }
-
-/* Optional media backdrop (Higgsfield export, etc.). Covers the hero, sits
-   above the CSS fallback but below the copy; a left scrim keeps text legible. */
-.hero__media {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-.hero:has(.hero__media)::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(90deg, var(--bg-0) 0%, color-mix(in srgb, var(--bg-0) 55%, transparent) 45%, transparent 78%);
-  pointer-events: none;
-}
 
 .hero__fade {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  height: 120px;
+  height: 140px;
   background: linear-gradient(transparent, var(--bg-0));
-}
-
-.hero__inner {
-  position: relative;
   z-index: 1;
 }
 
+.hero__inner { position: relative; z-index: 2; max-width: 46rem; }
+
 .hero__title {
-  font-size: var(--fs-5);
-  letter-spacing: -0.02em;
+  font-size: var(--fs-6);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  margin-top: var(--sp-2);
 }
 
 .hero__tagline {
-  margin-top: var(--sp-4);
-  font-size: var(--fs-3);
+  margin-top: var(--sp-5);
+  font-size: var(--fs-4);
   font-family: var(--font-display);
+  font-weight: 500;
   color: var(--text-1);
-  max-width: 26ch;
+  max-width: 20ch;
+  line-height: 1.15;
   text-wrap: balance;
 }
 
 .hero__sub {
-  margin-top: var(--sp-3);
+  margin-top: var(--sp-4);
   color: var(--text-2);
   max-width: 52ch;
+  font-size: var(--fs-2);
 }
 
 .hero__ctas {
@@ -115,183 +102,188 @@
   margin: var(--sp-8) 0 0;
   padding: 0;
 }
+.hero__proof .chip { min-height: 2.5rem; padding-inline: var(--sp-4); }
+.hero__proof a.chip { text-decoration: none; }
+.hero__proof a.chip:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Proof chips are slightly taller pills so the linked one is a >=44px target. */
-.hero__proof .chip {
-  min-height: 2.75rem;
-  padding-inline: var(--sp-4);
+/* ---------- live proof strip (instant credibility, kept prominent) ---------- */
+.liveproof {
+  position: relative;
+  background:
+    linear-gradient(var(--bg-1), var(--bg-1)) padding-box,
+    linear-gradient(90deg, var(--accent), transparent 60%) border-box;
+  border: 1px solid transparent;
+  border-inline: 0;
+  border-bottom: 1px solid var(--line);
+}
+.liveproof::before {              /* thin accent rule along the top edge */
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-glow) 40%, transparent 75%);
+}
+.liveproof__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3) var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+.liveproof__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-3);
+}
+.liveproof__title .pulse { margin-right: 0; }
+.liveproof__title strong { color: var(--accent); font-weight: 600; }
+.liveproof__meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  color: var(--text-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+.liveproof__meta a { display: inline-flex; align-items: center; gap: var(--sp-1); }
+
+.liveproof__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sp-5);
+}
+.liveproof__cell {
+  position: relative;
+  padding-left: var(--sp-4);
+  border-left: 2px solid var(--accent-dim);
+}
+.liveproof__cell .stat__value {
+  font-size: clamp(1.9rem, 1.2rem + 2.2vw, 2.6rem);
+  color: var(--text-1);
+}
+.liveproof__cell .stat__unit { color: var(--text-3); font-size: 0.55em; margin-left: 0.15em; }
+.liveproof__note { margin-top: var(--sp-5); color: var(--text-3); font-family: var(--font-mono); font-size: var(--fs-0); }
+
+/* ---------- dual value proposition ---------- */
+.duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-8);
+  align-items: start;
+}
+.duo__col { position: relative; }
+.duo__col + .duo__col { padding-left: var(--sp-8); border-left: 1px solid var(--line); }
+.duo__label {
+  display: inline-flex;
+  align-items: center;
   gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: var(--sp-3);
 }
+.duo__label .ico { font-size: 1.1em; }
+.duo__line { font-size: var(--fs-3); line-height: 1.35; color: var(--text-1); font-weight: 400; text-wrap: pretty; }
+.duo__line b { color: var(--accent); font-weight: 600; }
 
-.hero__proof a.chip {
-  text-decoration: none;
-  transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
-}
-
-.hero__proof a.chip:hover {
-  border-color: var(--accent-cyan);
-  color: var(--accent-cyan);
+@media (max-width: 720px) {
+  .duo { grid-template-columns: 1fr; gap: var(--sp-6); }
+  .duo__col + .duo__col { padding-left: 0; border-left: 0; padding-top: var(--sp-6); border-top: 1px solid var(--line); }
 }
 
 /* ---------- featured projects ---------- */
-.grid-3 {
+.featured__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--sp-5);
 }
-
-.project-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-}
-
-.project-card .card__meta {
+.project-card { display: flex; flex-direction: column; gap: var(--sp-3); }
+.project-card__top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.project-card .card__title { margin: 0; font-size: var(--fs-3); }
+.project-card .card__title a { color: var(--text-1); text-decoration: none; }
+.project-card .card__title a:hover { color: var(--accent); }
+.project-card__flag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  color: var(--accent-ink);
+  background: var(--accent);
+  padding: 2px var(--sp-2);
+  border-radius: 999px;
+  white-space: nowrap;
 }
+.project-card__number { font-family: var(--font-mono); font-weight: 600; color: var(--accent); }
+.project-card__stack { list-style: none; display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: 0; padding: 0; }
+.project-card__link { margin-top: auto; padding-top: var(--sp-2); }
+.project-card__link a { display: inline-flex; align-items: center; gap: var(--sp-1); min-height: 44px; text-decoration: none; font-weight: 500; }
+.project-card__link a:hover .ico { transform: translate(2px, -2px); }
+.project-card__link .ico { transition: transform var(--t-fast) var(--ease); }
 
-.project-card .card__title { margin: 0; }
-
-.project-card .card__title a {
-  color: var(--text-1);
-  text-decoration: none;
+/* flagship gets a subtle accent lift without breaking the grid rhythm */
+.project-card--flag {
+  background:
+    linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
+    linear-gradient(160deg, var(--accent-dim), transparent 55%) border-box;
+  border: 1px solid transparent;
 }
+.project-card--flag:hover { box-shadow: 0 0 0 1px var(--accent-dim), 0 24px 60px rgba(0,0,0,0.35); }
 
-.project-card .card__title a:hover { color: var(--accent-cyan); }
+.featured__more { margin-top: var(--sp-8); }
 
-.project-card__number {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  color: var(--accent-cyan);
-}
-
-.project-card__stack {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  margin: 0;
-  padding: 0;
-}
-
-.project-card__link {
-  margin-top: auto;
-  padding-top: var(--sp-2);
-}
-
-/* ---------- the homelab, live ---------- */
-.homelab {
-  background: var(--bg-1);
-  border-block: 1px solid var(--line);
-}
-
-.homelab__lede { max-width: 58ch; }
-
-.homelab__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--sp-6);
-  margin-block: var(--sp-6);
-}
-
-.homelab__updated {
-  color: var(--text-3);
-  font-size: var(--fs-0);
-  margin-bottom: var(--sp-5);
-}
-
-.homelab__cta { margin-top: var(--sp-5); }
-
-/* ---------- skills ---------- */
+/* ---------- skills (reframed: AI/LLMOps + DevOps forward) ---------- */
 .skills__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--sp-6);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--sp-6) var(--sp-5);
 }
-
 .skills__group h3 {
-  font-size: var(--fs-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
   margin-bottom: var(--sp-3);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line);
 }
+.skills__group ul { list-style: none; margin: 0; padding: 0; }
+.skills__group li { padding-block: 0.35rem; padding-left: var(--sp-4); position: relative; color: var(--text-2); font-size: var(--fs-1); }
+.skills__group li::before { content: '\25b8'; position: absolute; left: 0; color: var(--accent); opacity: 0.7; }
 
-.skills__group ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.skills__group li {
-  padding-block: var(--sp-1);
-  padding-left: var(--sp-4);
-  position: relative;
-}
-
-.skills__group li::before {
-  content: '\25b9'; /* small triangle */
-  position: absolute;
-  left: 0;
-  color: var(--accent-cyan);
-}
-
-/* ---------- about + contact ---------- */
-.about p + p { margin-top: var(--sp-4); }
-
+/* ---------- about ---------- */
+.about__body { max-width: 62ch; }
+.about__body p + p { margin-top: var(--sp-4); }
 .about__edu {
-  margin-top: var(--sp-5);
+  margin-top: var(--sp-6);
   color: var(--text-3);
-  font-size: var(--fs-0);
+  font-family: var(--font-mono);
+  font-size: var(--fs-1);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line);
 }
 
-.contact-cta {
-  text-align: center;
-}
-
-.contact-cta p {
-  margin-inline: auto;
-  margin-bottom: var(--sp-6);
-  max-width: 48ch;
-}
-
-/* ---------- scroll reveal interop ----------
-   js/scroll-reveal.js adds .visible while base.css styles .is-visible;
-   cover both until the foundation reconciles the class name. */
-.reveal.visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* a11y: case-study links match the 44px target the projects page uses */
-.project-card__link a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
-
-/* tablet: avoid a 2+1 orphan card — the odd last card spans the full row */
-@media (min-width: 640px) and (max-width: 919px) {
-  .grid-3 > :last-child:nth-child(odd) { grid-column: 1 / -1; }
-}
-
-/* hero entrance (js/motion.js) — html.anim is set pre-paint by the inline head
-   guard (motion-safe clients only) and removed by a 2.5s failsafe, so content
-   can never stay hidden if the motion module fails to load */
-html.anim .hero__inner > *,
-html.anim .hero__proof .chip { opacity: 0; }
-html:not(.anim) .hero__inner > *,
-html:not(.anim) .hero__proof .chip { transition: opacity 400ms ease; }
-
-/* contact CTA — Haikei layered-waves backdrop (self-hosted, decorative) */
-.contact-cta { position: relative; overflow: hidden; }
-.contact-cta > .container { position: relative; z-index: 1; }
-.contact-cta__waves {
+/* ---------- contact CTA ---------- */
+.contact-cta { position: relative; overflow: hidden; text-align: center; }
+.contact-cta__glow {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 62%;
-  background: url('/img/waves.svg') bottom center / 100% 100% no-repeat;
-  opacity: 0.5;
+  inset: 0;
+  background: radial-gradient(50% 120% at 50% 120%, color-mix(in srgb, var(--accent-core) 24%, transparent), transparent 70%);
   pointer-events: none;
 }
+.contact-cta > .container { position: relative; z-index: 1; }
+.contact-cta p { margin-inline: auto; margin-bottom: var(--sp-6); max-width: 50ch; }
+
+/* ---------- hero entrance interop (js/motion.js) ----------
+   html.anim (set pre-paint by the head guard, cleared by a 2.5s failsafe) hides
+   the [data-enter] parts on motion-safe clients only, so nothing can stay hidden
+   if the motion module fails to load. */
+html.anim .hero__inner [data-enter] { opacity: 0; }

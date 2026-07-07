@@ -1,45 +1,87 @@
-/* Design tokens — chai-homelab.com v2
+/* ============================================================================
+   Design tokens — chai-homelab.com v3 (visual overhaul)
    Single source of truth for color, type, space, radius, motion.
-   Contrast pairs are enforced by tests/design-tokens.mjs (WCAG AA):
-   adjust values here only if the test still passes. */
+
+   THE SPINE (identical on every page):
+   - one neutral surface + text ramp
+   - one 2-font pairing: Space Grotesk (display/sans) + JetBrains Mono (mono)
+   - one type scale, one spacing scale, one easing curve
+   - ONE harmonious accent family; each page selects exactly one member via
+     <body data-page="home|projects|dashboard|contact"> — everything else in
+     base.css reads the generic --accent, so a page differs only by its hue
+     (+ its own texture/motion in css/pages/*), never by leaving the system.
+
+   CONTRAST: every text/background pair below is WCAG AA (>=4.5 normal text).
+   Verified by tests/design-tokens.mjs — change a value only if the test passes.
+   ========================================================================== */
 
 :root {
-  /* surfaces (layered elevation, near-black with a violet cast) */
-  --bg-0: #08080d;
-  --bg-1: #10101a;
-  --bg-2: #181826;
+  /* ---- surfaces: near-black, faint cool cast, layered elevation ---- */
+  --bg-0: #07070b;   /* page background            */
+  --bg-1: #0e0e15;   /* raised band / section fill */
+  --bg-2: #16161f;   /* card / input surface       */
+  --bg-3: #1e1e2a;   /* hover / elevated surface    */
   --line: rgba(255, 255, 255, 0.08);
   --line-strong: rgba(255, 255, 255, 0.14);
 
-  /* text */
-  --text-1: #eceaf4;
-  --text-2: #b4b2c9;
-  --text-3: #8b89a3;
+  /* ---- text ramp (AA on every surface above) ---- */
+  --text-1: #f2f0f7;   /* headings, primary        (>=14.5:1) */
+  --text-2: #bdbace;   /* body                     (>=8.6:1)  */
+  --text-3: #8a889f;   /* meta, labels, captions   (>=4.7:1)  */
 
-  /* accents — synthwave, disciplined */
-  --accent-cyan: #3fd8e8;
-  --accent-cyan-dim: rgba(63, 216, 232, 0.35);
-  --accent-cyan-faint: rgba(63, 216, 232, 0.12);
-  --accent-magenta: #f45fd0;
-  --accent-magenta-dim: rgba(244, 95, 208, 0.3);
-
-  /* status (dashboard, forms) */
-  --ok: #4ade80;
+  /* ---- status (dashboard, forms) — AA on all surfaces ---- */
+  --ok:   #4ade80;
   --warn: #fbbf24;
-  --err: #ff8a8a;
+  --err:  #ff8a8a;
 
-  /* type */
+  /* ========================================================================
+     THE FOUR PAGE ACCENTS — one harmonious jewel-tone family.
+     Built in OKLCH at near-equal lightness/chroma, hue rotated along the cool
+     arc (green -> cyan -> indigo -> magenta) so they read as relatives, not
+     four unrelated colors. Each is >=6.2:1 as text on every surface.
+       *-core = a deeper, decorative-only variant for hero fields, glows and
+                gradients (never used as text, so no contrast floor).
+     ==================================================================== */
+  --accent-home:            #2bd7d6;   /* electric cyan   — signature / cinematic */
+  --accent-home-core:       #009a9a;
+  --accent-projects:        #8099ff;   /* indigo-violet   — code / IDE / depth    */
+  --accent-projects-core:   #4c5fbe;
+  --accent-dashboard:       #44e4a4;   /* emerald         — health / live / ops   */
+  --accent-dashboard-core:  #009e5f;
+  --accent-contact:         #f577c8;   /* magenta-pink    — playful closer        */
+  --accent-contact-core:    #b7348e;
+
+  /* Active accent — defaults to Home; overridden per page below.
+     Derived tints use color-mix so every page gets a full accent set for free. */
+  --accent:       var(--accent-home);
+  --accent-core:  var(--accent-home-core);
+  --accent-ink:   var(--bg-0);                                        /* text on an accent fill */
+  --accent-strong: color-mix(in srgb, var(--accent) 62%, transparent);
+  --accent-dim:   color-mix(in srgb, var(--accent) 34%, transparent); /* borders, hairlines     */
+  --accent-glow:  color-mix(in srgb, var(--accent) 45%, transparent); /* box-shadow glow        */
+  --accent-faint: color-mix(in srgb, var(--accent) 12%, transparent); /* selected rows, washes  */
+  --accent-wash:  color-mix(in srgb, var(--accent)  6%, var(--bg-1)); /* tinted surface         */
+
+  /* ---- type ---- */
   --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
-  --fs-0: 0.8125rem;
-  --fs-1: 0.9375rem;
-  --fs-2: 1.125rem;
-  --fs-3: 1.375rem;
-  --fs-4: 1.75rem;
-  --fs-5: clamp(2.25rem, 1.2rem + 4.5vw, 3.5rem);
+  --font-sans:    'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body:    var(--font-sans);   /* alias kept for older consumers */
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
 
-  /* space (4px base) */
+  /* modular scale (16px root). fs-6 is the cinematic hero display size. */
+  --fs-0: 0.78rem;    /* 12.5px — mono captions / labels */
+  --fs-1: 0.9375rem;  /* 15px   — small / meta           */
+  --fs-2: 1.0625rem;  /* 17px   — body                   */
+  --fs-3: 1.375rem;   /* 22px   — card title / lead       */
+  --fs-4: 1.875rem;   /* 30px   — section title           */
+  --fs-5: clamp(2.25rem, 1.15rem + 4.8vw, 3.5rem);   /* 36–56 — sub-hero */
+  --fs-6: clamp(3.25rem, 1.5rem + 7.4vw, 6rem);      /* 52–96 — hero display */
+
+  --lh-tight: 1.05;
+  --lh-snug: 1.2;
+  --lh-body: 1.62;
+
+  /* ---- space (4px base) ---- */
   --sp-1: 0.25rem;
   --sp-2: 0.5rem;
   --sp-3: 0.75rem;
@@ -49,15 +91,41 @@
   --sp-8: 3rem;
   --sp-10: 4rem;
   --sp-12: 6rem;
+  --sp-16: 8rem;
 
-  /* radius */
+  /* ---- radius ---- */
   --r-1: 6px;
   --r-2: 10px;
   --r-3: 16px;
+  --r-4: 24px;
 
-  /* motion */
+  /* ---- motion: ONE easing curve, four durations, reduced-motion aware ---- */
   --t-fast: 150ms;
-  --t-med: 250ms;
-  --t-slow: 400ms;
-  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --t-med: 260ms;
+  --t-slow: 420ms;
+  --t-slower: 720ms;   /* cinematic hero reveals */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);   /* the site's single signature curve */
+
+  --maxw: 1120px;      /* content column */
+  --maxw-wide: 1320px; /* hero / full-bleed rows */
+}
+
+/* ---- per-page accent selection (the only thing that changes between rooms) ---- */
+[data-page='home']      { --accent: var(--accent-home);      --accent-core: var(--accent-home-core); }
+[data-page='projects']  { --accent: var(--accent-projects);  --accent-core: var(--accent-projects-core); }
+[data-page='dashboard'] { --accent: var(--accent-dashboard); --accent-core: var(--accent-dashboard-core); }
+[data-page='contact']   { --accent: var(--accent-contact);   --accent-core: var(--accent-contact-core); }
+
+/* Re-derive the accent tints ON the page element itself. A custom property with a
+   var() reference is resolved where it's declared and then inherits that computed
+   value — it does NOT re-resolve when a descendant changes --accent. So the tints
+   above in :root would keep the default Home cyan on every page; declaring them
+   here (same element that sets --accent per page) makes each page's tints track
+   its own accent. */
+[data-page] {
+  --accent-strong: color-mix(in srgb, var(--accent) 62%, transparent);
+  --accent-dim:    color-mix(in srgb, var(--accent) 34%, transparent);
+  --accent-glow:   color-mix(in srgb, var(--accent) 45%, transparent);
+  --accent-faint:  color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-wash:   color-mix(in srgb, var(--accent)  6%, var(--bg-1));
 }

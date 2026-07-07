@@ -1,12 +1,13 @@
-// Home page live stats — fetches /config/minecraft-stats.json (refreshed by a
-// 10-minute cron on the homelab) and fills [data-live-*] elements on index.html.
-// Pure formatting lives in formatStats()/isStale() so tests/home-live.mjs can
-// cover them without a DOM. All values are written with textContent (never innerHTML).
+// Home + live-strip stats — fetches homelab stats (via /api/stats, falling back
+// to /config/minecraft-stats.json, refreshed by a 10-minute cron) and fills the
+// [data-live-*] elements. Pure formatting lives in formatStats()/isStale() so
+// tests/home-live.mjs can cover them without a DOM. Values are written with
+// textContent (never innerHTML).
 //
 // Honesty contract: the markup ships with static seed values that stay visible
-// no matter what. The "live" affordances (pulse dot, "updated Xm ago" line) are
-// shown ONLY when the fetch succeeds AND the data is fresh. Stale or failed
-// feeds keep the numbers but drop the live claim.
+// no matter what. The "live" affordances (pulse dot, "updated Xm ago" line) show
+// ONLY when the fetch succeeds AND the data is fresh. Stale or failed feeds keep
+// the numbers but drop the live claim and explain why.
 
 import { fetchStats } from './stats-source.js';
 
@@ -14,12 +15,11 @@ const FETCH_TIMEOUT_MS = 3000;
 const STALE_AFTER_MS = 60 * 60 * 1000; // 1 hour — well past the 10-min cron cadence
 const MAX_TPS = 20; // Minecraft's hard tick-rate cap; exporters can briefly over-report
 
-export const LIVE_FIELDS = ['uptime', 'tps', 'players', 'mspt', 'updated'];
+export const LIVE_FIELDS = ['uptime', 'tps', 'players', 'mspt', 'heap', 'updated'];
 
 function asObject(value) {
   return value && typeof value === 'object' ? value : {};
 }
-
 
 function relativeTime(iso, now) {
   if (typeof iso !== 'string') return null;
@@ -43,14 +43,13 @@ export function isStale(json, now = Date.now(), thresholdMs = STALE_AFTER_MS) {
 }
 
 /**
- * Turn the raw stats JSON into display strings.
- * Resilient to missing/partial/garbage input: each field is null when its
- * source data is absent or malformed, so callers can skip that update only.
+ * Turn raw stats JSON into display strings. Resilient to missing/partial input:
+ * each field is null when its source data is absent or malformed, so callers can
+ * skip only that update.
  */
 export function formatStats(json, now = Date.now()) {
   const data = asObject(json);
   const metrics = asObject(data.metrics);
-  const monitoring = asObject(data.monitoring);
 
   let uptime = null;
   if (typeof metrics.uptime === 'string' && metrics.uptime.trim() !== '') {
@@ -68,10 +67,18 @@ export function formatStats(json, now = Date.now()) {
       : String(metrics.players);
   }
 
+  let heap = null;
+  if (Number.isFinite(metrics.heapUsedMB)) {
+    heap = Number.isFinite(metrics.heapMaxMB)
+      ? `${metrics.heapUsedMB} / ${metrics.heapMaxMB}`
+      : `${metrics.heapUsedMB}`;
+  }
+
   return {
     uptime,
     tps,
     players,
+    heap,
     mspt: Number.isFinite(metrics.mspt) ? `${metrics.mspt} ms` : null,
     updated: relativeTime(data.lastUpdated, now)
   };
@@ -79,9 +86,7 @@ export function formatStats(json, now = Date.now()) {
 
 /** Drop every live-only affordance (pulse dot, updated line); static values stay. */
 function dropLiveClaim(doc, noteText) {
-  for (const el of doc.querySelectorAll('[data-live-badge]')) {
-    el.hidden = true;
-  }
+  for (const el of doc.querySelectorAll('[data-live-badge]')) el.hidden = true;
   const note = doc.querySelector('[data-live-note]');
   if (note) {
     note.textContent = noteText;
@@ -90,11 +95,11 @@ function dropLiveClaim(doc, noteText) {
 }
 
 /**
- * Fetch the stats (3s timeout) and populate [data-live-*] elements.
- * Static seed values are never hidden; only the live affordances change:
- *  - fresh fetch  → values updated, pulse + "updated Xm ago" shown
- *  - stale fetch  → values updated, live claim dropped, snapshot note shown
- *  - failed fetch → seeds kept, live claim dropped, unavailable note shown
+ * Fetch stats (3s timeout) and populate [data-live-*] elements.
+ * Static seeds are never hidden; only the live affordances change:
+ *   fresh  → values updated, pulse + "updated Xm ago" shown
+ *   stale  → values updated, live claim dropped, snapshot note shown
+ *   failed → seeds kept, live claim dropped, unavailable note shown
  * Returns the formatted stats on success, null otherwise.
  */
 export async function initHomeLive(doc = typeof document === 'undefined' ? null : document) {
@@ -113,18 +118,14 @@ export async function initHomeLive(doc = typeof document === 'undefined' ? null 
 
   for (const key of LIVE_FIELDS) {
     for (const el of doc.querySelectorAll(`[data-live-${key}]`)) {
-      if (stats[key] != null) {
-        el.textContent = stats[key];
-      }
+      if (stats[key] != null) el.textContent = stats[key];
     }
   }
 
   if (stale) {
     dropLiveClaim(doc, `Not live right now — last snapshot from the rack: ${stats.updated || 'unknown'}.`);
   } else {
-    for (const el of doc.querySelectorAll('[data-live-badge]')) {
-      el.hidden = false;
-    }
+    for (const el of doc.querySelectorAll('[data-live-badge]')) el.hidden = false;
   }
   return stats;
 }

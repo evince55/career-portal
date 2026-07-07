@@ -24,6 +24,10 @@ const ratio = (a, b) => {
 };
 
 describe('design tokens meet WCAG AA', () => {
+  // v3 renamed the accents into a per-page family (--accent-home/-projects/
+  // -dashboard/-contact). Each is used as text on the dark surfaces, so each is
+  // held to the 4.5:1 AA floor on --bg-0 and --bg-1 (the surfaces accent text
+  // actually sits on). Text ramp + status colors keep their original contracts.
   const pairs = [
     ['--text-1', '--bg-0', 4.5],
     ['--text-1', '--bg-1', 4.5],
@@ -33,9 +37,14 @@ describe('design tokens meet WCAG AA', () => {
     ['--text-2', '--bg-2', 4.5],
     ['--text-3', '--bg-0', 4.5],
     ['--text-3', '--bg-1', 4.5],
-    ['--accent-cyan', '--bg-0', 4.5],
-    ['--accent-cyan', '--bg-1', 4.5],
-    ['--accent-magenta', '--bg-0', 4.5],
+    ['--accent-home', '--bg-0', 4.5],
+    ['--accent-home', '--bg-1', 4.5],
+    ['--accent-projects', '--bg-0', 4.5],
+    ['--accent-projects', '--bg-1', 4.5],
+    ['--accent-dashboard', '--bg-0', 4.5],
+    ['--accent-dashboard', '--bg-1', 4.5],
+    ['--accent-contact', '--bg-0', 4.5],
+    ['--accent-contact', '--bg-1', 4.5],
     ['--ok', '--bg-1', 3],
     ['--warn', '--bg-1', 3],
     ['--err', '--bg-1', 4.5],
