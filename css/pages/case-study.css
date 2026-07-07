@@ -1,235 +1,189 @@
-/* Case-study pages (projects/*.html) — chai-homelab.com v2, Lane C.
-   Consumes css/tokens.css + css/base.css; page-specific layout only. */
+/* ============================================================================
+   Case study — chai-homelab.com v3
+   Consumes tokens.css + base.css. Reads as a CHILD of the Projects page:
+   <body data-page="projects"> so it inherits the indigo accent.
+   Section-modular: every block (decisions, outcomes) is an auto-fit grid, so a
+   shallow project with 2 items and a deep one with 6 both look intentional.
+   ========================================================================== */
 
-/* ---------- article layout ---------- */
-.case-study {
-  max-width: 800px;
-}
-
-.case-study__header {
-  padding-block: var(--sp-10) var(--sp-8);
-  border-bottom: 1px solid var(--line);
-}
-
-.case-study__header h1 {
-  font-size: var(--fs-5);
-}
-
-.case-study__outcome {
-  margin-top: var(--sp-4);
-  font-size: var(--fs-2);
-  color: var(--text-1);
-  max-width: 56ch;
-}
-
-.case-study__meta {
-  margin-top: var(--sp-3);
-  color: var(--text-3);
+.cs-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: var(--sp-6);
+  font-family: var(--font-mono);
   font-size: var(--fs-0);
+  color: var(--text-3);
 }
+.cs-breadcrumb a { color: var(--text-2); text-decoration: none; }
+.cs-breadcrumb a:hover { color: var(--accent); }
+.cs-breadcrumb .ico { font-size: 0.9em; }
 
-.case-study__stack {
-  list-style: none;
-  margin: var(--sp-5) 0 0;
-  padding: 0;
+/* ---------- hero ---------- */
+.cs-hero { padding-block: var(--sp-6) var(--sp-10); border-bottom: 1px solid var(--line); }
+.cs-hero__cat { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+.cs-hero__flag {
+  font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--accent-ink); background: var(--accent); padding: 2px var(--sp-2); border-radius: 999px;
+}
+.cs-hero__title { font-size: var(--fs-6); line-height: var(--lh-tight); letter-spacing: -0.03em; }
+.cs-hero__thesis {
+  margin-top: var(--sp-4);
+  font-size: var(--fs-3);
+  line-height: 1.35;
+  color: var(--text-1);
+  font-weight: 400;
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+.cs-hero__thesis b { color: var(--accent); font-weight: 600; }
+.cs-hero__stats {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
+  gap: var(--sp-8);
+  margin-top: var(--sp-8);
 }
-
-/* ---------- prose sections ---------- */
-.case-study__section {
-  padding-block: var(--sp-8) 0;
-}
-
-.case-study__section h2 {
-  font-size: var(--fs-3);
-  margin-bottom: var(--sp-4);
-}
-
-/* leading section-header glyph (rich UI-icon pass) — cyan, sized to the heading */
-.case-study__section h2 .ico {
-  color: var(--accent-cyan);
-  font-size: 0.8em;
-  margin-right: var(--sp-2);
-  vertical-align: 0;
-  opacity: 0.9;
-}
-
-.case-study__section p {
-  margin-bottom: var(--sp-4);
-}
-
-.case-study__section p:last-child {
-  margin-bottom: 0;
-}
-
-.case-study strong {
-  color: var(--text-1);
+.cs-hstat { display: grid; gap: var(--sp-1); }
+.cs-hstat__v {
+  font-family: var(--font-mono);
   font-weight: 600;
+  font-size: clamp(1.75rem, 1.2rem + 1.8vw, 2.4rem);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
+.cs-hstat__l { color: var(--text-3); font-size: var(--fs-0); text-transform: uppercase; letter-spacing: 0.08em; }
+.cs-hero__stack { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-8); list-style: none; padding: 0; }
 
-/* ---------- key decisions list ---------- */
-.decisions {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* ---------- generic section ---------- */
+.cs-section { padding-block: var(--sp-10); border-bottom: 1px solid var(--line); }
+.cs-section:last-of-type { border-bottom: 0; }
+.cs-section__title { font-size: var(--fs-4); margin-bottom: var(--sp-3); }
+.cs-prose { color: var(--text-2); }
+.cs-prose p { max-width: 68ch; }
+.cs-prose p + p { margin-top: var(--sp-4); }
+.cs-prose b, .cs-prose strong { color: var(--text-1); font-weight: 600; }
+.cs-prose ul { margin: var(--sp-4) 0 0; padding: 0; list-style: none; max-width: 68ch; }
+.cs-prose li { padding-left: var(--sp-5); position: relative; padding-block: 0.3rem; }
+.cs-prose li::before { content: '\25b8'; position: absolute; left: 0; color: var(--accent); opacity: 0.7; }
+
+/* ---------- architecture diagram (centerpiece) ---------- */
+.cs-diagram-wrap {
   display: grid;
-  gap: var(--sp-4);
+  grid-template-columns: minmax(0, 460px) 1fr;
+  gap: var(--sp-8);
+  align-items: start;
+  margin-top: var(--sp-6);
 }
-
-.decisions li {
-  padding: var(--sp-1) 0 var(--sp-1) var(--sp-4);
-  border-left: 2px solid var(--accent-cyan-dim);
-  max-width: 65ch;
+.cs-diagram {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: var(--sp-5);
 }
-
-/* ---------- measured outcomes ---------- */
-.outcome-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--sp-5);
-}
-
-/* ---------- links ---------- */
-.case-study__links ul {
-  list-style: none;
-  margin: 0 0 var(--sp-4);
-  padding: 0;
-  display: grid;
-  gap: var(--sp-2);
-}
-
-.case-study__links a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
-
-/* ---------- architecture diagram ---------- */
-.case-study__diagram {
-  margin: var(--sp-6) 0 var(--sp-4);
-}
-
-.case-study__diagram svg {
-  width: 100%;
-  height: auto;
-  max-width: 440px;
-  margin-inline: auto;
-}
-
-.case-study__diagram figcaption {
+.cs-diagram figcaption {
   margin-top: var(--sp-3);
-  color: var(--text-3);
+  font-family: var(--font-mono);
   font-size: var(--fs-0);
+  color: var(--text-3);
   text-align: center;
 }
+.cs-diagram svg { width: 100%; max-width: 420px; height: auto; display: block; margin-inline: auto; }
 
-/* diagram primitives — colors come from tokens so theme stays single-source */
-.dg-box {
-  fill: var(--bg-1);
-  stroke: var(--line-strong);
+/* diagram SVG element styles — all tint from the page accent */
+.cs-node { fill: var(--bg-2); stroke: var(--accent-dim); stroke-width: 1; }
+.cs-node--hub { fill: var(--accent-wash); stroke: var(--accent); stroke-width: 1.5; }
+.cs-node--cloud { stroke-dasharray: 3 2.5; }
+.cs-nlabel { fill: var(--text-1); font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+.cs-nsub   { fill: var(--text-3); font-family: var(--font-mono); font-size: 8.5px; }
+.cs-tier   { fill: var(--accent); font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; }
+.cs-hublabel { fill: var(--accent); font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+.flow-line { fill: none; stroke: var(--accent-dim); stroke-width: 1.4; }
+.flow-line--fb { stroke: var(--accent-strong); stroke-dasharray: 3 3; stroke-width: 1.2; }
+.flow-arrow { fill: var(--accent-dim); }
+
+/* legend that explains each stage (fills the desktop right column) */
+.cs-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-4); }
+.cs-legend__item { display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3); align-items: start; }
+.cs-legend__n {
+  width: 1.6rem; height: 1.6rem; flex: none;
+  display: grid; place-items: center;
+  border-radius: var(--r-1);
+  background: var(--accent-faint); color: var(--accent);
+  font-family: var(--font-mono); font-size: var(--fs-0); font-weight: 700;
 }
+.cs-legend__term { color: var(--text-1); font-weight: 600; }
+.cs-legend__desc { color: var(--text-2); font-size: var(--fs-1); }
 
-.dg-box--accent {
-  stroke: var(--accent-cyan-dim);
-}
-
-.dg-group {
-  fill: none;
-  stroke: var(--line);
-  stroke-dasharray: 4 4;
-}
-
-.dg-arrow {
-  stroke: var(--accent-cyan);
-  stroke-width: 1.5;
-  fill: none;
-}
-
-.dg-head {
-  fill: var(--accent-cyan);
-}
-
-.dg-t1 {
-  fill: var(--text-1);
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-
-.dg-t2 {
-  fill: var(--text-3);
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-
-.dg-label {
-  fill: var(--accent-cyan);
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-
-/* ---------- next/prev pager ---------- */
-.pager {
-  margin-top: var(--sp-10);
-  padding-block: var(--sp-6) var(--sp-8);
-  border-top: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-4);
-}
-
-.pager__link {
-  display: block;
-  padding: var(--sp-4);
+/* ---------- key decisions ---------- */
+.cs-decisions { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--sp-5); margin-top: var(--sp-6); }
+.cs-decision {
+  background: var(--bg-2);
   border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
   border-radius: var(--r-2);
+  padding: var(--sp-5);
+}
+.cs-decision__k { font-family: var(--font-mono); font-size: var(--fs-0); text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); }
+.cs-decision__choice { font-family: var(--font-display); font-size: var(--fs-2); font-weight: 600; color: var(--text-1); margin-top: var(--sp-2); }
+.cs-decision__vs { color: var(--text-3); font-family: var(--font-mono); font-size: var(--fs-0); margin-top: var(--sp-1); }
+.cs-decision__vs b { color: var(--accent); font-weight: 600; }
+.cs-decision__why { color: var(--text-2); font-size: var(--fs-1); margin-top: var(--sp-3); }
+
+/* ---------- measured outcomes ---------- */
+.cs-outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--sp-5) var(--sp-6); margin-top: var(--sp-6); }
+.cs-outcome { display: grid; gap: var(--sp-1); padding-left: var(--sp-4); border-left: 2px solid var(--accent-dim); }
+.cs-outcome__v { font-family: var(--font-mono); font-weight: 600; font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.2rem); color: var(--text-1); font-variant-numeric: tabular-nums; }
+.cs-outcome__l { color: var(--text-2); font-size: var(--fs-1); }
+.cs-outcome__sub { color: var(--text-3); font-size: var(--fs-0); font-family: var(--font-mono); }
+.cs-outcomes__note { margin-top: var(--sp-6); color: var(--text-3); font-size: var(--fs-0); font-family: var(--font-mono); }
+
+/* ---------- next / related ---------- */
+.cs-next { padding-block: var(--sp-10); }
+.cs-next__card {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-4);
+  padding: var(--sp-6);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
   text-decoration: none;
-  color: var(--text-2);
-  transition: border-color var(--t-fast) var(--ease);
+  transition: border-color var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+.cs-next__card:hover { border-color: var(--accent-dim); transform: translateY(-3px); }
+.cs-next__k { font-family: var(--font-mono); font-size: var(--fs-0); text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); }
+.cs-next__t { font-family: var(--font-display); font-size: var(--fs-3); color: var(--text-1); margin-top: var(--sp-1); }
+.cs-next__go { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--accent); font-weight: 500; }
+.cs-next__card:hover .cs-next__go .ico { transform: translate(2px, -2px); }
+.cs-next__go .ico { transition: transform var(--t-fast) var(--ease); }
+
+/* ---------- diagram stroke-draw reveal ----------
+   No JS or reduced-motion → lines are drawn (visible) by default. Only motion-safe
+   JS clients get the undrawn->drawn animation, triggered when scroll-reveal adds
+   .visible to the figure. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .cs-diagram .flow-line { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 900ms var(--ease); }
+  html.js .cs-diagram.visible .flow-line { stroke-dashoffset: 0; }
 }
 
-.pager__link:hover {
-  border-color: var(--accent-cyan-dim);
-  color: var(--text-2);
+/* ---------- reusable architecture map (layered, for supporting case studies) ---------- */
+.arch-map { display: grid; gap: var(--sp-4); margin-top: var(--sp-6); max-width: 880px; }
+.arch-layer {
+  position: relative;
+  display: grid; grid-template-columns: 152px 1fr; gap: var(--sp-4); align-items: center;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-2);
 }
+.arch-layer:not(:last-child)::after { content: ''; position: absolute; left: 75px; bottom: calc(-1 * var(--sp-4) + 1px); width: 1px; height: var(--sp-4); background: var(--accent-dim); }
+.arch-layer__label { font-family: var(--font-mono); font-size: var(--fs-0); text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+.arch-layer__nodes { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.arch-node { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); background: var(--bg-2); border: 1px solid var(--line-strong); border-radius: var(--r-1); font-family: var(--font-mono); font-size: var(--fs-0); color: var(--text-1); }
+.arch-node .ico { color: var(--accent); font-size: 1em; }
 
-.pager__dir {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: var(--fs-0);
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: var(--sp-1);
+/* ---------- responsive ---------- */
+@media (max-width: 800px) {
+  .cs-diagram-wrap { grid-template-columns: 1fr; gap: var(--sp-6); }
 }
-
-/* chevrons flank the direction label; they inherit its muted tone */
-.pager__dir .ico { font-size: 0.95em; vertical-align: -0.1em; }
-.pager__dir .ico--chevron-left { margin-right: var(--sp-1); }
-.pager__dir .ico--chevron-right { margin-left: var(--sp-1); }
-
-.pager__title {
-  color: var(--text-1);
-  font-weight: 500;
-}
-
-.pager__link--next {
-  text-align: right;
-}
-
-@media (max-width: 540px) {
-  .pager {
-    grid-template-columns: 1fr;
-  }
-
-  .pager__link--next {
-    text-align: left;
-  }
-}
-
-/* narrow screens: let the diagram scroll instead of shrinking labels below legibility */
-@media (max-width: 480px) {
-  .case-study__diagram { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .case-study__diagram svg { min-width: 480px; }
+@media (max-width: 640px) {
+  .arch-layer { grid-template-columns: 1fr; gap: var(--sp-2); }
+  .arch-layer:not(:last-child)::after { left: 50%; }
 }

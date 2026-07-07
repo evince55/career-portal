@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Monitoring Stack — Case Study · Eugene Vincent</title>
-  <meta name="description" content="Production monitoring as code: ArgoCD app-of-apps, External Secrets with Azure Key Vault, cert-manager TLS, a 20-panel Grafana dashboard and 7 alert rules across 5 services.">
+  <title>Aria — Case Study · Eugene Vincent</title>
+  <meta name="description" content="A from-scratch SwiftUI music player: YouTube streaming (backend-mediated) plus a local FLAC/MP3 library, a 10-band parametric EQ on AVAudioEngine, 157 tests, and zero third-party dependencies.">
   <meta name="theme-color" content="#07070b">
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
   <link rel="preload" href="../fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -94,70 +94,76 @@
   </header>
   <main id="main" class="container">
     <nav class="cs-breadcrumb" aria-label="Breadcrumb">
-      <a href="../projects.html">Projects</a><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"></use></svg><span>Monitoring Stack</span>
+      <a href="../projects.html">Projects</a><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"></use></svg><span>Aria</span>
     </nav>
     <header class="cs-hero">
-      <div class="cs-hero__cat"><span class="kicker" style="margin:0"><svg class="ico" aria-hidden="true"><use href="#i-gauge"></use></svg>GitOps · Kubernetes</span></div>
-      <h1 class="cs-hero__title">Monitoring Stack</h1>
-      <p class="cs-hero__thesis">Production monitoring as code — a <b>20-panel</b> Grafana dashboard and <b>7</b> alert rules, every object declared in Git and deployed by ArgoCD.</p>
+      <div class="cs-hero__cat"><span class="kicker" style="margin:0"><svg class="ico" aria-hidden="true"><use href="#i-box"></use></svg>iOS · SwiftUI</span></div>
+      <h1 class="cs-hero__title">Aria</h1>
+      <p class="cs-hero__thesis">A native iOS music player built from scratch — a real <b>10-band parametric EQ</b>, streaming and local playback, <b>157 tests</b>, and zero third-party dependencies.</p>
       <div class="cs-hero__stats">
-        <div class="cs-hstat"><span class="cs-hstat__v">20</span><span class="cs-hstat__l">Grafana panels</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v">7</span><span class="cs-hstat__l">alert rules</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v">5</span><span class="cs-hstat__l">services monitored</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v">157</span><span class="cs-hstat__l">tests across 19 files</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v">0</span><span class="cs-hstat__l">third-party deps</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v">6</span><span class="cs-hstat__l">audio formats</span></div>
       </div>
       <ul class="cs-hero__stack" aria-label="Stack">
-        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-argo"></use></svg>ArgoCD</li>
-        <li class="chip">External Secrets</li>
-        <li class="chip">cert-manager</li>
-        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>kube-prometheus-stack</li>
-        <li class="chip">Loki + Promtail</li>
+        <li class="chip">Swift 5</li>
+        <li class="chip">SwiftUI</li>
+        <li class="chip">AVAudioEngine</li>
+        <li class="chip">MPNowPlayingInfo</li>
+        <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>yt-dlp</li>
       </ul>
     </header>
     <section class="cs-section" aria-labelledby="cs-problem-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-info"></use></svg>The problem</span>
-      <h2 class="cs-section__title" id="cs-problem-h">A monitoring setup you can rebuild from scratch</h2>
+      <h2 class="cs-section__title" id="cs-problem-h">A player I’d actually use, owned end to end</h2>
       <div class="cs-prose">
-        <p>Click-configured dashboards and hand-installed exporters drift the moment you look away, and they’re impossible to reproduce. I wanted the whole observability stack — dashboards, alerts, secrets, TLS — to be a Git repo I could apply to an empty cluster.</p>
-        <p>That meant solving the boring-but-critical parts properly: where secrets come from, how certificates are issued, and how updates roll out without manual steps.</p>
-        
+        <p>I wanted one app that streams from YouTube and plays my local high-quality files, with an equalizer good enough to matter — and I wanted to understand every line of it. So: no third-party packages, and a test suite that lets me refactor audio code without fear.</p>
+        <p>YouTube can’t be embedded cleanly on iOS, and local audio needs careful file handling, so the hard parts were stream resolution, a real EQ signal path, and never losing a user’s library.</p>
+        <ul>
+          <li><strong>Zero dependencies</strong> — everything on Apple frameworks, so the app ages well.</li>
+          <li><strong>iOS 16.6+</strong>, Swift 5, testable managers on <code>@MainActor</code>.</li>
+          <li><strong>No API keys in the app</strong> — YouTube is resolved by a backend I control.</li>
+        </ul>
       </div>
     </section>
     <section class="cs-section" aria-labelledby="cs-arch-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-network"></use></svg>Architecture</span>
-      <h2 class="cs-section__title" id="cs-arch-h">App-of-apps, secrets, TLS, then the stack</h2>
-      <p class="cs-prose">ArgoCD’s app-of-apps pattern owns everything; External Secrets pulls credentials from Azure Key Vault; cert-manager issues TLS; and kube-prometheus-stack plus Loki provide the signals.</p>
-      <div class="arch-map reveal" role="img" aria-label="Layered architecture: ArgoCD app-of-apps GitOps, External Secrets with Azure Key Vault, cert-manager TLS, the kube-prometheus-stack, and Loki with Promtail for logs.">
-        <div class="arch-layer"><span class="arch-layer__label">GitOps</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-argo"></use></svg>ArgoCD app-of-apps</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">Secrets</span><div class="arch-layer__nodes"><span class="arch-node">External Secrets</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-cloud"></use></svg>Azure Key Vault</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">TLS</span><div class="arch-layer__nodes"><span class="arch-node">cert-manager</span><span class="arch-node">Let’s Encrypt</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">Metrics</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>kube-prometheus-stack</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-grafana"></use></svg>Grafana</span></div></div>
-        <div class="arch-layer"><span class="arch-layer__label">Logs</span><div class="arch-layer__nodes"><span class="arch-node">Loki + Promtail</span></div></div>
+      <h2 class="cs-section__title" id="cs-arch-h">Managers, a dual audio path, and a thin backend</h2>
+      <p class="cs-prose">SwiftUI views observe @MainActor managers. A dual playback path routes local files through an AVAudioEngine EQ and streams through AVPlayer; a small Python service resolves YouTube so the app holds no keys.</p>
+      <div class="arch-map reveal" role="img" aria-label="Layered architecture: SwiftUI views, MainActor managers, a dual audio path with AVAudioEngine EQ for local files and AVPlayer for streams, a local library importer, and a Python yt-dlp backend.">
+        <div class="arch-layer"><span class="arch-layer__label">UI</span><div class="arch-layer__nodes"><span class="arch-node">SwiftUI views</span><span class="arch-node">custom tab bar</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">State</span><div class="arch-layer__nodes"><span class="arch-node">PlayerManager</span><span class="arch-node">LibraryViewModel</span><span class="arch-node">LocalLibraryManager</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Audio</span><div class="arch-layer__nodes"><span class="arch-node">AVAudioEngine + 10-band EQ</span><span class="arch-node">AVPlayer (stream)</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Library</span><div class="arch-layer__nodes"><span class="arch-node">import + metadata</span><span class="arch-node">FLAC/MP3/AAC/ALAC/AIFF/WAV</span></div></div>
+        <div class="arch-layer"><span class="arch-layer__label">Backend</span><div class="arch-layer__nodes"><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>Python /api/play</span><span class="arch-node"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>yt-dlp resolver</span></div></div>
       </div>
     </section>
     <section class="cs-section" aria-labelledby="cs-dec-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-git-branch"></use></svg>Key decisions</span>
       <h2 class="cs-section__title" id="cs-dec-h">What I chose, and why</h2>
       <div class="cs-decisions">
-        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">ArgoCD app-of-apps</h3><p class="cs-decision__vs">over <b>many independent app manifests</b></p><p class="cs-decision__why">One root application manages the rest, so the whole stack installs (and uninstalls) as a single, ordered unit.</p></article>
-        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">External Secrets + Key Vault</h3><p class="cs-decision__vs">over <b>secrets committed to Git</b></p><p class="cs-decision__why">Credentials stay in Azure Key Vault and are synced in at runtime — GitOps without leaking secrets into the repo.</p></article>
-        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">cert-manager automation</h3><p class="cs-decision__vs">over <b>manual certificate renewal</b></p><p class="cs-decision__why">Let’s Encrypt certs issue and renew themselves, so TLS never silently expires.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">Zero third-party dependencies</h3><p class="cs-decision__vs">over <b>Swift Package Manager libraries</b></p><p class="cs-decision__why">Everything sits on AVFoundation and SwiftUI, so there’s no supply chain to audit and nothing breaks on an iOS update.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">A dual playback path</h3><p class="cs-decision__vs">over <b>one player for everything</b></p><p class="cs-decision__why">Local files run through an AVAudioEngine EQ graph; streams use AVPlayer. Splitting them keeps the equalizer honest without breaking streaming.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">Backend-mediated YouTube</h3><p class="cs-decision__vs">over <b>an embedded API key</b></p><p class="cs-decision__why">A tiny Python service resolves stream URLs, so the shipped app carries no secret and the resolver can change without an app update.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">157 tests across 19 files</h3><p class="cs-decision__vs">over <b>manual QA</b></p><p class="cs-decision__why">Import, orphan cleanup, EQ transitions, and missing-track routing are all covered, so I can refactor the audio path without regressions.</p></article>
       </div>
     </section>
     <section class="cs-section" aria-labelledby="cs-out-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-bar-chart-3"></use></svg>Measured outcomes</span>
       <h2 class="cs-section__title" id="cs-out-h">The results</h2>
       <div class="cs-outcomes">
-        <div class="cs-outcome"><span class="cs-outcome__v">20</span><span class="cs-outcome__l">Dashboard panels</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v">7</span><span class="cs-outcome__l">Alert rules</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v">5</span><span class="cs-outcome__l">Services</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v">7d</span><span class="cs-outcome__l">Log retention</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">157</span><span class="cs-outcome__l">Automated tests</span><span class="cs-outcome__sub">19 files</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">10-band</span><span class="cs-outcome__l">Parametric EQ</span><span class="cs-outcome__sub">8 presets + per-band</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">0</span><span class="cs-outcome__l">Dependencies</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">6</span><span class="cs-outcome__l">Local formats</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">iOS 16.6+</span><span class="cs-outcome__l">Deployment target</span></div>
       </div>
       
     </section>
     <nav class="cs-next" aria-label="Related project">
-      <a class="cs-next__card" href="minecraft-monitoring.html">
-        <span><span class="cs-next__k">Next project</span><span class="cs-next__t">Minecraft Monitoring</span></span>
-        <span class="cs-next__go">What it all watches <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></span>
+      <a class="cs-next__card" href="audio.html">
+        <span><span class="cs-next__k">Next project</span><span class="cs-next__t">Audio Notes</span></span>
+        <span class="cs-next__go">Where the EQ curves came from <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></span>
       </a>
     </nav>
   </main>

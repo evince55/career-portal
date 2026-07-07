@@ -1,111 +1,123 @@
-/* Contact page — chai-homelab.com v2
-   Consumes css/tokens.css + css/base.css (load those first).
-   Page-specific layout only; shared components come from base.css. */
+/* ============================================================================
+   Contact — chai-homelab.com v3.  Accent = magenta (data-page="contact").
+   Character: PLAYFUL. An interactive terminal/REPL is the primary surface; a
+   plain, accessible email form is the progressive-enhancement baseline beneath
+   it. No JS OR small screen  ->  the terminal hides and the real form shows.
+   ========================================================================== */
 
-.contact-header {
-  padding-block: var(--sp-10) var(--sp-6);
-}
+.contact-head { padding-block: var(--sp-8) var(--sp-5); }
+.contact-head h1 { font-size: var(--fs-5); letter-spacing: -0.02em; }
+.contact-head__sub { margin-top: var(--sp-2); color: var(--text-2); max-width: 60ch; }
 
-.contact-header h1 {
-  font-size: var(--fs-5);
-  margin-bottom: var(--sp-4);
-}
+.contact-stage { display: grid; gap: var(--sp-6); max-width: 760px; }
 
-.contact-lede {
-  color: var(--text-2);
-  max-width: 58ch;
-}
-
-.contact-layout {
-  display: grid;
-  gap: var(--sp-8);
-  align-items: start;
-  padding-bottom: var(--sp-12);
-}
-
-@media (min-width: 768px) {
-  .contact-layout {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  }
-}
-
-.contact-form-block h2,
-.contact-channels h2 {
-  font-size: var(--fs-3);
-  margin-bottom: var(--sp-5);
-}
-
-.contact-form-block form {
-  max-width: 40rem;
-}
-
-textarea.field__input {
-  resize: vertical;
-  min-height: 11rem;
-}
-
-.contact-note {
-  margin-top: var(--sp-4);
-  color: var(--text-3);
-  font-size: var(--fs-0);
-}
-
-/* Submit status region — empty until JS writes to it */
-.form-status {
-  margin-top: var(--sp-5);
-  padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--line);
-  border-inline-start-width: 3px;
-  border-radius: var(--r-1);
-  background: var(--bg-1);
-  font-size: var(--fs-1);
-  color: var(--text-1);
-}
-
-.form-status:empty {
-  display: none;
-}
-
-.form-status--ok {
-  border-inline-start-color: var(--ok);
-}
-
-.form-status--err {
-  border-inline-start-color: var(--err);
-}
-
-/* Direct channels aside (extends .card) */
-.contact-channels__intro {
-  color: var(--text-3);
-  font-size: var(--fs-1);
-  margin-bottom: var(--sp-5);
-}
-
-.contact-channels ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--sp-4);
-}
-
-.contact-channels li {
-  display: flex;
-  flex-direction: column;
-}
-
-.contact-channel__label {
+/* ---------- terminal ---------- */
+.terminal {
+  position: relative;
+  background: #0a0a11;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px var(--accent-faint);
   font-family: var(--font-mono);
-  font-size: var(--fs-0);
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
+/* faint CRT scanlines — decorative, low-contrast, non-interactive */
+.terminal::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent) 0 1px, transparent 1px 3px);
+  opacity: 0.5; pointer-events: none; mix-blend-mode: screen;
+}
+.terminal__bar {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--line);
+}
+.terminal__dots { display: flex; gap: 7px; }
+.terminal__dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--line-strong); }
+.terminal__dots i:first-child { background: var(--accent); }
+.terminal__title { font-size: var(--fs-0); color: var(--text-3); }
+.terminal__skip {
+  margin-left: auto;
+  border: 1px solid var(--line-strong); border-radius: var(--r-1);
+  background: none; color: var(--text-2); font: inherit; font-family: var(--font-mono); font-size: var(--fs-0);
+  padding: var(--sp-1) var(--sp-3); min-height: 32px; cursor: pointer;
+}
+.terminal__skip:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Comfortable touch targets on the channel links */
+.terminal__body {
+  padding: var(--sp-4);
+  min-height: 280px;
+  max-height: 60vh;
+  overflow-y: auto;
+  font-size: var(--fs-1);
+  line-height: 1.65;
+  color: var(--text-2);
+  position: relative; z-index: 1;
+}
+.t-line { white-space: pre-wrap; overflow-wrap: anywhere; }
+.t-line + .t-line { margin-top: 2px; }
+.t-echo { color: var(--text-1); }
+.t-prompt { color: var(--accent); user-select: none; }
+.t-out { color: var(--text-2); }
+.t-out a { color: var(--accent); }
+.t-key { color: var(--accent); }
+.t-err { color: var(--err); }
+.t-muted { color: var(--text-3); }
+.t-gap { height: var(--sp-3); }
+
+.terminal__inputline {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--line);
+  position: relative; z-index: 1;
+}
+.terminal__inputline .t-prompt { flex: none; }
+.terminal__input {
+  flex: 1; min-width: 0;
+  background: none; border: 0; color: var(--text-1);
+  font: inherit; font-family: var(--font-mono); font-size: var(--fs-1);
+  caret-color: var(--accent);
+}
+.terminal__input:focus { outline: none; }
+
+/* ---------- form (progressive baseline) ---------- */
+.contact-form-wrap { scroll-margin-top: 90px; }
+.contact-form-wrap__head { margin-bottom: var(--sp-4); }
+.contact-form-wrap__head h2 { font-size: var(--fs-3); }
+.contact-form-wrap__head p { color: var(--text-3); font-size: var(--fs-1); margin-top: var(--sp-1); }
+.contact-form { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-3); padding: var(--sp-6); }
+.contact-form textarea.field__input { min-height: 130px; resize: vertical; }
+.contact-form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+.contact-form__direct { color: var(--text-3); font-size: var(--fs-1); }
+.contact-form__direct a { color: var(--accent); }
+
+.form-status { display: none; margin-top: var(--sp-4); padding: var(--sp-4); border-radius: var(--r-2); font-size: var(--fs-1); }
+.form-status.is-on { display: block; }
+.form-status.is-ok { background: color-mix(in srgb, var(--ok) 10%, var(--bg-1)); border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent); color: var(--text-1); }
+.form-status.is-err { background: color-mix(in srgb, var(--err) 10%, var(--bg-1)); border: 1px solid color-mix(in srgb, var(--err) 40%, transparent); color: var(--text-1); }
+.form-status a { color: var(--accent); }
+
+/* ---------- other ways to reach ---------- */
+.contact-channels { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
 .contact-channels a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  overflow-wrap: anywhere;
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4); min-height: 44px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-1);
+  color: var(--text-2); text-decoration: none; font-family: var(--font-mono); font-size: var(--fs-1);
+}
+.contact-channels a:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- progressive enhancement gating ----------
+   Default (no JS): terminal hidden, form shown & working (mailto action).
+   With JS: terminal shown; form hidden until a command / the skip button reveals it. */
+html:not(.js) .terminal { display: none; }
+html.js .contact-form-wrap { display: none; }
+html.js .contact-form-wrap.is-revealed { display: block; }
+
+/* Small screens: skip the terminal entirely, show the real form. */
+@media (max-width: 620px) {
+  .terminal { display: none !important; }
+  .contact-form-wrap { display: block !important; }
 }

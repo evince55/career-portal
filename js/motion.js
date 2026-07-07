@@ -1,19 +1,17 @@
-// Motion layer — anime.js v4 (vendored, MIT), loaded ONLY when the page's
-// loader script has already checked prefers-reduced-motion and saveData.
+// Motion layer — vanilla Web Animations API (no library). Loaded ONLY after the
+// page's inline guard has confirmed the client is motion-safe and not saveData,
+// so this module can assume motion is wanted. Zero added payload.
 //
-// Progressive-enhancement contract (same as scroll-reveal.js): this module
-// never relies on CSS that hides content by default. Hidden states are applied
-// here, immediately before an animation that reveals the element, so a failed
-// import or an old browser simply shows the finished page. The hero entrance
-// uses the html.anim class set by an inline guard in <head> (with a 2.5s
-// failsafe that removes it), so there is no flash-then-hide.
-//
-// All durations/eases echo the tokens in css/tokens.css (fast/med/slow feel).
+// Progressive-enhancement contract (same as scroll-reveal.js): hidden states are
+// applied here, right before the animation that reveals them, so a failed import
+// or an old browser simply shows the finished page. The hero entrance uses the
+// html.anim class set by an inline <head> guard (with a 2.5s failsafe that removes
+// it), so there is no flash-then-hide.
 
-import { animate, createTimeline, stagger, svg } from '/js/vendor/anime.esm.min.js';
-import { parseStatValue } from '/js/utils/helpers.js?v=7';
+import { parseStatValue } from './utils/helpers.js';
 
-const ENTER = { threshold: 0.25, rootMargin: '0px 0px -40px 0px' };
+const EASE = 'cubic-bezier(0.2, 0.7, 0.3, 1)'; // mirrors --ease in tokens.css
+const ENTER = { threshold: 0.2, rootMargin: '0px 0px -40px 0px' };
 
 function onEnter(el, run, options = ENTER) {
   const io = new IntersectionObserver((entries) => {
@@ -28,49 +26,48 @@ function onEnter(el, run, options = ENTER) {
 }
 
 /* ---------- hero entrance (index) ---------- */
-
 function initHeroEntrance(doc) {
-  const hero = doc.querySelector('.hero__inner');
+  const hero = doc.querySelector('[data-hero-enter]');
   if (!hero || !doc.documentElement.classList.contains('anim')) return;
 
-  const parts = hero.querySelectorAll(
-    '.kicker, .hero__title, .hero__tagline, .hero__sub, .hero__ctas, .hero__proof .chip'
-  );
-  const tl = createTimeline({
-    defaults: { duration: 650, ease: 'out(3)' },
-    onComplete: () => doc.documentElement.classList.remove('anim')
-  });
-  tl.add(parts, {
-    opacity: [0, 1],
-    translateY: [16, 0],
-    delay: stagger(90)
+  const parts = hero.querySelectorAll('[data-enter]');
+  if (!parts.length) { doc.documentElement.classList.remove('anim'); return; }
+
+  let remaining = parts.length;
+  parts.forEach((el, i) => {
+    const anim = el.animate(
+      [{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 680, delay: i * 90, easing: EASE, fill: 'both' }
+    );
+    anim.onfinish = () => {
+      try { anim.commitStyles(); anim.cancel(); } catch (e) { /* older engines */ }
+      if (--remaining === 0) doc.documentElement.classList.remove('anim');
+    };
   });
 }
 
 /* ---------- count-up stats ([data-count]) ---------- */
-
 function animateCounter(el) {
   const parsed = parseStatValue(el.textContent.trim());
   if (!parsed || parsed.value === 0) return;
-  const state = { n: 0 };
-  animate(state, {
-    n: parsed.value,
-    duration: 1300,
-    ease: 'out(4)',
-    onUpdate: () => {
-      el.textContent = `${parsed.prefix}${state.n.toFixed(parsed.decimals)}${parsed.suffix}`;
-    },
-    onComplete: () => {
-      el.textContent = `${parsed.prefix}${parsed.value.toFixed(parsed.decimals)}${parsed.suffix}`;
-    }
-  });
+  const dur = 1300;
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const eased = 1 - Math.pow(1 - t, 4); // easeOutQuart
+    const n = parsed.value * eased;
+    el.textContent = `${parsed.prefix}${n.toFixed(parsed.decimals)}${parsed.suffix}`;
+    if (t < 1) requestAnimationFrame(tick);
+    else el.textContent = `${parsed.prefix}${parsed.value.toFixed(parsed.decimals)}${parsed.suffix}`;
+  }
+  requestAnimationFrame(tick);
 }
 
 function initCounters(doc) {
   const targets = doc.querySelectorAll('[data-count]');
   if (!targets.length) return;
-  // index.html exposes the live-stats fetch promise so counters animate the
-  // final numbers instead of racing the fetch that rewrites them
+  // index.html exposes the live-stats fetch promise so counters animate the final
+  // numbers instead of racing the fetch that rewrites them.
   const ready = window.__liveReady && typeof window.__liveReady.finally === 'function'
     ? window.__liveReady
     : Promise.resolve();
@@ -80,53 +77,28 @@ function initCounters(doc) {
 }
 
 /* ---------- staggered grid reveals ([data-stagger]) ---------- */
-
 function initStaggerGrids(doc) {
   for (const grid of doc.querySelectorAll('[data-stagger]')) {
     const children = Array.from(grid.children);
     if (!children.length) continue;
     for (const child of children) child.classList.add('stagger-armed');
     onEnter(grid, () => {
-      animate(children, {
-        opacity: [0, 1],
-        translateY: [18, 0],
-        duration: 600,
-        ease: 'out(3)',
-        delay: stagger(80),
-        onComplete: () => children.forEach((c) => c.classList.remove('stagger-armed'))
+      children.forEach((child, i) => {
+        child.classList.remove('stagger-armed');
+        child.animate(
+          [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }],
+          { duration: 620, delay: i * 80, easing: EASE, fill: 'both' }
+        ).onfinish = function () { try { this.commitStyles(); this.cancel(); } catch (e) {} };
       });
     });
   }
 }
 
-/* ---------- case-study diagram line drawing ---------- */
-
-function initDiagramDraw(doc) {
-  for (const fig of doc.querySelectorAll('.case-study__diagram')) {
-    const strokes = fig.querySelectorAll('svg path:not([class*="head"]), svg line, svg polyline');
-    if (!strokes.length) continue;
-    let drawables;
-    try {
-      drawables = svg.createDrawable(strokes);
-    } catch {
-      continue; // malformed SVG — leave the static diagram untouched
-    }
-    onEnter(fig, () => {
-      animate(drawables, {
-        draw: ['0 0', '0 1'],
-        duration: 900,
-        ease: 'inOut(2)',
-        delay: stagger(140)
-      });
-    });
-  }
-}
-
-/** Entry point — safe to call on any page; each feature no-ops without its hooks. */
+/** Entry point — safe on any page; each feature no-ops without its hooks. */
 export function initPageMotion(doc = typeof document === 'undefined' ? null : document) {
   if (!doc) return;
+  if (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   initHeroEntrance(doc);
   initCounters(doc);
   initStaggerGrids(doc);
-  initDiagramDraw(doc);
 }

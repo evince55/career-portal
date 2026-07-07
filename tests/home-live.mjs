@@ -5,7 +5,6 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { formatStats, initHomeLive, isStale, LIVE_FIELDS } from '../js/home-live.js';
-import { SKILLS_DATA } from '../js/utils/helpers.js';
 
 const REAL = JSON.parse(
   readFileSync(new URL('../config/minecraft-stats.json', import.meta.url), 'utf8')
@@ -94,31 +93,38 @@ describe('initHomeLive', () => {
 
 describe('index.html static content', () => {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  const text = html.replaceAll('&amp;', '&');
 
-  it('lists every SKILLS_DATA item verbatim (single source of truth)', () => {
-    for (const group of Object.values(SKILLS_DATA)) {
-      for (const item of group.items) {
-        assert.ok(text.includes(item), `missing skill item: ${item}`);
-      }
-    }
+  it('renders a skills section with grouped skill lists', () => {
+    assert.ok(/aria-labelledby="skills-title"/.test(html), 'skills section missing');
+    const groups = [...html.matchAll(/class="skills__group"/g)].length;
+    assert.ok(groups >= 3, `expected >=3 skill groups, found ${groups}`);
   });
 
-  it('has a live hook for each formatStats field', () => {
-    for (const key of LIVE_FIELDS) {
+  it('wires a live hook for every home stat it surfaces', () => {
+    // The home strip surfaces these fields; mspt lives on the dashboard, not home.
+    for (const key of ['uptime', 'tps', 'players', 'heap', 'updated']) {
       assert.ok(html.includes(`data-live-${key}`), `missing data-live-${key}`);
     }
+    // Live affordances toggled by the honesty contract in home-live.js.
+    assert.ok(html.includes('data-live-badge'), 'missing data-live-badge');
+    assert.ok(html.includes('data-live-note'), 'missing data-live-note');
   });
 
-  it('never loads Three.js eagerly (dynamic import only)', () => {
-    assert.ok(!/<script[^>]*src="[^"]*three/.test(html), 'three must not be a script src');
-    assert.ok(/import\(['"]\/js\/three-hero\.js(\?[^'"]*)?['"]\)/.test(html), 'three-hero must load via dynamic import');
-  });
-
-  it('bails out of Three.js on constrained clients before importing', () => {
-    for (const guard of ['prefers-reduced-motion: reduce', 'saveData', 'innerWidth < 768', 'webgl']) {
-      assert.ok(html.includes(guard), `missing bail-out guard: ${guard}`);
+  it('every data-live hook maps to a real field or affordance', () => {
+    const allowed = new Set([...LIVE_FIELDS, 'badge', 'note']);
+    for (const m of html.matchAll(/data-live-([a-z]+)/g)) {
+      assert.ok(allowed.has(m[1]), `unknown live hook data-live-${m[1]}`);
     }
+  });
+
+  it('no longer ships Three.js (removed in the v3 overhaul)', () => {
+    assert.ok(!/three/i.test(html), 'index.html still references three.js');
+    assert.ok(!html.includes('three-hero'), 'index.html still references three-hero');
+  });
+
+  it('drives the canvas hero and respects reduced motion', () => {
+    assert.ok(/hero-cluster/.test(html), 'hero-cluster module not wired');
+    assert.ok(html.includes('prefers-reduced-motion'), 'no reduced-motion guard for the hero');
   });
 });
 

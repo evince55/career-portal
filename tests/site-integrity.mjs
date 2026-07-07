@@ -49,7 +49,7 @@ describe('site integrity', () => {
 
   it('service worker cache is v14 and every precached asset exists on disk', () => {
     const sw = read('js/service-worker.js');
-    assert.ok(sw.includes("'career-portal-v18'"), 'cache name must be career-portal-v18');
+    assert.ok(sw.includes("'career-portal-v19'"), 'cache name must be career-portal-v19');
     const listMatch = sw.match(/ASSETS_TO_CACHE = \[([\s\S]*?)\]/);
     assert.ok(listMatch, 'ASSETS_TO_CACHE not found');
     const assets = [...listMatch[1].matchAll(/'(\/[^']*)'/g)].map((m) => m[1]).filter((a) => a !== '/');

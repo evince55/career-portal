@@ -2,35 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab</title>
-  <meta name="description" content="CS student (B.S. 2024–2028, AZ-900 certified) who builds and runs production-grade infrastructure at home: k3s, Istio, Prometheus/Grafana, GitOps, Azure. Five systems in production, with live metrics.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Eugene Vincent — DevOps + AI Engineer · Homelab, Live</title>
+  <meta name="description" content="Eugene Vincent — CS student (UIC, AZ-900) who runs a homelab like production: k3s, GitOps, full observability, and a cost-aware local + cloud LLM orchestrator. Live metrics included. Also builds fast websites for local businesses.">
   <link rel="canonical" href="https://chai-homelab.com/">
-  <meta name="theme-color" content="#08080d">
+  <meta name="theme-color" content="#07070b">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://chai-homelab.com/">
-  <meta property="og:title" content="Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab">
-  <meta property="og:description" content="CS student who builds and runs production-grade infrastructure at home: k3s, Istio, Prometheus/Grafana, GitOps, Azure — with live metrics to prove it.">
+  <meta property="og:title" content="Eugene Vincent — DevOps + AI Engineer · Homelab, Live">
+  <meta property="og:description" content="CS student who runs production-grade infrastructure at home — k3s, GitOps, observability, and a cost-aware LLM orchestrator — with live metrics to prove it.">
   <meta property="og:image" content="https://chai-homelab.com/og/card.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Eugene Vincent — full-stack engineer with SRE/DevOps depth. chai-homelab.com">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Eugene Vincent — Full-Stack Engineer · SRE/DevOps Homelab">
-  <meta name="twitter:description" content="CS student who builds and runs production-grade infrastructure at home — with live metrics to prove it.">
-  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
-  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/tokens.css?v=18">
-  <link rel="stylesheet" href="/css/base.css?v=18">
-  <link rel="stylesheet" href="/css/pages/home.css?v=18">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="icons/icon-96.png">
+  <link rel="preload" href="fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/pages/home.css">
   <noscript><style>.reveal { opacity: 1; transform: none; }</style></noscript>
   <script>
-    // Pre-paint guard for the hero entrance: only motion-safe clients get the
-    // hidden initial state, and a failsafe reveals everything after 2.5s even
-    // if js/motion.js never loads.
+    // Pre-paint guard for the hero entrance: only motion-safe, non-saveData clients
+    // get the hidden initial state, and a 2.5s failsafe reveals everything even if
+    // js/motion.js never loads.
     (function () {
       try {
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -40,42 +34,60 @@
       } catch (e) { /* show everything */ }
     })();
   </script>
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Eugene Vincent",
-  "url": "https://chai-homelab.com/",
-  "email": "mailto:eugene.vince55@gmail.com",
-  "jobTitle": "Full-Stack Engineer",
-  "description": "Full-stack engineer with SRE/DevOps depth. Builds and runs production-grade infrastructure — k3s, Istio, Prometheus, Azure — in a self-hosted homelab.",
-  "alumniOf": {
-    "@type": "CollegeOrUniversity",
-    "name": "University of Illinois"
-  },
-  "hasCredential": {
-    "@type": "EducationalOccupationalCredential",
-    "name": "AZ-900: Microsoft Azure Fundamentals"
-  },
-  "sameAs": [
-    "https://github.com/chaitea321",
-    "https://www.linkedin.com/in/eugene-vincent-42472024b"
-  ]
-}
-</script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Eugene Vincent",
+    "url": "https://chai-homelab.com/",
+    "email": "mailto:eugene.vince55@gmail.com",
+    "jobTitle": "DevOps + AI Engineer",
+    "description": "CS student who builds and runs production-grade infrastructure and cost-aware AI systems in a self-hosted homelab.",
+    "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of Illinois Chicago" },
+    "hasCredential": { "@type": "EducationalOccupationalCredential", "name": "AZ-900: Microsoft Azure Fundamentals" },
+    "sameAs": ["https://github.com/chaitea321", "https://www.linkedin.com/in/eugene-vincent-42472024b"]
+  }
+  </script>
 </head>
-<body>
+<body data-page="home">
+  <svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path>
+  <path d="M7 17 17 7"></path></symbol><symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect>
+  <rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect>
+  <line x1="6" x2="6.01" y1="6" y2="6"></line>
+  <line x1="6" x2="6.01" y1="18" y2="18"></line></symbol><symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle>
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+  <path d="M2 12h20"></path></symbol><symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path>
+  <rect x="2" y="4" width="20" height="16" rx="2"></rect></symbol><symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+  <path d="m3.3 7 8.7 5 8.7-5"></path>
+  <path d="M12 22V12"></path></symbol><symbol id="i-cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 10.27 7 3.34"></path>
+  <path d="m11 13.73-4 6.93"></path>
+  <path d="M12 22v-2"></path>
+  <path d="M12 2v2"></path>
+  <path d="M14 12h8"></path>
+  <path d="m17 20.66-1-1.73"></path>
+  <path d="m17 3.34-1 1.73"></path>
+  <path d="M2 12h2"></path>
+  <path d="m20.66 17-1.73-1"></path>
+  <path d="m20.66 7-1.73 1"></path>
+  <path d="m3.34 17 1.73-1"></path>
+  <path d="m3.34 7 1.73 1"></path>
+  <circle cx="12" cy="12" r="2"></circle>
+  <circle cx="12" cy="12" r="8"></circle></symbol><symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle>
+  <path d="M12 16v-4"></path>
+  <path d="M12 8h.01"></path></symbol><symbol id="i-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></symbol><symbol id="i-linkedin" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></symbol><symbol id="i-python" viewBox="0 0 24 24" fill="currentColor"><path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"></path></symbol><symbol id="i-k3s" viewBox="0 0 24 24" fill="currentColor"><path d="M21.46 2.172H2.54A2.548 2.548 0 0 0 0 4.712v14.575a2.548 2.548 0 0 0 2.54 2.54h18.92a2.548 2.548 0 0 0 2.54-2.54V4.713a2.548 2.548 0 0 0-2.54-2.54ZM10.14 16.465 5.524 19.15a1.235 1.235 0 1 1-1.242-2.137L8.9 14.33a1.235 1.235 0 1 1 1.241 2.136zm1.817-4.088h-.006a1.235 1.235 0 0 1-1.23-1.24l.023-5.32a1.236 1.236 0 0 1 1.236-1.23h.005a1.235 1.235 0 0 1 1.23 1.241l-.023 5.32a1.236 1.236 0 0 1-1.235 1.23zm8.17 6.32a1.235 1.235 0 0 1-1.688.453l-4.624-2.67a1.235 1.235 0 1 1 1.235-2.14l4.624 2.67a1.235 1.235 0 0 1 .452 1.688z"></path></symbol><symbol id="i-prometheus" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z"></path></symbol><symbol id="i-grafana" viewBox="0 0 24 24" fill="currentColor"><path d="M23.02 10.59a8.578 8.578 0 0 0-.862-3.034 8.911 8.911 0 0 0-1.789-2.445c.337-1.342-.413-2.505-.413-2.505-1.292-.08-2.113.4-2.416.62-.052-.02-.102-.044-.154-.064-.22-.089-.446-.172-.677-.247-.231-.073-.47-.14-.711-.197a9.867 9.867 0 0 0-.875-.161C14.557.753 12.94 0 12.94 0c-1.804 1.145-2.147 2.744-2.147 2.744l-.018.093c-.098.029-.2.057-.298.088-.138.042-.275.094-.413.143-.138.055-.275.107-.41.166a8.869 8.869 0 0 0-1.557.87l-.063-.029c-2.497-.955-4.716.195-4.716.195-.203 2.658.996 4.33 1.235 4.636a11.608 11.608 0 0 0-.607 2.635C1.636 12.677.953 15.014.953 15.014c1.926 2.214 4.171 2.351 4.171 2.351.003-.002.006-.002.006-.005.285.509.615.994.986 1.446.156.19.32.371.488.548-.704 2.009.099 3.68.099 3.68 2.144.08 3.553-.937 3.849-1.173a9.784 9.784 0 0 0 3.164.501h.08l.055-.003.107-.002.103-.005.003.002c1.01 1.44 2.788 1.646 2.788 1.646 1.264-1.332 1.337-2.653 1.337-2.94v-.058c0-.02-.003-.039-.003-.06.265-.187.52-.387.758-.6a7.875 7.875 0 0 0 1.415-1.7c1.43.083 2.437-.885 2.437-.885-.236-1.49-1.085-2.216-1.264-2.354l-.018-.013-.016-.013a.217.217 0 0 1-.031-.02c.008-.092.016-.18.02-.27.011-.162.016-.323.016-.48v-.253l-.005-.098-.008-.135a1.891 1.891 0 0 0-.01-.13c-.003-.042-.008-.083-.013-.125l-.016-.124-.018-.122a6.215 6.215 0 0 0-2.032-3.73 6.015 6.015 0 0 0-3.222-1.46 6.292 6.292 0 0 0-.85-.048l-.107.002h-.063l-.044.003-.104.008a4.777 4.777 0 0 0-3.335 1.695c-.332.4-.592.84-.768 1.297a4.594 4.594 0 0 0-.312 1.817l.003.091c.005.055.007.11.013.164a3.615 3.615 0 0 0 .698 1.82 3.53 3.53 0 0 0 1.827 1.282c.33.098.66.14.971.137.039 0 .078 0 .114-.002l.063-.003c.02 0 .041-.003.062-.003.034-.002.065-.007.099-.01.007 0 .018-.003.028-.003l.031-.005.06-.008a1.18 1.18 0 0 0 .112-.02c.036-.008.072-.013.109-.024a2.634 2.634 0 0 0 .914-.415c.028-.02.056-.041.085-.065a.248.248 0 0 0 .039-.35.244.244 0 0 0-.309-.06l-.078.042c-.09.044-.184.083-.283.116a2.476 2.476 0 0 1-.475.096c-.028.003-.054.006-.083.006l-.083.002c-.026 0-.054 0-.08-.002l-.102-.006h-.012l-.024.006c-.016-.003-.031-.003-.044-.006-.031-.002-.06-.007-.091-.01a2.59 2.59 0 0 1-.724-.213 2.557 2.557 0 0 1-.667-.438 2.52 2.52 0 0 1-.805-1.475 2.306 2.306 0 0 1-.029-.444l.006-.122v-.023l.002-.031c.003-.021.003-.04.005-.06a3.163 3.163 0 0 1 1.352-2.29 3.12 3.12 0 0 1 .937-.43 2.946 2.946 0 0 1 .776-.101h.06l.07.002.045.003h.026l.07.005a4.041 4.041 0 0 1 1.635.49 3.94 3.94 0 0 1 1.602 1.662 3.77 3.77 0 0 1 .397 1.414l.005.076.003.075c.002.026.002.05.002.075 0 .024.003.052 0 .07v.065l-.002.073-.008.174a6.195 6.195 0 0 1-.08.639 5.1 5.1 0 0 1-.267.927 5.31 5.31 0 0 1-.624 1.13 5.052 5.052 0 0 1-3.237 2.014 4.82 4.82 0 0 1-.649.066l-.039.003h-.287a6.607 6.607 0 0 1-1.716-.265 6.776 6.776 0 0 1-3.4-2.274 6.75 6.75 0 0 1-.746-1.15 6.616 6.616 0 0 1-.714-2.596l-.005-.083-.002-.02v-.056l-.003-.073v-.096l-.003-.104v-.07l.003-.163c.008-.22.026-.45.054-.678a8.707 8.707 0 0 1 .28-1.355c.128-.444.286-.872.473-1.277a7.04 7.04 0 0 1 1.456-2.1 5.925 5.925 0 0 1 .953-.763c.169-.111.343-.213.524-.306.089-.05.182-.091.273-.135.047-.02.093-.042.138-.062a7.177 7.177 0 0 1 .714-.267l.145-.045c.049-.015.098-.026.148-.041.098-.029.197-.052.296-.076.049-.013.1-.02.15-.033l.15-.032.151-.028.076-.013.075-.01.153-.024c.057-.01.114-.013.171-.023l.169-.021c.036-.003.073-.008.106-.01l.073-.008.036-.003.042-.002c.057-.003.114-.008.171-.01l.086-.006h.023l.037-.003.145-.007a7.999 7.999 0 0 1 1.708.125 7.917 7.917 0 0 1 2.048.68 8.253 8.253 0 0 1 1.672 1.09l.09.077.089.078c.06.052.114.107.171.159.057.052.112.106.166.16.052.055.107.107.159.164a8.671 8.671 0 0 1 1.41 1.978c.012.026.028.052.04.078l.04.078.075.156c.023.051.05.1.07.153l.065.15a8.848 8.848 0 0 1 .45 1.34.19.19 0 0 0 .201.142.186.186 0 0 0 .172-.184c.01-.246.002-.532-.024-.856z"></path></symbol><symbol id="i-argo" viewBox="0 0 24 24" fill="currentColor"><path d="M12.581 0c.436.037.871.1 1.299.186 1.679.383 3.121 1.213 4.382 2.365 1.161 1.06 1.917 2.372 2.335 3.881.089.321.216.56.586.624.205.035.238.245.239.43.003.646.002 1.294.002 1.94l-.002 1.21c-.001.356-.116.479-.466.474-.211-.003-.293.119-.344.291-.146.489-.33.966-.552 1.426-.818 1.682-2.084 2.938-3.688 3.87-.077.045-.155.088-.233.131-.252.137-.258.146-.155.415.114.299.358.529.664.625.269.096.553.134.827.21a.672.672 0 0 1 .236.094c-.066.082-.156.067-.231.082-.36.073-.713.184-1.086.17a1.275 1.275 0 0 1-.438-.064c-.114-.045-.152-.006-.176.109a5.354 5.354 0 0 0-.084.92c-.015.617-.071 1.23-.112 1.844-.042.598-.018.651.558.842.281.094.563.187.842.286.069.024.15.038.192.117-.04.057-.098.035-.146.035-.493.003-.985.005-1.478.001-.524-.005-.806-.282-.845-.803-.055-.762-.12-1.524-.182-2.286a.947.947 0 0 0-.026-.12c-.079.455-.065.879-.084 1.298-.023.528-.008 1.057-.007 1.584 0 .27.086.388.335.483.359.135.711.295 1.114.262.141-.012.276.062.402.129.032.017.073.033.069.073-.004.043-.049.047-.084.045-.657-.019-1.317.065-1.972-.028-.323-.046-.533-.236-.631-.552-.094-.303-.114-.617-.137-.93-.046-.626-.078-1.253-.116-1.88a.222.222 0 0 0-.061-.171.282.282 0 0 0-.031.193c-.002.956-.002 1.911-.001 2.866 0 .388.123.575.494.708.481.172.976.298 1.47.423.11.028.225.047.242.192h-1.852c-.051-.01-.103-.022-.155-.03-.701-.1-1.001-.372-1.143-1.042l-.067-.331-.226-1.103c-.069.12-.118.25-.144.386-.083.399-.151.802-.243 1.2-.113.493-.444.763-.932.857l-.33.063H8.558c.057-.171.216-.185.355-.221.476-.127.96-.223 1.417-.409a.603.603 0 0 0 .397-.521c.058-.435.002-.865-.013-1.296a1.528 1.528 0 0 0-.078-.315.405.405 0 0 0-.071.207c-.026.296-.049.591-.075.886-.038.432-.273.716-.679.81a1.702 1.702 0 0 1-.37.045c-.557.003-1.115-.001-1.673-.005-.048 0-.109.019-.148-.065.178-.103.377-.168.582-.187a5.67 5.67 0 0 0 .939-.193c.42-.114.522-.249.512-.687-.023-.931-.091-1.86-.069-2.791.004-.184.001-.368.001-.551a2.387 2.387 0 0 0-.05.385 40.299 40.299 0 0 1-.186 2.623c-.052.513-.296.748-.804.805-.446.051-.889.002-1.332-.02-.108-.006-.234.012-.339-.064.043-.066.106-.07.16-.087.362-.115.725-.224 1.086-.344.246-.081.35-.235.355-.492a2.241 2.241 0 0 0-.003-.232 45.315 45.315 0 0 1-.105-2.149 5.487 5.487 0 0 0-.035-.478c-.024-.188-.131-.287-.295-.258-.505.092-.99-.006-1.473-.139-.059-.016-.134-.007-.178-.088a.986.986 0 0 1 .285-.09c.255-.052.507-.121.753-.208.312-.112.564-.347.695-.651.089-.203.056-.317-.112-.398-1.418-.683-2.512-1.73-3.391-3.017a8.152 8.152 0 0 1-1.123-2.447c-.067-.246-.156-.3-.383-.26-.306.053-.401.006-.535-.273v-3.49c.144-.303.205-.341.534-.329.235.01.247-.004.309-.242.396-1.508 1.082-2.861 2.171-3.988C6.9 1.42 8.523.631 10.34.203c.456-.108.922-.15 1.387-.203h.854Zm7.974 8.948a7.34 7.34 0 0 0-.048-.938 8.353 8.353 0 0 0-.099-.65c-.598-2.964-2.344-5.02-5.051-6.268-1.553-.715-3.21-.835-4.878-.511-3.248.633-5.396 2.583-6.539 5.652-.436 1.173-.495 2.406-.37 3.65.087.935.339 1.846.745 2.694.585 1.213 1.444 2.207 2.477 3.058.343.286.719.528 1.121.719.235.111.247.105.245-.146.006-.16.003-.32-.009-.48-.125-1.02-.142-2.045-.169-3.069a.392.392 0 0 0-.184-.353c-.385-.268-.713-.592-.921-1.019-.474-.97-.372-2.361.813-3.215.136-.097.217-.19.198-.373a1.724 1.724 0 0 1 .031-.442c.177-1.187.748-2.138 1.722-2.84.68-.492 1.442-.772 2.286-.782.483-.007.953.11 1.414.244 1.609.467 2.846 2.07 2.845 3.697a.64.64 0 0 0 .268.565c.463.371.821.83.943 1.426.22 1.077-.083 1.982-.979 2.634-.266.194-.347.406-.333.698.002.047 0 .095-.002.142l-.062 1.439c-.025.586-.138 1.165-.117 1.754.008.223.006.226.201.128a7.46 7.46 0 0 0 2.393-1.903c1.32-1.577 2.074-3.372 2.059-5.511ZM9.117 12.102c1.489.021 2.443-1.578 1.716-2.879a1.937 1.937 0 0 0-1.699-.991c-1.094-.004-1.954.822-1.958 1.881-.005 1.148.813 1.985 1.941 1.989Zm5.794 0c1.101.002 1.935-.823 1.935-1.917 0-1.091-.846-1.949-1.92-1.947-1.064.003-1.94.866-1.943 1.915-.003 1.105.831 1.948 1.928 1.949Zm-1.472 1.937c-.208.128-.407.277-.63.384-.536.257-1.063.257-1.579-.048-.158-.094-.308-.201-.464-.298-.047-.028-.092-.103-.15-.062-.044.03-.01.1-.001.151.037.179.064.362.082.544.027.565.293.992.742 1.31a.984.984 0 0 0 .791.186c.565-.119 1.025-.614 1.124-1.218.043-.266.005-.544.109-.803a.133.133 0 0 0-.024-.146Zm-8.78-4.92c-.012-1.102.143-2.055.54-2.961.633-1.443 1.642-2.553 2.98-3.374a.378.378 0 0 1 .459.067c.06.06.036.118.01.178a1.09 1.09 0 0 1-.48.51c-1.079.639-1.829 1.571-2.357 2.688a6.325 6.325 0 0 0-.618 2.986c.055 1.309.439 2.516 1.213 3.588.088.104.148.23.173.365.01.08.059.168-.031.228a.312.312 0 0 1-.288.041.502.502 0 0 1-.234-.185c-.72-.979-1.193-2.056-1.331-3.273-.036-.326-.004-.653-.036-.858ZM8.94 2.34a.373.373 0 0 1 .378-.382c.211.001.409.226.416.473.004.138-.309.39-.476.386-.189-.005-.318-.2-.318-.477Zm-.465 7.48a.609.609 0 0 1 .586-.631c.38-.003.671.271.675.633.004.356-.27.622-.639.621-.38-.002-.621-.241-.622-.623Zm6.496.623c-.381-.002-.625-.255-.621-.646a.635.635 0 0 1 .596-.613.656.656 0 0 1 .669.643c.001.354-.275.618-.644.616Z"></path></symbol></svg>
   <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="site-nav" data-nav>
     <nav class="container site-nav__inner" aria-label="Primary">
-      <a class="site-nav__brand mono" href="/">EV_</a>
+      <a class="site-nav__brand" href="index.html">EV</a>
       <div class="site-nav__links">
-        <a class="nav-link" href="/" aria-current="page">Home</a>
-        <a class="nav-link" href="/projects.html">Projects</a>
-        <a class="nav-link" href="/dashboard.html">Dashboard</a>
-        <a class="nav-link" href="/contact.html">Contact</a>
-        <button class="nav-link" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="mono">Ctrl K</span></button>
+        <a class="nav-link" href="index.html" aria-current="page">Home</a>
+        <a class="nav-link" href="projects.html">Projects</a>
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="contact.html">Contact</a>
+        <button class="nav-link nav-cmd" data-palette-open aria-label="Open command palette (Ctrl+K)">
+          <span class="nav-cmd__label">Search</span><kbd class="mono">Ctrl K</kbd>
+        </button>
       </div>
     </nav>
   </header>
@@ -85,177 +97,204 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__bg" aria-hidden="true">
         <div class="hero__bg-fallback"></div>
-        <!-- Optional media backdrop (e.g. a Higgsfield export). Drop a poster +
-             video here and it takes over automatically; the WebGL shader is
-             skipped. Keep the poster for reduced-motion / no-autoplay clients:
-             <video class="hero__media" data-hero-media autoplay muted loop
-                    playsinline poster="/img/hero-poster.jpg">
-               <source src="/img/hero.webm" type="video/webm">
-               <source src="/img/hero.mp4" type="video/mp4">
-             </video>
-             (or a plain <img class="hero__media" data-hero-media ...> ) -->
         <canvas id="hero-canvas" class="hero__canvas" hidden></canvas>
         <div class="hero__fade"></div>
       </div>
-      <div class="container hero__inner">
-        <span class="kicker">Aurora, IL · open to internships &amp; early roles</span>
-        <h1 class="hero__title" id="hero-title">Eugene Vincent</h1>
-        <p class="hero__tagline">Full-stack engineer with SRE/DevOps depth.</p>
-        <p class="hero__sub">I build and run production-grade infrastructure — <span class="glow-text">at home</span>. k3s, Istio, Prometheus/Grafana, GitOps, Azure: designed, deployed, and monitored on my own rack.</p>
-        <div class="hero__ctas">
-          <a class="btn btn--primary" href="/projects.html">View projects</a>
-          <a class="btn btn--ghost" href="/contact.html">Contact me</a>
+      <div class="container hero__inner" data-hero-enter>
+        <span class="kicker" data-enter>Aurora, IL · CS @ UIC · open to DevOps + AI internships</span>
+        <h1 class="hero__title" id="hero-title" data-enter>Eugene Vincent</h1>
+        <p class="hero__tagline" data-enter>I build production infrastructure — and the AI that runs on it.</p>
+        <p class="hero__sub" data-enter>A CS student who runs a homelab like production: a k3s cluster with GitOps and full observability, plus a local + cloud LLM orchestrator that routes every task to the cheapest model that can handle it. Everything below is <span class="glow-text">live from the rack</span> under my desk.</p>
+        <div class="hero__ctas" data-enter>
+          <a class="btn btn--primary" href="projects.html">Explore the work</a>
+          <a class="btn btn--ghost" href="contact.html">Get in touch</a>
         </div>
-        <ul class="hero__proof" aria-label="Proof points">
-          <li class="chip"><span class="pulse" data-live-badge hidden aria-hidden="true"></span><span><span data-live-uptime>99.8%</span> Minecraft server uptime</span></li>
+        <ul class="hero__proof" aria-label="Proof points" data-enter>
+          <li class="chip"><span class="pulse" data-live-badge hidden aria-hidden="true"></span><span><span data-live-uptime>99.8%</span> homelab uptime</span></li>
           <li class="chip">AZ-900 certified</li>
           <li class="chip">5 systems in production</li>
-          <li><a class="chip" data-tech="github" href="https://github.com/chaitea321">github.com/chaitea321</a></li>
+          <li><a class="chip" href="https://github.com/chaitea321" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-github"></use></svg>github.com/chaitea321</a></li>
         </ul>
       </div>
     </section>
 
-    <!-- 2 · Featured projects -->
-    <section class="section" aria-labelledby="featured-title">
-      <div class="container reveal">
-        <span class="kicker">Selected work</span>
-        <h2 class="section__title" id="featured-title">Featured projects</h2>
-        <div class="grid-3" data-stagger>
-          <article class="card project-card">
-            <p class="card__meta">Kubernetes · Observability</p>
-            <h3 class="card__title"><a href="/projects/meshwatch.html">MeshWatch</a></h3>
-            <p>Full observability — metrics, logs, traces, AI incident analysis — on one k3s node for <span class="project-card__number">$5.12/mo</span>, 60% cheaper than serverless equivalents.</p>
-            <ul class="project-card__stack" aria-label="Stack">
-              <li class="chip" data-tech="k3s">k3s</li>
-              <li class="chip" data-tech="istio">Istio</li>
-              <li class="chip" data-tech="prometheus">Prometheus</li>
-              <li class="chip">Ollama Phi-3</li>
-            </ul>
-            <p class="project-card__link"><a href="/projects/meshwatch.html">Read the case study<span aria-hidden="true"> →</span></a></p>
-          </article>
-          <article class="card project-card">
-            <p class="card__meta">IoT · Game server</p>
-            <h3 class="card__title"><a href="/projects/minecraft-monitoring.html">Minecraft Monitoring</a></h3>
-            <p>A PaperMC server wired into the cluster's observability stack: <span class="project-card__number">99.8%</span> uptime, automated TPS-drop alerts, and a 10-command Discord bot.</p>
-            <ul class="project-card__stack" aria-label="Stack">
-              <li class="chip">PaperMC</li>
-              <li class="chip">JMX + RCON</li>
-              <li class="chip" data-tech="discord">Discord.py</li>
-              <li class="chip" data-tech="grafana">Grafana</li>
-            </ul>
-            <p class="project-card__link"><a href="/projects/minecraft-monitoring.html">Read the case study<span aria-hidden="true"> →</span></a></p>
-          </article>
-          <article class="card project-card">
-            <p class="card__meta">DevOps · GitOps</p>
-            <h3 class="card__title"><a href="/projects/monitoring-stack.html">Monitoring Stack</a></h3>
-            <p>A <span class="project-card__number">20-panel</span> Grafana dashboard, 7 alert rules across 5 services — every piece declared in Git and deployed by ArgoCD.</p>
-            <ul class="project-card__stack" aria-label="Stack">
-              <li class="chip" data-tech="argo">ArgoCD</li>
-              <li class="chip">cert-manager</li>
-              <li class="chip">External Secrets</li>
-              <li class="chip">Loki</li>
-            </ul>
-            <p class="project-card__link"><a href="/projects/monitoring-stack.html">Read the case study<span aria-hidden="true"> →</span></a></p>
-          </article>
+    <!-- 2 · Live proof strip -->
+    <section class="liveproof section--tight" aria-labelledby="live-title">
+      <div class="container">
+        <div class="liveproof__head">
+          <span class="liveproof__title" id="live-title">
+            <span class="pulse" data-live-badge hidden aria-hidden="true"></span>
+            Live from the rack — <strong>k3s homelab</strong>
+          </span>
+          <span class="liveproof__meta">
+            <span class="mono" data-live-updated>updated every ~10 min</span>
+            <a href="dashboard.html">Open dashboard <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a>
+          </span>
         </div>
-      </div>
-    </section>
-
-    <!-- 3 · The homelab, live -->
-    <section class="section homelab" aria-labelledby="homelab-title">
-      <div class="container reveal">
-        <span class="kicker">Live data</span>
-        <h2 class="section__title" id="homelab-title">The homelab, live</h2>
-        <p class="homelab__lede">These numbers come from the rack under my desk. A cron job publishes fresh cluster stats every ten minutes; this page reads the same JSON the dashboard does.</p>
-        <div class="homelab__stats" data-stagger>
-          <div class="stat">
+        <div class="liveproof__grid" data-stagger>
+          <div class="liveproof__cell stat">
             <span class="stat__value" data-count data-live-uptime>99.8%</span>
             <span class="stat__label">Server uptime</span>
           </div>
-          <div class="stat">
+          <div class="liveproof__cell stat">
             <span class="stat__value" data-count data-live-tps>20</span>
-            <span class="stat__label">Minecraft tick rate (max 20)</span>
+            <span class="stat__label">Minecraft tick rate · max 20</span>
           </div>
-          <div class="stat">
+          <div class="liveproof__cell stat">
             <span class="stat__value" data-count data-live-players>3 / 20</span>
             <span class="stat__label">Players online</span>
           </div>
-          <div class="stat">
-            <span class="stat__value" data-count data-live-mspt>3.4 ms</span>
-            <span class="stat__label">Avg tick time (MSPT)</span>
+          <div class="liveproof__cell stat">
+            <span class="stat__value" data-count data-live-heap>861 / 3072</span>
+            <span class="stat__label">JVM heap · MB</span>
           </div>
         </div>
-        <p class="homelab__updated mono" data-live-badge hidden><span data-live-updated>updated recently</span></p>
-        <p class="homelab__updated mono" data-live-note hidden></p>
-        <p>Prometheus scrapes most services on a 15-second interval; Grafana renders it all in real time.</p>
-        <p class="homelab__cta"><a class="btn btn--ghost" href="/dashboard.html">Open the live dashboard</a></p>
+        <p class="liveproof__note" data-live-note hidden></p>
       </div>
     </section>
 
-    <!-- 4 · Skills (mirrors SKILLS_DATA in js/utils/helpers.js — parity enforced by tests/home-live.mjs) -->
+    <!-- 3 · Dual value proposition -->
+    <section class="section" aria-labelledby="duo-title">
+      <div class="container reveal">
+        <h2 class="visually-hidden" id="duo-title">What I do</h2>
+        <div class="duo">
+          <div class="duo__col">
+            <span class="duo__label"><svg class="ico" aria-hidden="true"><use href="#i-server"></use></svg>For engineering teams</span>
+            <p class="duo__line">I build and run <b>production-grade infrastructure</b> — k3s, GitOps, full observability, and cost-aware local + cloud AI — and I monitor it like it has paying customers.</p>
+          </div>
+          <div class="duo__col">
+            <span class="duo__label"><svg class="ico" aria-hidden="true"><use href="#i-globe"></use></svg>For local businesses</span>
+            <p class="duo__line">I design and build <b>fast, modern websites</b> — like this one — that load instantly, meet accessibility standards, and cost almost nothing to host.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · Featured projects -->
+    <section class="section" aria-labelledby="featured-title">
+      <div class="container reveal">
+        <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-box"></use></svg>Selected work</span>
+        <h2 class="section__title" id="featured-title">Featured projects</h2>
+        <div class="featured__grid" data-stagger>
+
+          <article class="card project-card project-card--flag">
+            <div class="project-card__top">
+              <p class="card__meta">Local AI · Python</p>
+              <span class="project-card__flag">Flagship</span>
+            </div>
+            <h3 class="card__title"><a href="projects/llm-orchestrator.html">LLM Orchestrator</a></h3>
+            <p>Tiered routing across local <span class="project-card__number">Qwen</span> models and Claude Sonnet/Opus, with <span class="project-card__number">cost-per-task</span> tracking, multi-state classification, and silence detection — hybrid local + cloud inference on one AMD RX&nbsp;7600&nbsp;XT.</p>
+            <ul class="project-card__stack" aria-label="Stack">
+              <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>Python</li>
+              <li class="chip">Qwen · llama.cpp</li>
+              <li class="chip">Claude API</li>
+              <li class="chip">ROCm / Vulkan</li>
+            </ul>
+            <p class="project-card__link"><a href="projects/llm-orchestrator.html">Read the case study <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a></p>
+          </article>
+
+          <article class="card project-card">
+            <div class="project-card__top">
+              <p class="card__meta">Kubernetes · Observability</p>
+            </div>
+            <h3 class="card__title"><a href="projects/homelab.html">The Homelab</a></h3>
+            <p>A single-node <span class="project-card__number">k3s</span> cluster running Grafana, Prometheus, Loki and ArgoCD — GitOps-deployed, <span class="project-card__number">99.8%</span> uptime, with a Discord incident-analysis bot. The live metrics above come from it.</p>
+            <ul class="project-card__stack" aria-label="Stack">
+              <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-k3s"></use></svg>k3s</li>
+              <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>Prometheus</li>
+              <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-grafana"></use></svg>Grafana</li>
+              <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-argo"></use></svg>ArgoCD</li>
+            </ul>
+            <p class="project-card__link"><a href="projects/homelab.html">Read the case study <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a></p>
+          </article>
+
+          <article class="card project-card">
+            <div class="project-card__top">
+              <p class="card__meta">iOS · SwiftUI</p>
+            </div>
+            <h3 class="card__title"><a href="projects/aria.html">Aria</a></h3>
+            <p>A from-scratch SwiftUI music player — 10-band parametric EQ, <span class="project-card__number">157 tests</span>, <span class="project-card__number">zero</span> third-party dependencies — backed by a Python/yt-dlp streaming service.</p>
+            <ul class="project-card__stack" aria-label="Stack">
+              <li class="chip">Swift 5</li>
+              <li class="chip">SwiftUI</li>
+              <li class="chip">AVAudioEngine</li>
+              <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>yt-dlp</li>
+            </ul>
+            <p class="project-card__link"><a href="projects/aria.html">Read the case study <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a></p>
+          </article>
+
+        </div>
+        <p class="featured__more"><a class="btn btn--ghost" href="projects.html">See all projects <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a></p>
+      </div>
+    </section>
+
+    <!-- 5 · Skills -->
     <section class="section" aria-labelledby="skills-title">
       <div class="container reveal">
-        <span class="kicker">Toolbox</span>
+        <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-cog"></use></svg>Toolbox</span>
         <h2 class="section__title" id="skills-title">Skills</h2>
         <div class="skills__grid">
           <div class="skills__group">
-            <h3>Cloud</h3>
+            <h3>AI / LLMOps</h3>
             <ul>
-              <li>Azure (Blob Storage, Functions, AKS)</li>
-              <li>Cloudflare (DNS, CDN, Workers)</li>
-              <li>Docker &amp; Kubernetes (k3s, Istio)</li>
+              <li>Local inference — Qwen, quantized models</li>
+              <li>Tiered model routing (local + Claude)</li>
+              <li>Evals & cost-per-task tracking</li>
+              <li>ROCm / Vulkan · KV-cache tuning</li>
             </ul>
           </div>
           <div class="skills__group">
-            <h3>DevOps</h3>
+            <h3>DevOps / SRE</h3>
             <ul>
-              <li>GitHub Actions / CI/CD Pipelines</li>
-              <li>Terraform / Infrastructure as Code</li>
-              <li>Prometheus / Grafana / Loki</li>
-              <li>OpenTelemetry / Distributed Tracing</li>
+              <li>Kubernetes (k3s), Istio service mesh</li>
+              <li>GitOps with ArgoCD</li>
+              <li>Prometheus · Grafana · Loki</li>
+              <li>GitHub Actions CI/CD</li>
             </ul>
           </div>
           <div class="skills__group">
-            <h3>Backend</h3>
+            <h3>Cloud / Platforms</h3>
             <ul>
-              <li>Node.js / Express / NestJS</li>
-              <li>Python (FastAPI, Django)</li>
-              <li>GraphQL / REST APIs</li>
-              <li>PostgreSQL / MongoDB / Redis</li>
+              <li>Azure (Functions, AKS · AZ-900)</li>
+              <li>Cloudflare (Pages, DNS, Workers)</li>
+              <li>Docker · containerd</li>
+              <li>Tailscale mesh VPN</li>
             </ul>
           </div>
           <div class="skills__group">
-            <h3>Frontend</h3>
+            <h3>Languages</h3>
             <ul>
-              <li>React.js / Next.js</li>
-              <li>TypeScript / JavaScript (ES6+)</li>
-              <li>CSS3 / Tailwind / Material UI</li>
-              <li>Progressive Web Apps</li>
+              <li>Python · FastAPI</li>
+              <li>Swift / SwiftUI</li>
+              <li>JavaScript / TypeScript</li>
+              <li>Vanilla web / PWA</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 5 · About -->
+    <!-- 6 · About -->
     <section class="section about" aria-labelledby="about-title">
       <div class="container reveal">
-        <span class="kicker">Background</span>
+        <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-info"></use></svg>Background</span>
         <h2 class="section__title" id="about-title">About</h2>
-        <p>I'm Eugene Vincent, a computer science student who treats his homelab like production: version-controlled, monitored, and alerting me before my users — mostly friends on the Minecraft server — notice anything.</p>
-        <p>Five systems run in that world today: a k3s cluster with Istio mTLS, GitOps deployments through ArgoCD, a Prometheus/Grafana/Loki observability stack, Azure Functions for incident routing — and this site, which deploys to Cloudflare Pages but reads its live stats straight from the rack.</p>
-        <p>I'm looking for internships and early-career roles where reliability and cost-awareness matter.</p>
-        <p class="about__edu mono">B.S. Computer Science, University of Illinois (2024–2028, expected) · AZ-900: Microsoft Azure Fundamentals</p>
+        <div class="about__body">
+          <p>I'm Eugene Vincent, a second-year CS student at UIC who treats a homelab like production: version-controlled, monitored, and alerting me before my users — mostly friends on the Minecraft server — notice anything.</p>
+          <p>Today that rack runs a k3s cluster with GitOps deployments, a full Prometheus/Grafana/Loki observability stack, a Discord incident-analysis bot, and a local + cloud LLM orchestrator that routes each task to the cheapest model that can handle it. This site deploys to Cloudflare Pages but reads its live stats straight from the cluster.</p>
+          <p>I'm looking for DevOps and AI internships where reliability and cost-awareness matter — and I build clean, fast websites for local businesses on the side.</p>
+          <p class="about__edu">B.S. Computer Science, University of Illinois Chicago (expected 2028) · AZ-900: Microsoft Azure Fundamentals</p>
+        </div>
       </div>
     </section>
 
-    <!-- 6 · Contact CTA -->
+    <!-- 7 · Contact CTA -->
     <section class="section contact-cta" aria-labelledby="contact-title">
-      <div class="contact-cta__waves" aria-hidden="true"></div>
+      <div class="contact-cta__glow" aria-hidden="true"></div>
       <div class="container reveal">
-        <h2 class="section__title" id="contact-title">Let's talk</h2>
-        <p>Hiring for an internship or early-career engineering role — or want to swap homelab notes? I read everything and usually reply within a day or two.</p>
-        <a class="btn btn--primary" href="/contact.html">Get in touch</a>
+        <h2 class="section__title" id="contact-title">Let's talk.</h2>
+        <p>Hiring for a DevOps or AI internship, need a website that actually loads fast, or just want to swap homelab notes? I read everything and usually reply within a day or two.</p>
+        <a class="btn btn--primary" href="contact.html">Get in touch</a>
       </div>
     </section>
   </main>
@@ -264,58 +303,53 @@
     <div class="container footer__inner">
       <p>© 2026 Eugene Vincent</p>
       <nav class="footer__links" aria-label="Profiles and contact">
-        <a href="https://github.com/chaitea321" rel="noopener"><span class="ico ico--github" aria-hidden="true"></span>GitHub</a> ·
-        <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener"><span class="ico ico--linkedin" aria-hidden="true"></span>LinkedIn</a> ·
-        <a href="mailto:eugene.vince55@gmail.com"><span class="ico ico--mail" aria-hidden="true"></span>eugene.vince55@gmail.com</a> ·
-        <span>Vanilla JS, no framework — <a href="https://github.com/chaitea321/career-portal" rel="noopener">view source</a></span>
+        <a href="https://github.com/chaitea321" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-github"></use></svg>GitHub</a>
+        <a href="https://linkedin.com/in/eugene-vincent-42472024b" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-linkedin"></use></svg>LinkedIn</a>
+        <a href="mailto:eugene.vince55@gmail.com"><svg class="ico" aria-hidden="true"><use href="#i-mail"></use></svg>eugene.vince55@gmail.com</a>
+        <span>Vanilla JS, zero build — <a href="https://github.com/chaitea321/career-portal" rel="noopener">view source</a></span>
       </nav>
     </div>
   </footer>
 
   <div id="palette-root"></div>
 
-  <script type="module" src="/js/pwa.js?v=18"></script>
-  <script type="module">import '/js/palette.js?v=18';</script>
+  <script type="module">import './js/palette.js';</script>
   <script type="module">
-    // Motion layer (anime.js) — only for clients that want motion
+    // Motion layer — only for clients that want motion.
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
         !(navigator.connection && navigator.connection.saveData)) {
-      import('/js/motion.js?v=18').then((m) => m.initPageMotion()).catch(() => {});
+      import('./js/motion.js').then((m) => m.initPageMotion()).catch(() => {});
     }
   </script>
-
   <script type="module">
-    import { initHomeLive } from '/js/home-live.js?v=18';
-    import { initScrollReveal } from '/js/scroll-reveal.js?v=18';
+    import { initHomeLive } from './js/home-live.js';
+    import { initScrollReveal } from './js/scroll-reveal.js';
     window.__liveReady = initHomeLive();
     initScrollReveal();
   </script>
   <script type="module">
-    // Synthwave hero — lazy, post-LCP, and skipped entirely on constrained
-    // clients. Three.js is never imported unless every check passes.
+    // Living cluster hero — lazy, post-load, skipped on constrained clients.
     const boot = () => {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       if (navigator.connection && navigator.connection.saveData) return;
       if (window.innerWidth < 768) return;
-      // A dropped-in media backdrop (Higgsfield video/image) wins; skip the shader.
-      if (document.querySelector('.hero__bg [data-hero-media]')) return;
       const canvas = document.getElementById('hero-canvas');
       if (!canvas) return;
-      let gl = null;
-      try {
-        const probe = document.createElement('canvas');
-        gl = probe.getContext('webgl2') || probe.getContext('webgl');
-      } catch { gl = null; }
-      if (!gl) return;
-      import('/js/three-hero.js?v=18').then((mod) => {
+      import('./js/hero-cluster.js').then((mod) => {
         canvas.hidden = false;
-        if (mod.initThreeHero(canvas)) canvas.classList.add('is-on');
+        const ctl = mod.initHeroCluster(canvas);
+        if (ctl) { window.__hero = ctl; canvas.classList.add('is-on'); }
       }).catch(() => { canvas.hidden = true; });
     };
     window.addEventListener('load', () => {
-      if ('requestIdleCallback' in window) window.requestIdleCallback(boot, { timeout: 4000 });
-      else setTimeout(boot, 1200);
+      if ('requestIdleCallback' in window) window.requestIdleCallback(boot, { timeout: 3000 });
+      else setTimeout(boot, 1000);
     }, { once: true });
   </script>
+  <script type="module">
+    // hidden design-review Tweaks panel — only ever loads with ?tweaks in the URL
+    if (location.search.includes('tweaks')) import('./js/tweaks.js').then((m) => m.initTweaks()).catch(() => {});
+  </script>
+  <script type="module" src="/js/pwa.js?v=19"></script>
 </body>
 </html>
