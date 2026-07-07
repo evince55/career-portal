@@ -39,8 +39,13 @@ function initHeroEntrance(doc) {
       [{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }],
       { duration: 680, delay: i * 90, easing: EASE, fill: 'both' }
     );
+    // Set the final state explicitly rather than via commitStyles(): on WebKit /
+    // iOS Safari, commitStyles() can bake the *underlying* value (opacity:0 from
+    // the html.anim guard) into inline style and leave the hero permanently
+    // invisible. An inline opacity:1 is engine-proof and can't be reverted.
     anim.onfinish = () => {
-      try { anim.commitStyles(); anim.cancel(); } catch (e) { /* older engines */ }
+      el.style.opacity = '1';
+      el.style.transform = 'none';
       if (--remaining === 0) doc.documentElement.classList.remove('anim');
     };
   });
@@ -92,10 +97,12 @@ function initStaggerGrids(doc) {
     children.forEach((child) => {
       onEnter(child, () => {
         child.classList.remove('stagger-armed');
-        child.animate(
+        const a = child.animate(
           [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }],
           { duration: 620, easing: EASE, fill: 'both' }
-        ).onfinish = function () { try { this.commitStyles(); this.cancel(); } catch (e) {} };
+        );
+        // Explicit final state (not commitStyles — unreliable on WebKit/iOS).
+        a.onfinish = () => { child.style.opacity = '1'; child.style.transform = 'none'; };
       });
     });
   }
