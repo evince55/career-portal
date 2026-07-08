@@ -19,8 +19,16 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-PROM = os.environ.get("PROM_URL", "http://192.168.1.192/prometheus/api/v1/query")
+# Prometheus runs inside the k3s cluster with route-prefix /prometheus. The old
+# ingress URL (http://192.168.1.192/prometheus/...) 404s from the host: that
+# IngressRoute matches on Host: chai-homelab.com, which a bare-IP request can't
+# send, so every query failed and stale values rolled forward. Hit the Prometheus
+# Service ClusterIP directly instead (reachable from the node, no Host needed).
+# If the monitoring stack is reinstalled and this ClusterIP changes, find the new
+# one: kubectl -n monitoring get svc kube-prometheus-stack-prometheus
+PROM = os.environ.get("PROM_URL", "http://10.43.221.93:9090/prometheus/api/v1/query")
 JOB = 'job="minecraft-metrics"'
+FETCH_OK = 0  # live instant-query successes this run — gates the lastUpdated stamp
 HERE = os.path.dirname(os.path.abspath(__file__))
 STATS_PATH = os.path.join(HERE, "..", "config", "minecraft-stats.json")
 
@@ -37,12 +45,16 @@ def parse_instant(text):
 
 
 def fetch(expr, timeout=10):
+    global FETCH_OK
     url = PROM + "?query=" + urllib.parse.quote(expr)
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
-            return parse_instant(resp.read().decode())
+            val = parse_instant(resp.read().decode())
     except Exception:
         return None
+    if val is not None:
+        FETCH_OK += 1
+    return val
 
 
 def parse_range(text):
@@ -86,6 +98,8 @@ def load_base():
 
 
 def build():
+    global FETCH_OK
+    FETCH_OK = 0
     base = load_base()
     m = base.setdefault("metrics", {})
 
@@ -160,7 +174,12 @@ def build():
     }
     base.pop("recentChanges", None)
 
-    base["lastUpdated"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # Honest freshness: only advance the timestamp when we actually pulled at least
+    # one live value this run. If every query failed (e.g. Prometheus unreachable),
+    # keep the previous lastUpdated so the site shows real staleness instead of a
+    # frozen snapshot masquerading as "updated just now".
+    if FETCH_OK:
+        base["lastUpdated"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return base
 
 
