@@ -17,7 +17,7 @@
     "homelab",
     "observability"
   ],
-  "author": "Chaitanya Kumar <evince55>",
+  "author": "Eugene Vincent <evince55>",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.57.0",
