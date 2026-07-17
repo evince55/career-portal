@@ -4,7 +4,7 @@
 // the terminal drives the page and can reveal + focus the form.
 
 const EMAIL = 'eugene.vince55@gmail.com';
-const GITHUB = 'https://github.com/chaitea321';
+const GITHUB = 'https://github.com/evince55';
 const LINKEDIN = 'https://www.linkedin.com/in/eugene-vincent-42472024b';
 const HOMELAB_EPOCH = Date.UTC(2024, 0, 15);
 

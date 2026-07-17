@@ -11,7 +11,7 @@ OR use the API (requires GitHub PAT):
 ```bash
 curl -X POST https://api.github.com/user/repos \
   -H "Accept: application/vnd.github.v3+json" \
-  -u "chaitea321:YOUR_PAT_TOKEN" \
+  -u "evince55:YOUR_PAT_TOKEN" \
   -d '{"name":"career-portal","private":false}'
 ```
 
@@ -21,7 +21,7 @@ curl -X POST https://api.github.com/user/repos \
 cd /home/eugene/career-portal
 
 # Add remote (if not already added)
-git remote add origin https://github.com/chaitea321/career-portal.git
+git remote add origin https://github.com/evince55/career-portal.git
 
 # Push code
 git push -u origin master

@@ -33,7 +33,7 @@ const PROJECT_CATALOG = {
       monthlyCost: '$5.12'
     },
     badges: ['⭐ Production', '🤖 AI-Powered', '💰 Cost-Optimized'],
-    githubUrl: 'https://github.com/chaitea321/meshwatch',
+    githubUrl: 'https://github.com/evince55/meshwatch',
     liveUrl: 'https://chai-homelab.com/grafana',
     keyAchievements: [
       'Reduced monitoring costs by 60% vs serverless alternatives',
@@ -67,7 +67,7 @@ const PROJECT_CATALOG = {
       
     },
     badges: ['⭐ Live', '🎮 Discord Bot', '📊 Real-time'],
-    githubUrl: 'https://github.com/chaitea321/minecraft-monitoring',
+    githubUrl: 'https://github.com/evince55/minecraft-monitoring',
     liveUrl: 'https://chai-homelab.com/grafana/d/minecraft',
     keyAchievements: [
       'Integrated JMX + RCON exporters for real-time Minecraft metrics',
@@ -101,7 +101,7 @@ const PROJECT_CATALOG = {
       accessibilityScore: 'WCAG 2.1 Compliant'
     },
     badges: ['🎯 Synthwave', '♻️ Accessible', '📦 PWA Ready'],
-    githubUrl: 'https://github.com/chaitea321/career-portal',
+    githubUrl: 'https://github.com/evince55/career-portal',
     liveUrl: 'https://chai-homelab.com',
     keyAchievements: [
       'Ctrl+K command palette for keyboard-first navigation',

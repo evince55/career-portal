@@ -1,7 +1,7 @@
 #!/bin/bash
 # Create GitHub repository via API
 
-GITHUB_USER="chaitea321"
+GITHUB_USER="evince55"
 REPO_NAME="career-portal"
 
 echo "Creating GitHub repository: $GITHUB_USER/$REPO_NAME..."

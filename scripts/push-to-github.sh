@@ -3,7 +3,7 @@
 
 set -e
 
-REPO_URL="https://github.com/chaitea321/career-portal.git"
+REPO_URL="https://github.com/evince55/career-portal.git"
 
 echo "Pushing to GitHub..."
 echo ""
@@ -21,10 +21,10 @@ else
     git push -u origin master
   else
     echo "Switching to HTTPS remote..."
-    git remote set-url origin https://github.com/chaitea321/career-portal.git
+    git remote set-url origin https://github.com/evince55/career-portal.git
     git push -u origin master
   fi
 fi
 
 echo ""
-echo "Repository ready at: https://github.com/chaitea321/career-portal"
+echo "Repository ready at: https://github.com/evince55/career-portal"

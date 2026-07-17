@@ -19,7 +19,7 @@ export const PALETTE_COMMANDS = [
       ctx.print(email);
     }
   } },
-  { id: 'view-source', label: 'View source on GitHub', hint: 'action', keywords: ['github', 'repo', 'code'], run: (ctx) => ctx.open('https://github.com/chaitea321/career-portal') },
+  { id: 'view-source', label: 'View source on GitHub', hint: 'action', keywords: ['github', 'repo', 'code'], run: (ctx) => ctx.open('https://github.com/evince55/career-portal') },
   { id: 'whoami', label: 'whoami', hint: 'fun', keywords: ['about', 'eugene'], run: (ctx) => ctx.print('eugene — full-stack engineer, runs production-grade infra at home') },
   { id: 'uptime', label: 'uptime', hint: 'fun', keywords: ['homelab', 'days'], run: (ctx) => {
     const days = Math.floor((Date.now() - HOMELAB_EPOCH) / 86400000);
