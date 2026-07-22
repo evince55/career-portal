@@ -6,6 +6,16 @@
 
 # Service worker must never be long-cached, or clients get stuck on an old
 # version. Kept out of the CDN cache so updates always reach the browser.
+# Lives at the root, not /js/, so its scope covers the whole site — which also
+# means it no longer inherits the /js/* Content-Type rule, and a worker served
+# with a non-JS MIME type refuses to register, so set it explicitly here.
+/service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Content-Type: application/javascript
+
+# Tombstone for the retired /js/-scoped worker. Same no-store rule: if the edge
+# hands a returning visitor's update check the OLD script, the tombstone never
+# installs and that worker keeps intercepting /js/* forever.
 /js/service-worker.js
   Cache-Control: no-cache, no-store, must-revalidate
 

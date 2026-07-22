@@ -48,7 +48,7 @@ describe('site integrity', () => {
   });
 
   it('service worker cache is v21 and every precached asset exists on disk', () => {
-    const sw = read('js/service-worker.js');
+    const sw = read('service-worker.js');
     assert.ok(sw.includes("'career-portal-v21'"), 'cache name must be career-portal-v21');
     const listMatch = sw.match(/ASSETS_TO_CACHE = \[([\s\S]*?)\]/);
     assert.ok(listMatch, 'ASSETS_TO_CACHE not found');
@@ -56,6 +56,53 @@ describe('site integrity', () => {
     assert.ok(assets.length > 20, `implausibly short precache list (${assets.length})`);
     for (const a of assets) {
       assert.ok(onDisk(a.replace(/^\//, '').split('?')[0]), `SW precaches missing file: ${a}`);
+    }
+  });
+
+  it('service worker sits at the site root so its default scope covers every page', () => {
+    // A worker served from /js/ can only ever control /js/* — it never sees a
+    // page navigation, so offline.html can never fire. Root placement gives it
+    // scope '/' with no reliance on a Service-Worker-Allowed header.
+    assert.ok(onDisk('service-worker.js'), 'service-worker.js must live at the site root');
+  });
+
+  it('the old /js/ path keeps a tombstone worker that retires itself', () => {
+    // Returning visitors hold a /js/-scoped registration whose cache-first rule
+    // covers /js/*, so it would keep serving its own stale pwa.js — the very
+    // file carrying the cleanup code. Deleting the script instead 404s its
+    // update check, stranding it. A tombstone is the one path that reliably
+    // retires it: the update check installs this, and it unregisters itself.
+    assert.ok(onDisk('js/service-worker.js'), 'old path must keep a tombstone, not 404');
+    const tomb = read('js/service-worker.js');
+    assert.ok(tomb.includes('registration.unregister()'), 'tombstone must unregister itself');
+    assert.ok(!tomb.includes('ASSETS_TO_CACHE'), 'tombstone must not precache anything');
+    assert.ok(!tomb.includes("addEventListener('fetch'"), 'tombstone must not intercept requests');
+    // It must not delete caches: they are origin-wide, so it would wipe the
+    // live root worker's precache along with its own.
+    assert.ok(!tomb.includes('caches.delete'), 'tombstone must leave the root worker cache alone');
+  });
+
+  it('pwa.js registers the root worker and retires the legacy /js/-scoped one', () => {
+    const pwa = read('js/pwa.js');
+    assert.ok(pwa.includes("register('/service-worker.js"), 'must register the root worker');
+    assert.ok(!pwa.includes("'/js/service-worker.js"), 'must not register the /js/ path any more');
+    // Overlapping scopes resolve most-specific-first, so a leftover /js/
+    // registration would keep intercepting /js/* even once a root one exists.
+    assert.ok(pwa.includes('getRegistrations'), 'must clean up stale narrower registrations');
+  });
+
+  it('_headers keeps both worker scripts out of every cache', () => {
+    const lines = read('_headers').split('\n');
+    // The tombstone needs this as much as the live worker does: if the edge
+    // serves a stale copy of the old script, the update check never sees the
+    // tombstone and the retired worker is never retired.
+    for (const path of ['/service-worker.js', '/js/service-worker.js']) {
+      const at = lines.findIndex((l) => l.trim() === path);
+      assert.ok(at !== -1, `_headers needs a ${path} rule`);
+      assert.ok(
+        lines[at + 1].includes('no-store'),
+        `${path} must be served no-store so clients are never stuck on an old copy`
+      );
     }
   });
 

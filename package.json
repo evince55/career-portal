@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx serve . -l 3000",
-    "build": "npm run lint && npm run test && cp -r js css scripts config icons screenshots .github dist/ && cp index.html manifest.json offline.html dist/ 2>/dev/null || true",
-    "lint": "eslint --config .eslintrc.json js/*.js",
+    "build": "npm run lint && npm run test && cp -r js css scripts config icons screenshots .github dist/ && cp index.html manifest.json offline.html service-worker.js dist/ 2>/dev/null || true",
+    "lint": "eslint --config .eslintrc.json js/*.js service-worker.js",
     "test": "node --test tests/*.mjs",
     "deploy": "npm run build && azure-storage-blob upload"
   },
