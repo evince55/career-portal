@@ -54,7 +54,7 @@ export function initTweaks(doc = document) {
     <div class="tweaks__body">
       <div><div class="tweaks__k">Accent preview</div>
         <div class="tweaks__swatches">${ACCENTS.map(([p, c]) =>
-          `<button class="tweaks__sw" data-p="${p}" style="background:${c}" aria-pressed="${doc.body.dataset.page === p}" aria-label="Preview ${p} accent"></button>`).join('')}
+    `<button class="tweaks__sw" data-p="${p}" style="background:${c}" aria-pressed="${doc.body.dataset.page === p}" aria-label="Preview ${p} accent"></button>`).join('')}
         </div>
       </div>
       <div><div class="tweaks__k">Mesh density</div>

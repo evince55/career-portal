@@ -91,7 +91,7 @@ export function initHeroCluster(canvas) {
     pulses = pulses.filter((p) => p.t < 1);
   }
 
-  function draw(time) {
+  function draw(_time) {
     ctx.clearRect(0, 0, w, h);
 
     // soft focal glow, right of centre (keeps the left dark for hero copy)
