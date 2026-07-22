@@ -183,12 +183,13 @@
               <span class="project-card__flag">Flagship</span>
             </div>
             <h3 class="card__title"><a href="projects/llm-orchestrator.html">LLM Orchestrator</a></h3>
-            <p>Tiered routing across local <span class="project-card__number">Qwen</span> models and Claude Sonnet/Opus, with <span class="project-card__number">cost-per-task</span> tracking, multi-state classification, and silence detection — hybrid local + cloud inference on one AMD RX&nbsp;7600&nbsp;XT.</p>
+            <p>A working replication of NVIDIA's <span class="project-card__number">&ldquo;Small Language Models are the Future of Agentic AI&rdquo;</span> — their six-step LLM&rarr;SLM conversion pipeline, run against my own agent telemetry. Replaying every routing decision in hindsight put <span class="project-card__number">57%</span> of local-tier spend within reach of a 35B model on my own hardware, inside the paper's predicted 40&ndash;70% band.</p>
             <ul class="project-card__stack" aria-label="Stack">
               <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>Python</li>
-              <li class="chip">Qwen · llama.cpp</li>
+              <li class="chip">SLM research replication</li>
+              <li class="chip">llama.cpp · 35B local</li>
               <li class="chip">Claude API</li>
-              <li class="chip">ROCm / Vulkan</li>
+              <li class="chip">evals + telemetry</li>
             </ul>
             <p class="project-card__link"><a href="projects/llm-orchestrator.html">Read the case study <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a></p>
           </article>
@@ -280,7 +281,7 @@
         <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-info"></use></svg>Background</span>
         <h2 class="section__title" id="about-title">About</h2>
         <div class="about__body">
-          <p>I'm Eugene Vincent, a second-year CS student at UIC who treats a homelab like production: version-controlled, monitored, and alerting me before my users — mostly friends on the Minecraft server — notice anything.</p>
+          <p>I'm Eugene Vincent, a third-year CS student at UIC who treats a homelab like production: version-controlled, monitored, and alerting me before my users — mostly friends on the Minecraft server — notice anything.</p>
           <p>Today that rack runs a k3s cluster with GitOps deployments, a full Prometheus/Grafana/Loki observability stack, a Discord incident-analysis bot, and a local + cloud LLM orchestrator that routes each task to the cheapest model that can handle it. This site deploys to Cloudflare Pages but reads its live stats straight from the cluster.</p>
           <p>I'm looking for DevOps and AI internships where reliability and cost-awareness matter — and I build clean, fast websites for local businesses on the side.</p>
           <p class="about__edu">B.S. Computer Science, University of Illinois Chicago (expected 2028) · AZ-900: Microsoft Azure Fundamentals</p>

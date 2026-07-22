@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>LLM Orchestrator — Case Study · Eugene Vincent</title>
-  <meta name="description" content="Case study: a cost-aware Python LLM orchestrator that routes each task to the cheapest capable model — local Qwen first, Claude on the hard tail — with per-task cost telemetry. Hybrid local/cloud inference on an AMD RX 7600 XT.">
+  <meta name="description" content="Case study: replicating NVIDIA's 'Small Language Models are the Future of Agentic AI' on my own agent telemetry — a cost-aware Python router that sends each task to the cheapest capable model, measuring 57% of local-tier spend as SLM-replaceable, inside the paper's predicted 40-70% band.">
   <meta name="theme-color" content="#07070b">
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
   <link rel="preload" href="../fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -108,21 +108,37 @@
         <span class="cs-hero__flag">Flagship</span>
       </div>
       <h1 class="cs-hero__title">LLM Orchestrator</h1>
-      <p class="cs-hero__thesis">A cost-aware router that sends each task to the <b>cheapest model that can actually finish it</b> — local Qwen first, Claude only when it's worth it.</p>
+      <p class="cs-hero__thesis">A working replication of NVIDIA's <b>&ldquo;Small Language Models are the Future of Agentic AI&rdquo;</b> — their six-step LLM&rarr;SLM conversion pipeline, measured against my own agent telemetry instead of a benchmark.</p>
       <div class="cs-hero__stats">
-        <div class="cs-hstat"><span class="cs-hstat__v" data-count>68%</span><span class="cs-hstat__l">resolved on local models</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v" data-count>11×</span><span class="cs-hstat__l">cheaper per resolved task</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v" data-count>92%</span><span class="cs-hstat__l">router classification accuracy</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v" data-count>57%</span><span class="cs-hstat__l">of local-tier spend a 35B could absorb</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v" data-count>66%</span><span class="cs-hstat__l">hindsight-optimal ceiling it was measured against</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v" data-count>0.810</span><span class="cs-hstat__l">routing quality vs a 0.286 random floor</span></div>
       </div>
       <ul class="cs-hero__stack" aria-label="Stack">
         <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>Python</li>
-        <li class="chip">Qwen3.6 · llama.cpp</li>
+        <li class="chip">Ornith-1.0-35B · llama.cpp</li>
         <li class="chip">Claude Sonnet / Opus</li>
         <li class="chip">ROCm / Vulkan</li>
         <li class="chip">JSONL telemetry</li>
         <li class="chip">pytest</li>
       </ul>
     </header>
+
+    <!-- 1.5 · Research basis -->
+    <section class="cs-section" aria-labelledby="cs-research">
+      <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-info"></use></svg>Research basis</span>
+      <h2 class="cs-section__title" id="cs-research">Replicating NVIDIA's SLM-agents paper on my own telemetry</h2>
+      <div class="cs-prose">
+        <p>NVIDIA Research's position paper <em>Small Language Models are the Future of Agentic AI</em> (Belcak et al., <a href="https://arxiv.org/abs/2506.02153" rel="noopener">arXiv:2506.02153</a>) argues that most agent calls don't need a frontier model, and gives a concrete six-step procedure for converting an LLM-backed agent to smaller specialist models: log real usage, curate and strip it, cluster the tasks, pick candidate SLMs, fine-tune, then retrain on a schedule.</p>
+        <p>Rather than take the claim on faith, I ran the procedure against my own agent traffic. Two of the paper's arguments shaped the build directly:</p>
+        <ul>
+          <li><strong>Agentic interactions are the dataset.</strong> The paper treats ordinary usage as the data-collection pathway, so the router logs every decision to a JSONL ledger — that ledger <em>is</em> step one, not an afterthought.</li>
+          <li><strong>Don't judge SLMs on generalist benchmarks.</strong> The paper is explicit that MMLU-style scores mispredict agentic utility, so the evals here score routing decisions on real logged tasks instead.</li>
+        </ul>
+        <p>The headline check was the paper's own estimate that <strong>40&ndash;70%</strong> of LLM calls in published agent systems are SLM-replaceable. Replaying my telemetry in hindsight — asking, for each decision, what the cheapest model that still succeeded would have been — put the ceiling at 66% of local-tier spend. Probing a real 35B against those same tasks brought the defensible figure to <strong>57%</strong>, landing inside the band the paper predicted, on a corpus it never saw.</p>
+        <p class="cs-outcomes__note">Method, caveats and the numbers below are worked through in <a href="https://github.com/evince55/aria-llmops" rel="noopener">evince55/aria-llmops</a>.</p>
+      </div>
+    </section>
 
     <!-- 2 · Problem -->
     <section class="cs-section" aria-labelledby="cs-problem">
@@ -143,10 +159,10 @@
     <section class="cs-section" aria-labelledby="cs-arch">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-network"></use></svg>Architecture</span>
       <h2 class="cs-section__title" id="cs-arch">Tiered routing, local-first inference</h2>
-      <p class="cs-prose">A task is classified, then the router picks the cheapest tier that can handle it. Local Qwen models carry the routine majority; Claude is reserved for the hard tail. Every call is logged, scored, and fed back into the routing decision.</p>
+      <p class="cs-prose">A task is classified, then the router picks the cheapest tier that can handle it. Local models carry the routine majority; Claude is reserved for the hard tail. Every call is logged, scored, and fed back into the routing decision.</p>
       <div class="cs-diagram-wrap">
         <figure class="cs-diagram reveal">
-          <svg viewBox="0 0 360 556" role="img" aria-label="Flow diagram: a task or prompt from Claude Code or opencode is typed by a multi-state classifier with silence detection, then the cost-aware ModelRouter routes it to either the local tier (quantized Qwen 3.6 9B or 35B on an AMD RX 7600 XT via llama.cpp) or the cloud tier (Claude Sonnet or Opus). Both feed a cost monitor that measures dollars per resolved task, then a telemetry ledger (events.jsonl) that drives evals and a dashboard and feeds back to tune the router.">
+          <svg viewBox="0 0 360 556" role="img" aria-label="Flow diagram: a task or prompt from Claude Code or opencode is typed by a multi-state classifier with silence detection, then the cost-aware ModelRouter routes it to either the local tier (quantized 9B or 35B small language model on an AMD RX 7600 XT via llama.cpp) or the cloud tier (Claude Sonnet or Opus). Both feed a cost monitor that measures dollars per resolved task, then a telemetry ledger (events.jsonl) that drives evals and a dashboard and feeds back to tune the router.">
             <!-- connectors (draw-in) -->
             <path class="flow-line" pathLength="1" d="M180 58 V78"></path>
             <path class="flow-line" pathLength="1" d="M180 140 V160"></path>
@@ -193,7 +209,7 @@
             <text class="cs-nlabel" x="96" y="277" text-anchor="middle">Qwen3.6-9B</text>
             <text class="cs-nsub" x="96" y="290" text-anchor="middle">Q4 · fast path</text>
             <rect class="cs-node" x="24" y="306" width="144" height="38" rx="7"></rect>
-            <text class="cs-nlabel" x="96" y="323" text-anchor="middle">Qwen3.6-35B</text>
+            <text class="cs-nlabel" x="96" y="323" text-anchor="middle">Ornith-1.0-35B</text>
             <text class="cs-nsub" x="96" y="336" text-anchor="middle">Q5 · deep path</text>
 
             <!-- CLOUD nodes -->
@@ -242,7 +258,7 @@
         </article>
         <article class="cs-decision">
           <p class="cs-decision__k">Decision</p>
-          <h3 class="cs-decision__choice">4–5-bit quantized Qwen</h3>
+          <h3 class="cs-decision__choice">4–5-bit quantized local models</h3>
           <p class="cs-decision__vs">over <b>full-precision models</b></p>
           <p class="cs-decision__why">Q4/Q5 fits a 14B model into 16 GB of VRAM with usable throughput; evals showed the quality cost was small for routine work.</p>
         </article>
@@ -272,14 +288,14 @@
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-bar-chart-3"></use></svg>Measured outcomes</span>
       <h2 class="cs-section__title" id="cs-outcomes">What the telemetry shows</h2>
       <div class="cs-outcomes">
-        <div class="cs-outcome"><span class="cs-outcome__v" data-count>68%</span><span class="cs-outcome__l">Tasks resolved locally</span><span class="cs-outcome__sub">no cloud call</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v" data-count>11×</span><span class="cs-outcome__l">Cheaper per resolved task</span><span class="cs-outcome__sub">vs cloud-only baseline</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v" data-count>92%</span><span class="cs-outcome__l">Router accuracy</span><span class="cs-outcome__sub">vs labeled eval set</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v" data-count>~42 tok/s</span><span class="cs-outcome__l">Local throughput</span><span class="cs-outcome__sub">Qwen 9B · Q4</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v" data-count>~350 ms</span><span class="cs-outcome__l">First-token latency</span><span class="cs-outcome__sub">local · warm KV-cache</span></div>
-        <div class="cs-outcome"><span class="cs-outcome__v" data-count>9%</span><span class="cs-outcome__l">Escalated to Opus</span><span class="cs-outcome__sub">the hard tail</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v" data-count>66%</span><span class="cs-outcome__l">Hindsight-optimal ceiling</span><span class="cs-outcome__sub">replaying every routing decision</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v" data-count>57%</span><span class="cs-outcome__l">Expected saving, 35B</span><span class="cs-outcome__sub">graded replay of real tasks</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v" data-count>24%</span><span class="cs-outcome__l">Expected saving, 9B</span><span class="cs-outcome__sub">same probe, smaller model</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v" data-count>0.810</span><span class="cs-outcome__l">Routing quality, hybrid</span><span class="cs-outcome__sub">vs 0.762 keyword-only</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v" data-count>0.286</span><span class="cs-outcome__l">Random-assignment floor</span><span class="cs-outcome__sub">what the eval scores against</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v" data-count>21.5s</span><span class="cs-outcome__l">Mean 35B response</span><span class="cs-outcome__sub">faster than the 9B it replaced</span></div>
       </div>
-      <p class="cs-outcomes__note">Measured from the telemetry ledger (events.jsonl) via the eval + cost-replay harness.</p>
+      <p class="cs-outcomes__note">Replayed from the telemetry ledger (events.jsonl) via the eval + cost-replay harness. The savings figures are <em>expected</em> values from graded replays, not money already banked — one large session dominates the pool and grading was single-grader, so the 9B estimate in particular moved from 45% to 24% once I sampled it more than once. The gap between the 9B and 35B columns is the whole argument for measuring rather than assuming.</p>
     </section>
 
     <!-- 6 · Next / related -->

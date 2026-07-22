@@ -21,7 +21,7 @@ function commands(term) {
   <span class="t-key">contact</span>     open the message form
   <span class="t-key">sudo hire-me</span>  the fast path
   <span class="t-key">clear</span>       clear the screen`,
-    whoami: () => `eugene vincent — 2nd-year CS @ UIC, Aurora IL.
+    whoami: () => `eugene vincent — 3rd-year CS @ UIC, Aurora IL.
 builds &amp; runs production-grade infra at home (k3s, GitOps, observability) and cost-aware local+cloud AI.
 open to DevOps + AI internships — and building fast sites for local businesses.`,
     ls: () => 'projects/   dashboard/   about.txt   resume.pdf   contact.form',

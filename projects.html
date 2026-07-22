@@ -149,17 +149,17 @@
             <div class="flaghero__body">
               <p class="pcard__meta"><span class="pcard__cat"><svg class="ico" aria-hidden="true"><use href="#i-cpu"></use></svg>AI / LLMOps</span> <span class="pcard__flagtag">Flagship</span></p>
               <h3 class="pcard__title"><a href="projects/llm-orchestrator.html">LLM Orchestrator</a></h3>
-              <p class="pcard__what">Tiered routing across local <b>Qwen</b> models and Claude Sonnet/Opus with <b>cost-per-task</b> tracking, multi-state classification, and silence detection — hybrid local + cloud inference on one AMD RX&nbsp;7600&nbsp;XT.</p>
+              <p class="pcard__what">A working replication of NVIDIA's <b>&ldquo;Small Language Models are the Future of Agentic AI&rdquo;</b> — their six-step LLM&rarr;SLM conversion pipeline, run against my own agent telemetry. Replaying every routing decision in hindsight put <b>57%</b> of local-tier spend within reach of a 35B model on my own hardware, inside the paper's predicted 40&ndash;70% band.</p>
               <ul class="pcard__stack" aria-label="Stack">
               <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>Python</li>
-              <li class="chip">Qwen · llama.cpp</li>
+              <li class="chip">SLM research replication</li>
+              <li class="chip">llama.cpp · 35B local</li>
               <li class="chip">Claude API</li>
-              <li class="chip">ROCm / Vulkan</li>
               <li class="chip">evals + telemetry</li>
               </ul>
               <span class="pcard__cta">Read the case study <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></span>
             </div>
-            <div class="flaghero__graph"><svg viewBox="0 0 384 200" role="img" aria-label="Model routing: a prompt is classified, then routed to a local Qwen model or Claude in the cloud, tracked by cost per resolved task.">
+            <div class="flaghero__graph"><svg viewBox="0 0 384 200" role="img" aria-label="Model routing: a prompt is classified, then routed to a small language model running locally or to a frontier model in the cloud, tracked by cost per resolved task.">
       <path class="ng-edge" d="M84 100 H120"></path>
       <path class="ng-edge" d="M208 92 C232 92 226 58 250 58"></path>
       <path class="ng-edge" d="M208 108 C232 108 226 150 250 150"></path>
@@ -168,9 +168,9 @@
       <rect class="ng-node ng-node--hub" x="120" y="82" width="88" height="36" rx="7"></rect>
       <text class="ng-label ng-label--accent" x="164" y="104" text-anchor="middle">classifier</text>
       <rect class="ng-node" x="250" y="42" width="124" height="32" rx="7"></rect>
-      <text class="ng-label" x="312" y="62" text-anchor="middle">Qwen · local</text>
+      <text class="ng-label" x="312" y="62" text-anchor="middle">SLM · local</text>
       <rect class="ng-node" x="250" y="134" width="124" height="32" rx="7"></rect>
-      <text class="ng-label" x="312" y="154" text-anchor="middle">Claude · cloud</text>
+      <text class="ng-label" x="312" y="154" text-anchor="middle">LLM · cloud</text>
       <text class="ng-cap" x="312" y="88" text-anchor="middle">cheap · fast</text>
       <text class="ng-cap" x="312" y="184" text-anchor="middle">hard tasks</text>
     </svg></div>

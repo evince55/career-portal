@@ -83,31 +83,30 @@ const PROJECT_CATALOG = {
     slug: 'career-portal',
     outcome: 'Zero-dependency vanilla JS PWA scoring Lighthouse 95+, WCAG 2.1 accessible, hosted free on Cloudflare Pages.',
     caseStudyUrl: '/projects/career-portal.html',
-    description: 'This site: a vanilla JS portfolio PWA with a synthwave design system, command-palette navigation, WCAG 2.1 accessibility, and Azure Functions integration.',
+    description: 'This site: a zero-dependency vanilla JS portfolio PWA with a token-driven dark design system, command-palette navigation, WCAG 2.1 accessibility, and live homelab stats read from a Cloudflare Pages Function.',
     category: 'web',
-    tags: ['portfolio', 'pwa', 'accessibility', 'synthwave'],
+    tags: ['portfolio', 'pwa', 'accessibility', 'offline'],
     techStack: [
-      { name: 'Vanilla JS (ES6)', level: 'Terminal Interface' },
-      { name: 'CSS3 + Animations', level: 'Synthwave Theme' },
-      { name: 'PWA Manifest', level: 'Offline Support' },
-      { name: 'Cloudflare Pages', level: 'Free-tier hosting + CDN' },
-      { name: 'Cloudflare CDN', level: 'Free Tier + SSL' },
-      { name: 'GitHub OAuth', level: 'API Authentication' }
+      { name: 'Vanilla JS (ES6)', level: 'Zero dependencies, no bundler' },
+      { name: 'CSS design tokens', level: 'Per-page accent theming' },
+      { name: 'Service worker', level: 'Root-scope, real offline support' },
+      { name: 'Cloudflare Pages', level: 'Hosting + CDN, deployed by CI' },
+      { name: 'Pages Functions + KV', level: 'Live homelab stats API' }
     ],
     metrics: {
-      testsPassing: 102,
-      commandsAvailable: 25,
+      testsPassing: 143,
+      commandsAvailable: 10,
       lighthouseScore: '95+',
       accessibilityScore: 'WCAG 2.1 Compliant'
     },
-    badges: ['🎯 Synthwave', '♻️ Accessible', '📦 PWA Ready'],
+    badges: ['⚡ Zero-dependency', '♻️ Accessible', '📦 Offline-ready'],
     githubUrl: 'https://github.com/evince55/career-portal',
     liveUrl: 'https://chai-homelab.com',
     keyAchievements: [
       'Ctrl+K command palette for keyboard-first navigation',
-      'PWA support with service worker offline caching',
+      'Root-scoped service worker: pages load fully offline',
       'WCAG 2.1 accessible (ARIA, keyboard nav, screen reader)',
-      'Azure Functions API gateway with GitHub OAuth'
+      'Live homelab metrics via a Cloudflare Pages Function backed by KV'
     ],
     demoNote: 'You are currently viewing this project!'
   },
