@@ -40,7 +40,7 @@ Design contract: `docs/superpowers/specs/2026-07-03-site-redesign-design.md` (sp
 | `motion.js` + `js/vendor/anime.esm.min.js` | anime.js v4 motion layer (hero entrance, count-ups, staggered reveals, diagram line-drawing). Loaded only when motion is allowed; progressive-enhancement contract — never hides content unless the reveal is guaranteed. |
 | `home-live.js` | Fetches minecraft-stats.json for the landing page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/three.module.min.js` | Lazy synthwave hero background on index only. Never loads under reduced-motion/saveData/mobile/no-WebGL. Vendored, version pinned in the file header. |
-| `contact-api.js` | Contact form client — POSTs to Azure Function, falls back to mailto: |
+| `contact.js` | Contact page terminal + accessible form. POSTs to the `/api/contact` Pages Function; on any non-2xx or network error it falls back to the mailto: link the `<form>` already points at, so the no-JS baseline and the JS path reach the same inbox. |
 | `service-worker.js` | PWA cache **`career-portal-v18`**. Network-first for navigations, cache-first (ignoreSearch) for assets. Precache list is validated against disk by `tests/site-integrity.mjs`. |
 | `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | unchanged roles from v1 |
 
@@ -72,12 +72,14 @@ terminal-implementation detail and were removed with the terminal; v2's ~100 ass
 behavior that matters (AA contrast, palette, site integrity, live-stats formatting). The quality
 gate is 'suite green + integrity/token suites present', not raw assertion count. Key suites: `design-tokens.mjs` (AA contrast — the design system's
 guardrail), `site-integrity.mjs` (pages ↔ catalog ↔ service worker ↔ sitemap parity),
-`palette.mjs`, `home-live.mjs`, `project-catalog.mjs`, `contact-api.mjs`, `helpers.mjs`.
+`palette.mjs`, `home-live.mjs`, `project-catalog.mjs`, `contact-endpoint.mjs`, `stats-endpoint.mjs`, `helpers.mjs`.
 
 ## Deployment
 - **Local**: `npm run dev` → http://localhost:3000
 - **Cloudflare Pages**: push to `master` → GitHub Actions runs `npm test` then deploys root dir
-- **Azure Functions**: deploy `azure-functions/` folder separately with Azure CLI
+- **Pages Functions**: `functions/api/{stats,contact}.js` deploy with the site — no separate step.
+  Bindings (`STATS_KV`, `STATS_TOKEN`, `RESEND_API_KEY`) are set in the Cloudflare Pages dashboard;
+  each Function degrades to a clean 503/404 when its bindings are absent rather than throwing.
 
 ## Style Conventions
 - Single quotes, semicolons, 2-space indent (enforced by ESLint)

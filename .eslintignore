@@ -1,3 +1,1 @@
 js/vendor/
-# Azure Functions runtime files are CommonJS deployed separately — outside the site lint scope
-azure-functions/

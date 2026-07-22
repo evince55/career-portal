@@ -63,15 +63,19 @@ Cloudflare Pages (auto-deploy on push to master)
 | `project-catalog.js` | Project metadata + v2 fields (`slug`, `outcome`, `caseStudyUrl`) |
 | `home-live.js` | Landing-page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/` | Lazy synthwave hero background (index only, vendored Three.js) |
-| `contact-api.js` | Contact form client — POSTs to Azure Function, falls back to mailto: |
+| `contact.js` | Contact page terminal + form — POSTs to `/api/contact`, falls back to mailto: |
 | `service-worker.js` | PWA cache `career-portal-v18` |
 | `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | registration, timing metrics, reveal-on-scroll, shared utils |
 
-## Azure Functions
+## Cloudflare Pages Functions
 
-- `portfolio-contact/func.js` — Contact form handler (Resend API, falls back to console log)
-  - Env vars: `RESEND_API_KEY`, `RECIPIENT_EMAIL`, `RESEND_DOMAIN`
-  - Without env vars: logs to console and returns success (offline mode)
+Server code lives in `functions/api/` and is deployed with the site — no separate deploy step.
+
+- `stats.js` — `/api/stats`; GET reads the homelab stats from KV, POST writes them (bearer auth)
+  - Bindings: `STATS_KV`, `STATS_TOKEN`
+- `contact.js` — `/api/contact`; POST validates a submission and relays it via the Resend API
+  - Bindings: `RESEND_API_KEY` (secret), optional `CONTACT_TO`, `CONTACT_DOMAIN`
+  - Without `RESEND_API_KEY` it returns 503 and the form falls back to its mailto: link
 
 ## Config Files
 
@@ -101,7 +105,7 @@ node --test tests/palette.mjs  # single file
 - **Local**: `npm run dev` → http://localhost:3000
 - **Cloudflare Pages**: push to `master` → GitHub Actions runs `npm test` then deploys root dir via `cloudflare/pages-action@v1`
   - Secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
-- **Azure Functions**: deploy `azure-functions/` with Azure CLI; requires `.env` for API keys
+- **Pages Functions**: `functions/api/` ships with the site; set its bindings in the Cloudflare Pages dashboard
 
 ## Style Conventions
 

@@ -91,10 +91,10 @@ const PROJECT_CATALOG = {
       { name: 'CSS design tokens', level: 'Per-page accent theming' },
       { name: 'Service worker', level: 'Root-scope, real offline support' },
       { name: 'Cloudflare Pages', level: 'Hosting + CDN, deployed by CI' },
-      { name: 'Pages Functions + KV', level: 'Live homelab stats API' }
+      { name: 'Pages Functions + KV', level: 'Live stats API + contact relay' }
     ],
     metrics: {
-      testsPassing: 143,
+      testsPassing: 150,
       commandsAvailable: 10,
       lighthouseScore: '95+',
       accessibilityScore: 'WCAG 2.1 Compliant'
