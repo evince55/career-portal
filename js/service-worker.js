@@ -1,4 +1,4 @@
-const CACHE_NAME = 'career-portal-v20';
+const CACHE_NAME = 'career-portal-v21';
 
 // Precache: every page + the design system + module JS + fonts + live-data config.
 // Kept in sync with files on disk by tests/site-integrity.mjs.
