@@ -68,5 +68,10 @@ Then submit the real form at <https://chai-homelab.com/contact.html> and confirm
   runaway paste can't be relayed.
 - The sender's address becomes `reply_to`, so replying from your mail client goes to them, not to
   `contact@chai-homelab.com`.
-- There is no spam protection beyond validation. If the form starts attracting bots, the cheapest
-  next step is a honeypot field in `contact.html` that the Function rejects when filled.
+- Spam protection is a honeypot: `contact.html` carries a hidden `website` input that no person
+  can see, focus, or tab into, and the Function drops any submission that arrives with it filled.
+  A trapped submission gets a **200**, not an error, so a bot can't probe its way around it —
+  which means trapped mail is invisible except in the Function logs. If a real person ever reports
+  sending a message you never received, search the logs for `honeypot tripped` first.
+- The honeypot field name lives in one place (`HONEYPOT` in `functions/api/contact.js`) and
+  `tests/site-integrity.mjs` asserts the markup still matches it, so renaming one side fails CI.

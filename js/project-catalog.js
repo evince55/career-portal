@@ -94,7 +94,7 @@ const PROJECT_CATALOG = {
       { name: 'Pages Functions + KV', level: 'Live stats API + contact relay' }
     ],
     metrics: {
-      testsPassing: 150,
+      testsPassing: 155,
       commandsAvailable: 10,
       lighthouseScore: '95+',
       accessibilityScore: 'WCAG 2.1 Compliant'

@@ -24,7 +24,7 @@ Cloudflare Pages (auto-deploy on push to master)
   │
 ├── Pages: index, projects (+5 case studies), dashboard, contact, offline, 404
 ├── Design system: css/tokens.css (AA contrast, test-enforced) + css/base.css + css/pages/*
-├── PWA service worker (career-portal-v18): network-first pages, cache-first assets
+├── PWA service worker (career-portal-v22): network-first pages, cache-first assets
 ├── Self-hosted fonts (Space Grotesk, JetBrains Mono — variable woff2)
 ├── Lazy Three.js hero (vendored, bails out on reduced-motion/saveData/mobile/no-WebGL)
 └── Azure Function backend for the contact form (Resend API / console fallback)
@@ -64,7 +64,7 @@ Cloudflare Pages (auto-deploy on push to master)
 | `home-live.js` | Landing-page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/` | Lazy synthwave hero background (index only, vendored Three.js) |
 | `contact.js` | Contact page terminal + form — POSTs to `/api/contact`, falls back to mailto: |
-| `service-worker.js` | PWA cache `career-portal-v18` |
+| `service-worker.js` | PWA cache `career-portal-v22` |
 | `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | registration, timing metrics, reveal-on-scroll, shared utils |
 
 ## Cloudflare Pages Functions
@@ -88,7 +88,7 @@ See [AGENTS.md](AGENTS.md) for the full list. Headlines:
 
 - **No build step** — files are copied as-is. Do not add a bundler or transpiler.
 - **Tests use native `node --test`** — no mocha/jest. Tests run in pure Node.
-- **Service worker cache name** is `career-portal-v18` — bump it and `ASSETS_TO_CACHE`
+- **Service worker cache name** is `career-portal-v22` — bump it and `ASSETS_TO_CACHE`
   whenever cached assets change (`tests/site-integrity.mjs` enforces file parity).
 - **Fonts are self-hosted** — no Google Fonts CDN; don't reintroduce render-blocking font CSS.
 - **robots.txt must stay `Allow: /`** — it was accidentally `Disallow: /` until v2.

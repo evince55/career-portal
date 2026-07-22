@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync, existsSync } from 'node:fs';
 import { PROJECT_CATALOG, getProjects } from '../js/project-catalog.js?v=3';
+import { HONEYPOT } from '../functions/api/contact.js';
 
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 const onDisk = (p) => existsSync(new URL(`../${p}`, import.meta.url));
@@ -39,6 +40,22 @@ describe('site integrity', () => {
     }
   });
 
+  it('contact form honeypot matches the name /api/contact drops on, and is hidden from people', () => {
+    const html = read('contact.html');
+    const input = html.match(new RegExp(`<input[^>]*name="${HONEYPOT}"[^>]*>`))?.[0];
+    assert.ok(input, `contact.html: no honeypot input named "${HONEYPOT}" (the Function drops on that name)`);
+    assert.match(input, /tabindex="-1"/, 'honeypot: keyboard users must not be able to tab into it');
+    assert.match(input, /autocomplete="off"/, 'honeypot: autofill would trip it for real people');
+    assert.ok(!/required/.test(input), 'honeypot: must not be required');
+    // The wrapper hides it off-screen AND from assistive tech.
+    const wrapper = html.match(/<div class="visually-hidden" aria-hidden="true">[\s\S]*?<\/div>/)?.[0];
+    assert.ok(wrapper?.includes(`name="${HONEYPOT}"`), 'honeypot: must sit in a visually-hidden, aria-hidden wrapper');
+    // The real fields stay untouched and visible.
+    for (const name of ['name', 'email', 'message']) {
+      assert.ok(new RegExp(`name="${name}"[^>]*required|required[^>]*name="${name}"`).test(html), `contact.html: real field "${name}" missing or no longer required`);
+    }
+  });
+
   it('redirect stubs point old URLs at projects.html', () => {
     for (const stub of ['project-explorer.html', 'writeups.html']) {
       const html = read(stub);
@@ -47,9 +64,9 @@ describe('site integrity', () => {
     }
   });
 
-  it('service worker cache is v21 and every precached asset exists on disk', () => {
+  it('service worker cache is v22 and every precached asset exists on disk', () => {
     const sw = read('service-worker.js');
-    assert.ok(sw.includes("'career-portal-v21'"), 'cache name must be career-portal-v21');
+    assert.ok(sw.includes("'career-portal-v22'"), 'cache name must be career-portal-v22');
     const listMatch = sw.match(/ASSETS_TO_CACHE = \[([\s\S]*?)\]/);
     assert.ok(listMatch, 'ASSETS_TO_CACHE not found');
     const assets = [...listMatch[1].matchAll(/'(\/[^']*)'/g)].map((m) => m[1]).filter((a) => a !== '/');

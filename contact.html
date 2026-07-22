@@ -138,6 +138,14 @@
             <textarea class="field__input" id="cf-message" name="message" required></textarea>
             <span class="field__error" data-err-for="cf-message" aria-live="polite"></span>
           </div>
+          <!-- Honeypot: off-screen, out of the accessibility tree, and untabbable, so no
+               person meets it — only a bot filling every input. /api/contact drops any
+               submission that arrives with it set. Not display:none, so naive scrapers
+               still see it in the DOM. -->
+          <div class="visually-hidden" aria-hidden="true">
+            <label for="cf-website">Leave this field empty</label>
+            <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
           <div class="contact-form__actions">
             <button class="btn btn--primary" type="submit">Send message <svg class="ico" aria-hidden="true"><use href="#i-send"></use></svg></button>
             <span class="contact-form__direct">or email <a href="mailto:eugene.vince55@gmail.com">eugene.vince55@gmail.com</a></span>

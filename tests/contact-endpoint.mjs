@@ -52,6 +52,29 @@ describe('validateContact', () => {
   });
 });
 
+describe('honeypot', () => {
+  it('is not tripped when the field is absent or left empty (the human path)', () => {
+    assert.equal(validateContact(GOOD).trap, false);
+    assert.equal(validateContact(JSON.stringify({ ...JSON.parse(GOOD), website: '' })).trap, false);
+    assert.equal(validateContact(JSON.stringify({ ...JSON.parse(GOOD), website: '   ' })).trap, false);
+  });
+  it('is tripped when the field carries a value', () => {
+    assert.equal(validateContact(JSON.stringify({ ...JSON.parse(GOOD), website: 'http://spam.example' })).trap, true);
+  });
+  it('answers 200 but never calls Resend, so the bot learns nothing', async () => {
+    const body = JSON.stringify({ ...JSON.parse(GOOD), website: 'http://spam.example' });
+    const { result, calls } = await withFetch(ok, () => onRequestPost({ request: postReq(body), env: { RESEND_API_KEY: 'k' } }));
+    assert.equal(result.status, 200);
+    assert.equal((await result.json()).ok, true);
+    assert.equal(calls.length, 0, 'a trapped submission must not be relayed');
+  });
+  it('still relays a submission that merely mentions a URL in the message', async () => {
+    const body = JSON.stringify({ name: 'Dana', email: 'dana@example.com', message: 'see http://example.com' });
+    const { calls } = await withFetch(ok, () => onRequestPost({ request: postReq(body), env: { RESEND_API_KEY: 'k' } }));
+    assert.equal(calls.length, 1);
+  });
+});
+
 describe('onRequestPost', () => {
   it('503 when RESEND_API_KEY is unbound (pre-config: client shows the mailto fallback)', async () => {
     const res = await onRequestPost({ request: postReq(GOOD), env: {} });

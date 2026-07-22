@@ -7,6 +7,9 @@
 const MAX_BODY = 16384;
 const LIMITS = { name: 200, email: 320, subject: 300, message: 5000 };
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+// Hidden field in contact.html that only a bot fills. Exported so tests/site-integrity.mjs
+// can assert the markup and this handler never drift apart.
+export const HONEYPOT = 'website';
 
 const DEFAULT_TO = 'eugene.vince55@gmail.com';
 const DEFAULT_DOMAIN = 'chai-homelab.com';
@@ -25,6 +28,9 @@ export function validateContact(text) {
   out.subject = typeof obj.subject === 'string' && obj.subject.trim()
     ? obj.subject.trim()
     : 'New message from the site';
+  // Filled honeypot => almost certainly a bot. Flagged, not thrown: the caller answers
+  // 200 so the sender learns nothing about why it didn't arrive.
+  out.trap = typeof obj[HONEYPOT] === 'string' && obj[HONEYPOT].trim() !== '';
 
   for (const [key, max] of Object.entries(LIMITS)) {
     if (out[key].length > max) throw new Error(`${key} too long`);
@@ -68,6 +74,13 @@ export async function onRequestPost(context) {
     fields = validateContact(body);
   } catch {
     return json({ error: 'invalid submission' }, 400);
+  }
+
+  // Logged, not silent: if a real submission ever trips this, the Function log is the
+  // only place it will show up — nobody gets an error to report.
+  if (fields.trap) {
+    console.log(`[contact] honeypot tripped, dropped without relaying (from: ${fields.email})`);
+    return json({ ok: true }, 200);
   }
 
   try {
