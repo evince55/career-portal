@@ -179,3 +179,20 @@ describe('relay failure handling', () => {
     assert.ok(!(await result.text()).includes('secret-ish'), 'upstream detail must stay in the log');
   });
 });
+
+describe('default send-from domain', () => {
+  it('defaults to the domain that is actually verified in Resend', async () => {
+    // Resend's free tier allows ONE verified domain, and that slot is used by
+    // aria-websites.org. Sending from any other domain is rejected outright, so
+    // this default is load-bearing: change it and every submission fails with a
+    // 502 that Cloudflare then hides behind its own error page.
+    const capture = () => new Response('{}', { status: 200 });
+    const { calls } = await withFetch(capture, () =>
+      onRequestPost({ request: postReq(GOOD), env: { RESEND_API_KEY: 'k' } }));
+    const sent = JSON.parse(calls[0].init.body);
+    assert.equal(sent.from, 'Portfolio Contact <contact@aria-websites.org>');
+    // The recipient is unrelated to verification — only the From domain matters.
+    assert.equal(sent.to, 'eugene.vince55@gmail.com');
+    assert.equal(sent.reply_to, 'dana@example.com');
+  });
+});

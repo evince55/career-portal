@@ -12,7 +12,11 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 export const HONEYPOT = 'website';
 
 const DEFAULT_TO = 'eugene.vince55@gmail.com';
-const DEFAULT_DOMAIN = 'chai-homelab.com';
+// The send-from domain must be verified in Resend, and the free tier allows
+// exactly one — that slot holds aria-websites.org, not this site's own domain.
+// Only the From domain needs verifying; DEFAULT_TO does not, and reply_to stays
+// the visitor's address, so replies still go where you expect.
+const DEFAULT_DOMAIN = 'aria-websites.org';
 
 // Parse + check a submission. Throws on anything we won't relay; returns the
 // trimmed fields on success. `subject` is optional — the live form omits it.
