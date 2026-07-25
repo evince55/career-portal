@@ -126,3 +126,56 @@ describe('onRequestPost', () => {
     assert.equal(sent.from, 'Portfolio Contact <contact@example.net>');
   });
 });
+
+describe('relay failure handling', () => {
+  // Production hit a platform-level 502 (Cloudflare's own error page) instead of
+  // this handler's JSON, which means the Worker died rather than answering. These
+  // pin down that the handler always answers, whatever Resend or the runtime does.
+
+  it('answers JSON 502 when Resend rejects, and never throws', async () => {
+    const reject = () => new Response('domain not verified', { status: 403 });
+    const { result } = await withFetch(reject, () =>
+      onRequestPost({ request: postReq(GOOD), env: { RESEND_API_KEY: 'k' } }));
+    assert.equal(result.status, 502);
+    assert.equal(result.headers.get('Content-Type'), 'application/json');
+    assert.deepEqual(await result.json(), { error: 'could not send' });
+  });
+
+  it('survives a thrown non-Error, which has no .message to read', async () => {
+    // `catch (err) { err.message }` is itself a crash vector: if err is null or a
+    // string, reading .message throws inside the catch and the Worker 502s.
+    const throwString = () => { throw 'network exploded'; };
+    const { result } = await withFetch(throwString, () =>
+      onRequestPost({ request: postReq(GOOD), env: { RESEND_API_KEY: 'k' } }));
+    assert.equal(result.status, 502);
+    assert.deepEqual(await result.json(), { error: 'could not send' });
+  });
+
+  it('survives a thrown null', async () => {
+    const throwNull = () => { throw null; };
+    const { result } = await withFetch(throwNull, () =>
+      onRequestPost({ request: postReq(GOOD), env: { RESEND_API_KEY: 'k' } }));
+    assert.equal(result.status, 502);
+  });
+
+  it('records the Resend status code so the log says which failure it was', async () => {
+    const reject = () => new Response('domain not verified', { status: 403 });
+    const seen = [];
+    const realErr = console.error;
+    console.error = (...a) => seen.push(a.join(' '));
+    try {
+      await withFetch(reject, () =>
+        onRequestPost({ request: postReq(GOOD), env: { RESEND_API_KEY: 'k' } }));
+    } finally { console.error = realErr; }
+    const line = seen.join('\n');
+    assert.match(line, /403/, `log must carry the Resend status, got: ${line}`);
+    assert.match(line, /domain not verified/, 'log must carry the Resend body');
+  });
+
+  it('never leaks the Resend response to the caller', async () => {
+    const reject = () => new Response('secret-ish upstream detail', { status: 403 });
+    const { result } = await withFetch(reject, () =>
+      onRequestPost({ request: postReq(GOOD), env: { RESEND_API_KEY: 'k' } }));
+    assert.ok(!(await result.text()).includes('secret-ish'), 'upstream detail must stay in the log');
+  });
+});

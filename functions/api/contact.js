@@ -61,7 +61,24 @@ async function sendViaResend(key, to, domain, { name, email, subject, message })
   if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
 }
 
+// `catch (err) { err.message }` is its own crash vector: a thrown null or string
+// has no .message, so reading it throws *inside* the catch, the Worker dies, and
+// Cloudflare serves its generic 502 page instead of this handler's JSON — which
+// is exactly what production did, leaving nothing useful in the log.
+const describeError = (err) => String((err && err.message) || err);
+
 export async function onRequestPost(context) {
+  try {
+    return await relayContact(context);
+  } catch (err) {
+    // Last-resort net. Anything that escapes below still answers as this handler,
+    // so the client sees JSON it can act on and the log names the cause.
+    console.error('[contact] unhandled failure:', describeError(err));
+    return json({ error: 'could not send' }, 502);
+  }
+}
+
+async function relayContact(context) {
   const key = context.env.RESEND_API_KEY;
   // Not configured yet: say so honestly rather than pretending the message landed.
   if (!key) return json({ error: 'contact relay not configured' }, 503);
@@ -86,7 +103,10 @@ export async function onRequestPost(context) {
   try {
     await sendViaResend(key, context.env.CONTACT_TO || DEFAULT_TO, context.env.CONTACT_DOMAIN || DEFAULT_DOMAIN, fields);
   } catch (err) {
-    console.error('[contact] relay failed:', err.message);
+    // sendViaResend throws `Resend <status>: <body>`, so this line carries the
+    // status code and Resend's own explanation — the only diagnosis available
+    // once this is running on Cloudflare. It never reaches the caller.
+    console.error('[contact] relay failed:', describeError(err));
     return json({ error: 'could not send' }, 502);
   }
   return json({ ok: true }, 200);
