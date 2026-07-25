@@ -1,7 +1,7 @@
 # Career Portal — chai-homelab.com
 
 Eugene Vincent's portfolio: a content-first, recruiter-friendly site with a live homelab
-dashboard, built as a zero-dependency vanilla JS + CSS PWA. Redesigned 2026-07 (v2).
+dashboard, built as a vanilla JS + CSS PWA with no runtime dependencies. Redesigned 2026-07 (v2).
 
 ## Quick Start
 

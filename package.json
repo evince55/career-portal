@@ -1,7 +1,7 @@
 {
   "name": "career-portal",
   "version": "1.0.0",
-  "description": "Content-first portfolio with a live homelab dashboard — zero-dependency vanilla JS PWA",
+  "description": "Content-first portfolio with a live homelab dashboard — vanilla JS PWA with no runtime dependencies",
   "type": "module",
   "scripts": {
     "dev": "npx serve . -l 3000",
@@ -21,10 +21,6 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.57.0",
-    "serve": "^14.2.0",
-    "three": "^0.160.0"
-  },
-  "dependencies": {
-    "animejs": "^4.5.0"
+    "serve": "^14.2.0"
   }
 }
