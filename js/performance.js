@@ -41,7 +41,7 @@ class PerformanceMonitor {
           }
         });
         observer.observe({ entryTypes: ['paint'] });
-      } catch (e) {
+      } catch {
         // Ignore observer errors
       }
     }

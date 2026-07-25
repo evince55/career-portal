@@ -4,7 +4,7 @@
 ```bash
 npm run dev        # serve on :3000
 npm test           # run full suite (node --test)
-npm run lint       # ESLint rules in .eslintrc.json
+npm run lint       # ESLint 9 flat config in eslint.config.js
 npm run build      # lint + test, then copy to ../dist/
 ```
 
