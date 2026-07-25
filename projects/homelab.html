@@ -4,7 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The Homelab — Case Study · Eugene Vincent</title>
-  <meta name="description" content="A single-node k3s cluster run like production: GitOps with ArgoCD, full Prometheus/Grafana/Loki observability, Istio mTLS, and a Discord incident bot. 99.8% uptime, $0/mo.">
+  <meta name="description" content="A single-node k3s cluster run like production: GitOps with ArgoCD, full Prometheus/Grafana/Loki observability, Istio mTLS and a Discord incident bot, for $0/month.">
+  <link rel="canonical" href="https://chai-homelab.com/projects/homelab">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://chai-homelab.com/projects/homelab">
+  <meta property="og:title" content="The Homelab — Case Study · Eugene Vincent">
+  <meta property="og:description" content="A single-node k3s cluster run like production: GitOps with ArgoCD, full Prometheus/Grafana/Loki observability, Istio mTLS and a Discord incident bot, for $0/month.">
+  <meta property="og:image" content="https://chai-homelab.com/og/card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Homelab — Case Study · Eugene Vincent">
+  <meta name="twitter:description" content="A single-node k3s cluster run like production: GitOps with ArgoCD, full Prometheus/Grafana/Loki observability, Istio mTLS and a Discord incident bot, for $0/month.">
+  <meta name="twitter:image" content="https://chai-homelab.com/og/card.jpg">
   <meta name="theme-color" content="#07070b">
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
   <link rel="preload" href="../fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -87,6 +97,7 @@
         <a class="nav-link" href="../index.html">Home</a>
         <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
         <a class="nav-link" href="../dashboard.html">Dashboard</a>
+        <a class="nav-link" href="../resume.html">Resume</a>
         <a class="nav-link" href="../contact.html">Contact</a>
         <button class="nav-link nav-cmd" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="nav-cmd__label">Search</span><kbd class="mono">Ctrl K</kbd></button>
       </div>
@@ -101,7 +112,7 @@
       <h1 class="cs-hero__title">The Homelab</h1>
       <p class="cs-hero__thesis">One k3s node under my desk, run like production — <b>GitOps</b>, full observability, and a bot that tells me before my users do.</p>
       <div class="cs-hero__stats">
-        <div class="cs-hstat"><span class="cs-hstat__v">99.8%</span><span class="cs-hstat__l">server uptime</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v" data-live-uptime>95.2%</span><span class="cs-hstat__l">server uptime</span></div>
         <div class="cs-hstat"><span class="cs-hstat__v">5</span><span class="cs-hstat__l">systems in production</span></div>
         <div class="cs-hstat"><span class="cs-hstat__v">$0</span><span class="cs-hstat__l">/mo cloud spend</span></div>
       </div>
@@ -154,7 +165,7 @@
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-bar-chart-3"></use></svg>Measured outcomes</span>
       <h2 class="cs-section__title" id="cs-out-h">The results</h2>
       <div class="cs-outcomes">
-        <div class="cs-outcome"><span class="cs-outcome__v">99.8%</span><span class="cs-outcome__l">Uptime</span><span class="cs-outcome__sub">measured, not claimed</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v" data-live-uptime>95.2%</span><span class="cs-outcome__l">Uptime</span><span class="cs-outcome__sub">live, 7-day average</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v">5</span><span class="cs-outcome__l">Services in prod</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v">20</span><span class="cs-outcome__l">Grafana panels</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v">7</span><span class="cs-outcome__l">Alert rules</span></div>
@@ -186,7 +197,14 @@
       import('../js/motion.js').then((m) => m.initPageMotion()).catch(() => {});
     }
   </script>
-  <script type="module">import { initScrollReveal } from '../js/scroll-reveal.js'; initScrollReveal();</script>
+  <script type="module">
+    import { initScrollReveal } from '../js/scroll-reveal.js';
+    import { initHomeLive } from '../js/home-live.js';
+    // uptime on this page is read from the same live feed as the dashboard,
+    // so the number can never drift from what the cluster actually reports
+    window.__liveReady = initHomeLive();
+    initScrollReveal();
+  </script>
   <script type="module" src="/js/pwa.js?v=19"></script>
 </body>
 </html>

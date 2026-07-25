@@ -115,6 +115,7 @@
 [data-page='projects']  { --accent: var(--accent-projects);  --accent-core: var(--accent-projects-core); }
 [data-page='dashboard'] { --accent: var(--accent-dashboard); --accent-core: var(--accent-dashboard-core); }
 [data-page='contact']   { --accent: var(--accent-contact);   --accent-core: var(--accent-contact-core); }
+[data-page='resume']    { --accent: var(--accent-home);     --accent-core: var(--accent-home-core); }     /* the formal statement of the home page — no new hue */
 
 /* Re-derive the accent tints ON the page element itself. A custom property with a
    var() reference is resolved where it's declared and then inherits that computed

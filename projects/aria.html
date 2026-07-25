@@ -4,7 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Aria — Case Study · Eugene Vincent</title>
-  <meta name="description" content="A from-scratch SwiftUI music player: YouTube streaming (backend-mediated) plus a local FLAC/MP3 library, a 10-band parametric EQ on AVAudioEngine, 157 tests, and zero third-party dependencies.">
+  <meta name="description" content="A from-scratch SwiftUI music player: YouTube streaming plus a local FLAC/MP3 library, a 10-band parametric EQ on AVAudioEngine, zero third-party dependencies.">
+  <link rel="canonical" href="https://chai-homelab.com/projects/aria">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://chai-homelab.com/projects/aria">
+  <meta property="og:title" content="Aria — Case Study · Eugene Vincent">
+  <meta property="og:description" content="A from-scratch SwiftUI music player: YouTube streaming plus a local FLAC/MP3 library, a 10-band parametric EQ on AVAudioEngine, zero third-party dependencies.">
+  <meta property="og:image" content="https://chai-homelab.com/og/card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Aria — Case Study · Eugene Vincent">
+  <meta name="twitter:description" content="A from-scratch SwiftUI music player: YouTube streaming plus a local FLAC/MP3 library, a 10-band parametric EQ on AVAudioEngine, zero third-party dependencies.">
+  <meta name="twitter:image" content="https://chai-homelab.com/og/card.jpg">
   <meta name="theme-color" content="#07070b">
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
   <link rel="preload" href="../fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -87,6 +97,7 @@
         <a class="nav-link" href="../index.html">Home</a>
         <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
         <a class="nav-link" href="../dashboard.html">Dashboard</a>
+        <a class="nav-link" href="../resume.html">Resume</a>
         <a class="nav-link" href="../contact.html">Contact</a>
         <button class="nav-link nav-cmd" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="nav-cmd__label">Search</span><kbd class="mono">Ctrl K</kbd></button>
       </div>
@@ -99,9 +110,9 @@
     <header class="cs-hero">
       <div class="cs-hero__cat"><span class="kicker" style="margin:0"><svg class="ico" aria-hidden="true"><use href="#i-box"></use></svg>iOS · SwiftUI</span></div>
       <h1 class="cs-hero__title">Aria</h1>
-      <p class="cs-hero__thesis">A native iOS music player built from scratch — a real <b>10-band parametric EQ</b>, streaming and local playback, <b>157 tests</b>, and zero third-party dependencies.</p>
+      <p class="cs-hero__thesis">A native iOS music player built from scratch — a real <b>10-band parametric EQ</b>, streaming and local playback, <b>364 tests</b>, and zero third-party dependencies.</p>
       <div class="cs-hero__stats">
-        <div class="cs-hstat"><span class="cs-hstat__v">157</span><span class="cs-hstat__l">tests across 19 files</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v">364</span><span class="cs-hstat__l">tests across 39 files</span></div>
         <div class="cs-hstat"><span class="cs-hstat__v">0</span><span class="cs-hstat__l">third-party deps</span></div>
         <div class="cs-hstat"><span class="cs-hstat__v">6</span><span class="cs-hstat__l">audio formats</span></div>
       </div>
@@ -145,14 +156,14 @@
         <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">Zero third-party dependencies</h3><p class="cs-decision__vs">over <b>Swift Package Manager libraries</b></p><p class="cs-decision__why">Everything sits on AVFoundation and SwiftUI, so there’s no supply chain to audit and nothing breaks on an iOS update.</p></article>
         <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">A dual playback path</h3><p class="cs-decision__vs">over <b>one player for everything</b></p><p class="cs-decision__why">Local files run through an AVAudioEngine EQ graph; streams use AVPlayer. Splitting them keeps the equalizer honest without breaking streaming.</p></article>
         <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">Backend-mediated YouTube</h3><p class="cs-decision__vs">over <b>an embedded API key</b></p><p class="cs-decision__why">A tiny Python service resolves stream URLs, so the shipped app carries no secret and the resolver can change without an app update.</p></article>
-        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">157 tests across 19 files</h3><p class="cs-decision__vs">over <b>manual QA</b></p><p class="cs-decision__why">Import, orphan cleanup, EQ transitions, and missing-track routing are all covered, so I can refactor the audio path without regressions.</p></article>
+        <article class="cs-decision"><p class="cs-decision__k">Decision</p><h3 class="cs-decision__choice">364 tests across 39 files</h3><p class="cs-decision__vs">over <b>manual QA</b></p><p class="cs-decision__why">Import, orphan cleanup, EQ transitions, and missing-track routing are all covered, so I can refactor the audio path without regressions.</p></article>
       </div>
     </section>
     <section class="cs-section" aria-labelledby="cs-out-h">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-bar-chart-3"></use></svg>Measured outcomes</span>
       <h2 class="cs-section__title" id="cs-out-h">The results</h2>
       <div class="cs-outcomes">
-        <div class="cs-outcome"><span class="cs-outcome__v">157</span><span class="cs-outcome__l">Automated tests</span><span class="cs-outcome__sub">19 files</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">364</span><span class="cs-outcome__l">Automated tests</span><span class="cs-outcome__sub">39 files, 0 failures</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v">10-band</span><span class="cs-outcome__l">Parametric EQ</span><span class="cs-outcome__sub">8 presets + per-band</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v">0</span><span class="cs-outcome__l">Dependencies</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v">6</span><span class="cs-outcome__l">Local formats</span></div>

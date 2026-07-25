@@ -1,8 +1,10 @@
 // Fetches homelab stats from the live edge endpoint, falling back to the
 // committed static snapshot. Shared by js/home-live.js and dashboard.html so
 // the fallback logic lives in exactly one place. fetchImpl is injectable for tests.
-const PRIMARY = 'api/stats';
-const FALLBACK = 'config/minecraft-stats.json';
+// Root-absolute on purpose: these are also read from /projects/* case-study
+// pages, where a relative path resolves to /projects/api/stats and 404s.
+const PRIMARY = '/api/stats';
+const FALLBACK = '/config/minecraft-stats.json';
 
 async function getJson(url, timeoutMs, fetchImpl) {
   const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;

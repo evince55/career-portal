@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Projects — Eugene Vincent · System Explorer</title>
   <meta name="description" content="Projects by Eugene Vincent — a filterable, searchable index of AI/LLMOps, homelab infrastructure, iOS, and writing, each with a case study.">
+  <link rel="canonical" href="https://chai-homelab.com/projects">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://chai-homelab.com/projects">
+  <meta property="og:title" content="Projects — Eugene Vincent · System Explorer">
+  <meta property="og:description" content="Projects by Eugene Vincent — a filterable, searchable index of AI/LLMOps, homelab infrastructure, iOS, and writing, each with a case study.">
+  <meta property="og:image" content="https://chai-homelab.com/og/card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Projects — Eugene Vincent · System Explorer">
+  <meta name="twitter:description" content="Projects by Eugene Vincent — a filterable, searchable index of AI/LLMOps, homelab infrastructure, iOS, and writing, each with a case study.">
+  <meta name="twitter:image" content="https://chai-homelab.com/og/card.jpg">
   <meta name="theme-color" content="#07070b">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="preload" href="fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -87,6 +97,7 @@
         <a class="nav-link" href="index.html">Home</a>
         <a class="nav-link" href="projects.html" aria-current="page">Projects</a>
         <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="resume.html">Resume</a>
         <a class="nav-link" href="contact.html">Contact</a>
         <button class="nav-link nav-cmd" data-palette-open aria-label="Open command palette (Ctrl+K)"><span class="nav-cmd__label">Search</span><kbd class="mono">Ctrl K</kbd></button>
       </div>
@@ -176,10 +187,10 @@
     </svg></div>
           </article>
 
-          <article class="card pcard" data-proj-card data-cat="infra" data-search="the homelab infra infrastructure a single-node k3s cluster running grafana, prometheus, loki and argocd — gitops-deployed, 99.8% uptime, with a discord incident-analysis bot. powers the live metrics on this site. k3s prometheus grafana argocd discord">
+          <article class="card pcard" data-proj-card data-cat="infra" data-search="the homelab infra infrastructure a single-node k3s cluster running grafana, prometheus, loki and argocd — gitops-deployed, live% uptime, with a discord incident-analysis bot. powers the live metrics on this site. k3s prometheus grafana argocd discord">
             <p class="pcard__meta"><span class="pcard__cat"><svg class="ico" aria-hidden="true"><use href="#i-server"></use></svg>Infrastructure</span></p>
             <h3 class="pcard__title"><a href="projects/homelab.html">The Homelab</a></h3>
-            <p class="pcard__what">A single-node <b>k3s</b> cluster running Grafana, Prometheus, Loki and ArgoCD — GitOps-deployed, <b>99.8%</b> uptime, with a Discord incident-analysis bot. Powers the live metrics on this site.</p>
+            <p class="pcard__what">A single-node <b>k3s</b> cluster running Grafana, Prometheus, Loki and ArgoCD — GitOps-deployed, <b data-live-uptime>95.2%</b> uptime, with a Discord incident-analysis bot. Powers the live metrics on this site.</p>
             <ul class="pcard__stack" aria-label="Stack">
               <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-k3s"></use></svg>k3s</li>
               <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-prometheus"></use></svg>Prometheus</li>
@@ -190,10 +201,10 @@
             <span class="pcard__cta">Case study <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></span>
           </article>
 
-          <article class="card pcard" data-proj-card data-cat="ios" data-search="aria ios ios a from-scratch swiftui music player — 10-band parametric eq, 157 tests, zero third-party dependencies — backed by a python/yt-dlp streaming service. swift 5 swiftui avaudioengine yt-dlp">
+          <article class="card pcard" data-proj-card data-cat="ios" data-search="aria ios ios a from-scratch swiftui music player — 10-band parametric eq, 364 tests, zero third-party dependencies — backed by a python/yt-dlp streaming service. swift 5 swiftui avaudioengine yt-dlp">
             <p class="pcard__meta"><span class="pcard__cat"><svg class="ico" aria-hidden="true"><use href="#i-box"></use></svg>iOS</span></p>
             <h3 class="pcard__title"><a href="projects/aria.html">Aria</a></h3>
-            <p class="pcard__what">A from-scratch SwiftUI music player — 10-band parametric EQ, <b>157 tests</b>, <b>zero</b> third-party dependencies — backed by a Python/yt-dlp streaming service.</p>
+            <p class="pcard__what">A from-scratch SwiftUI music player — 10-band parametric EQ, <b>364 tests</b>, <b>zero</b> third-party dependencies — backed by a Python/yt-dlp streaming service.</p>
             <ul class="pcard__stack" aria-label="Stack">
               <li class="chip">Swift 5</li>
               <li class="chip">SwiftUI</li>
@@ -242,10 +253,10 @@
             <span class="pcard__cta">Case study <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></span>
           </article>
 
-          <article class="card pcard" data-proj-card data-cat="infra" data-search="minecraft monitoring infra infrastructure a papermc server wired into the cluster's observability stack: 99.8% uptime, tps-drop alerts, and a 10-command discord bot. papermc jmx + rcon discord.py grafana">
+          <article class="card pcard" data-proj-card data-cat="infra" data-search="minecraft monitoring infra infrastructure a papermc server wired into the cluster's observability stack: live uptime, tps-drop alerts, and a 10-command discord bot. papermc jmx + rcon discord.py grafana">
             <p class="pcard__meta"><span class="pcard__cat"><svg class="ico" aria-hidden="true"><use href="#i-server"></use></svg>Infrastructure</span></p>
             <h3 class="pcard__title"><a href="projects/minecraft-monitoring.html">Minecraft Monitoring</a></h3>
-            <p class="pcard__what">A PaperMC server wired into the cluster's observability stack: <b>99.8%</b> uptime, TPS-drop alerts, and a 10-command Discord bot.</p>
+            <p class="pcard__what">A PaperMC server wired into the cluster's observability stack: <b data-live-uptime>95.2%</b> uptime, TPS-drop alerts, and a 10-command Discord bot.</p>
             <ul class="pcard__stack" aria-label="Stack">
               <li class="chip">PaperMC</li>
               <li class="chip">JMX + RCON</li>
@@ -303,8 +314,10 @@
     }
   </script>
   <script type="module">
+    import { initHomeLive } from './js/home-live.js';
     import { initScrollReveal } from './js/scroll-reveal.js';
     import { initProjectsFilter } from './js/projects-filter.js';
+    window.__liveReady = initHomeLive();
     initScrollReveal();
     initProjectsFilter();
   </script>

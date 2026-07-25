@@ -1,0 +1,202 @@
+/* Résumé page.
+   Deliberately the quietest room on the site: a recruiter is scanning, not
+   exploring, so the only expressive element is the live status strip — the
+   claim "I run production infrastructure" answered by the cluster itself.
+   Everything else is type, rules and space, reusing base.css primitives. */
+
+.rs-head {
+  padding: var(--sp-10) 0 var(--sp-8);
+  border-bottom: 1px solid var(--line);
+}
+
+.rs-head__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-6);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.03em;
+  margin: var(--sp-3) 0 var(--sp-4);
+}
+
+.rs-head__role {
+  font-size: var(--fs-3);
+  color: var(--text-2);
+  max-width: 46ch;
+  line-height: var(--lh-snug);
+  margin: 0 0 var(--sp-5);
+}
+
+.rs-head__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--sp-6);
+}
+
+.rs-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+
+/* --- signature: the live strip ------------------------------------------ */
+/* The numbers here are read from the same feed as the dashboard, so the
+   infrastructure claims below are auditable while you read them. */
+.rs-live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-5);
+  margin-top: var(--sp-7);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--r-2);
+  background: var(--accent-wash);
+}
+
+.rs-live__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.rs-live__v {
+  font-family: var(--font-display);
+  font-size: var(--fs-3);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.rs-live__k {
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  color: var(--text-3);
+  margin-left: var(--sp-1);
+}
+
+/* --- sections ------------------------------------------------------------ */
+.rs-section { padding: var(--sp-8) 0; border-bottom: 1px solid var(--line); }
+.rs-section:last-of-type { border-bottom: 0; }
+
+.rs-section__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+  margin: 0 0 var(--sp-5);
+}
+
+.rs-summary {
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  color: var(--text-2);
+  max-width: 68ch;
+  margin: 0;
+}
+
+/* --- work entries -------------------------------------------------------- */
+.rs-entry { padding: var(--sp-5) 0; border-top: 1px solid var(--line); }
+.rs-entry:first-of-type { border-top: 0; padding-top: 0; }
+
+.rs-entry__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-4);
+  margin-bottom: var(--sp-2);
+}
+
+.rs-entry__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-3);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.rs-entry__title a { color: var(--text-1); text-decoration: none; }
+.rs-entry__title a:hover { color: var(--accent); }
+
+.rs-entry__kind {
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.rs-entry__bullets { margin: var(--sp-3) 0 var(--sp-4); padding-left: 0; list-style: none; max-width: 74ch; }
+
+.rs-entry__bullets li {
+  position: relative;
+  padding-left: var(--sp-5);
+  margin-bottom: var(--sp-2);
+  color: var(--text-2);
+  line-height: var(--lh-body);
+}
+
+/* A hairline, not a bullet glyph: these are outcomes, not an unordered pile. */
+.rs-entry__bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: var(--sp-3);
+  height: 1px;
+  background: var(--accent-strong);
+}
+
+.rs-entry__bullets b { color: var(--text-1); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.rs-entry__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* --- skills -------------------------------------------------------------- */
+.rs-skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-5) var(--sp-6);
+}
+
+.rs-skills__k {
+  font-family: var(--font-mono);
+  font-size: var(--fs-0);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 var(--sp-2);
+}
+
+.rs-skills__v { color: var(--text-2); line-height: var(--lh-body); margin: 0; }
+
+/* --- education ----------------------------------------------------------- */
+.rs-edu { display: grid; gap: var(--sp-4); }
+
+.rs-edu__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.rs-edu__what { color: var(--text-1); margin: 0; }
+.rs-edu__when { font-family: var(--font-mono); font-size: var(--fs-0); color: var(--text-3); white-space: nowrap; }
+
+@media (max-width: 600px) {
+  .rs-head { padding-top: var(--sp-7); }
+  .rs-entry__head { flex-direction: column; }
+}

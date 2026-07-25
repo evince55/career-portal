@@ -1,29 +1,27 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync, existsSync } from 'node:fs';
-import { PROJECT_CATALOG, getProjects } from '../js/project-catalog.js?v=3';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { HONEYPOT } from '../functions/api/contact.js';
 
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 const onDisk = (p) => existsSync(new URL(`../${p}`, import.meta.url));
 
-const projects = getProjects();
+// Case studies come from disk, not from the catalog: the catalog only describes
+// 5 of the 9 case-study pages, which silently left the other 4 — including the
+// flagship llm-orchestrator — out of every integrity check below.
+const CASE_STUDIES = readdirSync(new URL('../projects', import.meta.url))
+  .filter((f) => f.endsWith('.html'))
+  .map((f) => `projects/${f}`)
+  .sort();
 const PAGES = [
-  'index.html', 'projects.html', 'dashboard.html', 'contact.html', '404.html',
-  ...projects.map((p) => p.caseStudyUrl.replace(/^\//, ''))
+  'index.html', 'projects.html', 'dashboard.html', 'contact.html', 'resume.html', '404.html',
+  ...CASE_STUDIES
 ];
+// Pages a search engine or link unfurler will actually reach. 404/offline opt
+// out with robots noindex, so canonical and social-card rules don't apply.
+const INDEXABLE = PAGES.filter((p) => !/<meta name="robots" content="noindex">/.test(read(p)));
 
 describe('site integrity', () => {
-  it('catalog has 5 projects, each with slug, outcome and an existing case-study page', () => {
-    assert.equal(projects.length, 5);
-    for (const p of projects) {
-      assert.ok(p.slug, `${p.name}: missing slug`);
-      assert.ok(p.outcome, `${p.name}: missing outcome`);
-      assert.ok(p.caseStudyUrl, `${p.name}: missing caseStudyUrl`);
-      assert.ok(onDisk(p.caseStudyUrl.replace(/^\//, '')), `${p.name}: ${p.caseStudyUrl} not on disk`);
-    }
-  });
-
   it('every page has skip link, main landmark, unique title, meta description and palette root', () => {
     const titles = new Set();
     for (const page of PAGES) {
@@ -56,6 +54,43 @@ describe('site integrity', () => {
     }
   });
 
+  it('every indexable page has a social preview card', () => {
+    // A portfolio link gets pasted into LinkedIn, Slack and email. Without
+    // og:image those unfurl as a bare grey box, which is the first impression
+    // a recruiter gets of the work. noindex utility pages (404, offline) are
+    // never shared deliberately, so they are exempt.
+    for (const page of INDEXABLE) {
+      const html = read(page);
+      assert.ok(/<meta property="og:title"/.test(html), `${page}: og:title missing`);
+      assert.ok(/<meta property="og:description"/.test(html), `${page}: og:description missing`);
+      const img = html.match(/<meta property="og:image" content="([^"]+)"/)?.[1];
+      assert.ok(img, `${page}: og:image missing`);
+      assert.ok(img.startsWith('https://'), `${page}: og:image must be absolute (got ${img})`);
+      assert.ok(onDisk(img.replace('https://chai-homelab.com/', '')), `${page}: og:image not on disk: ${img}`);
+      assert.ok(/<meta name="twitter:card"/.test(html), `${page}: twitter:card missing`);
+    }
+  });
+
+  it('every page declares a canonical URL, extensionless like the live site serves it', () => {
+    // Cloudflare Pages 308-redirects /foo.html -> /foo, so the canonical must be
+    // the extensionless form or it points at a URL that immediately redirects.
+    for (const page of INDEXABLE) {
+      const html = read(page);
+      const canon = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+      assert.ok(canon, `${page}: canonical missing`);
+      assert.ok(canon.startsWith('https://chai-homelab.com'), `${page}: canonical must be absolute`);
+      assert.ok(!canon.endsWith('.html'), `${page}: canonical should be extensionless, got ${canon}`);
+    }
+  });
+
+  it('meta descriptions fit in a search result', () => {
+    for (const page of PAGES) {
+      const d = read(page).match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '';
+      assert.ok(d.length >= 50, `${page}: description too short (${d.length})`);
+      assert.ok(d.length <= 165, `${page}: description ${d.length} chars, truncated in search results`);
+    }
+  });
+
   it('redirect stubs point old URLs at projects.html', () => {
     for (const stub of ['project-explorer.html', 'writeups.html']) {
       const html = read(stub);
@@ -64,9 +99,9 @@ describe('site integrity', () => {
     }
   });
 
-  it('service worker cache is v22 and every precached asset exists on disk', () => {
+  it('service worker cache is v23 and every precached asset exists on disk', () => {
     const sw = read('service-worker.js');
-    assert.ok(sw.includes("'career-portal-v22'"), 'cache name must be career-portal-v22');
+    assert.ok(sw.includes("'career-portal-v23'"), 'cache name must be career-portal-v23');
     const listMatch = sw.match(/ASSETS_TO_CACHE = \[([\s\S]*?)\]/);
     assert.ok(listMatch, 'ASSETS_TO_CACHE not found');
     const assets = [...listMatch[1].matchAll(/'(\/[^']*)'/g)].map((m) => m[1]).filter((a) => a !== '/');
@@ -141,18 +176,25 @@ describe('site integrity', () => {
     }
   });
 
-  it('sitemap lists every canonical page', () => {
+  it('sitemap lists every canonical page, and lists it at its canonical URL', () => {
     const sm = read('sitemap.xml');
-    for (const page of PAGES.filter((p) => p !== '404.html')) {
-      const url = page === 'index.html' ? 'https://chai-homelab.com/' : `https://chai-homelab.com/${page}`;
-      assert.ok(sm.includes(url), `sitemap missing ${url}`);
+    for (const page of INDEXABLE) {
+      // Must match the page's own <link rel="canonical">, not the .html path —
+      // Cloudflare 308-redirects /foo.html to /foo, so listing .html would fill
+      // the sitemap with URLs that redirect.
+      const canon = read(page).match(/<link rel="canonical" href="([^"]+)"/)[1];
+      assert.ok(sm.includes(`<loc>${canon}</loc>`), `sitemap missing canonical URL ${canon}`);
+      assert.ok(!sm.includes(`${canon}.html`), `sitemap still lists the redirecting ${canon}.html`);
     }
   });
 
-  it('PROJECT_CATALOG object and helpers stay consistent', () => {
-    for (const p of projects) {
-      assert.ok(PROJECT_CATALOG[p.slug] || Object.values(PROJECT_CATALOG).some((v) => v.slug === p.slug),
-        `catalog lookup broken for ${p.slug}`);
+  it('every case study on disk is linked from the projects index', () => {
+    // Replaces the old PROJECT_CATALOG consistency check. The catalog was never
+    // rendered and covered only 5 of 9 projects; what actually matters is that
+    // no case study becomes unreachable from the page that indexes them.
+    const index = read('projects.html');
+    for (const page of CASE_STUDIES) {
+      assert.ok(index.includes(page), `${page} exists but nothing links to it from projects.html`);
     }
   });
 });

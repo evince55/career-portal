@@ -5,19 +5,31 @@ import { fetchStats } from '../js/stats-source.js';
 const jsonRes = (obj, ok = true) => ({ ok, json: async () => obj });
 
 describe('fetchStats', () => {
+  it('requests root-absolute URLs so it works from /projects/* too', async () => {
+    // These were relative ('api/stats'), which silently resolved to
+    // /projects/api/stats on any case-study page — both sources 404'd and the
+    // live numbers never populated outside the site root.
+    const calls = [];
+    const fetchImpl = async (url) => { calls.push(url); return jsonRes({}, false); };
+    await fetchStats({ fetchImpl }).catch(() => {});
+    for (const url of calls) {
+      assert.ok(url.startsWith('/'), `stats URL must be root-absolute, got "${url}"`);
+    }
+  });
+
   it('returns /api/stats when it is OK', async () => {
     const calls = [];
     const fetchImpl = async (url) => { calls.push(url); return jsonRes({ src: 'kv' }); };
     const out = await fetchStats({ fetchImpl });
     assert.deepEqual(out, { src: 'kv' });
-    assert.match(calls[0], /^api\/stats/);
+    assert.match(calls[0], /^\/api\/stats/);
   });
 
   it('falls back to the static file when /api/stats is non-OK', async () => {
     const calls = [];
     const fetchImpl = async (url) => {
       calls.push(url);
-      if (url.startsWith('api/stats')) return jsonRes({}, false);
+      if (url.startsWith('/api/stats')) return jsonRes({}, false);
       return jsonRes({ src: 'static' });
     };
     const out = await fetchStats({ fetchImpl });
@@ -28,7 +40,7 @@ describe('fetchStats', () => {
 
   it('falls back when /api/stats throws', async () => {
     const fetchImpl = async (url) => {
-      if (url.startsWith('api/stats')) throw new Error('network');
+      if (url.startsWith('/api/stats')) throw new Error('network');
       return jsonRes({ src: 'static' });
     };
     assert.deepEqual(await fetchStats({ fetchImpl }), { src: 'static' });
