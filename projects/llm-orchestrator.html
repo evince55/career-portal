@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>LLM Orchestrator — Case Study · Eugene Vincent</title>
-  <meta name="description" content="Replicating NVIDIA's 'Small Language Models are the Future of Agentic AI' on real agent telemetry: 57% of local-tier spend measured as SLM-replaceable.">
+  <meta name="description" content="Replicating NVIDIA's 'Small Language Models are the Future of Agentic AI' end to end: a converted 3.2 GB model beats a purpose-built 9.5 GB one, 0.82 to 0.62.">
   <link rel="canonical" href="https://chai-homelab.com/projects/llm-orchestrator">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://chai-homelab.com/projects/llm-orchestrator">
   <meta property="og:title" content="LLM Orchestrator — Case Study · Eugene Vincent">
-  <meta property="og:description" content="Replicating NVIDIA's 'Small Language Models are the Future of Agentic AI' on real agent telemetry: 57% of local-tier spend measured as SLM-replaceable.">
+  <meta property="og:description" content="Replicating NVIDIA's 'Small Language Models are the Future of Agentic AI' end to end: a converted 3.2 GB model beats a purpose-built 9.5 GB one, 0.82 to 0.62.">
   <meta property="og:image" content="https://chai-homelab.com/og/card.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="LLM Orchestrator — Case Study · Eugene Vincent">
-  <meta name="twitter:description" content="Replicating NVIDIA's 'Small Language Models are the Future of Agentic AI' on real agent telemetry: 57% of local-tier spend measured as SLM-replaceable.">
+  <meta name="twitter:description" content="Replicating NVIDIA's 'Small Language Models are the Future of Agentic AI' end to end: a converted 3.2 GB model beats a purpose-built 9.5 GB one, 0.82 to 0.62.">
   <meta name="twitter:image" content="https://chai-homelab.com/og/card.jpg">
   <meta name="theme-color" content="#07070b">
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
@@ -119,11 +119,11 @@
         <span class="cs-hero__flag">Flagship</span>
       </div>
       <h1 class="cs-hero__title">LLM Orchestrator</h1>
-      <p class="cs-hero__thesis">A working replication of NVIDIA's <b>&ldquo;Small Language Models are the Future of Agentic AI&rdquo;</b> — their six-step LLM&rarr;SLM conversion pipeline, measured against my own agent telemetry instead of a benchmark.</p>
+      <p class="cs-hero__thesis">A working replication of NVIDIA's <b>&ldquo;Small Language Models are the Future of Agentic AI&rdquo;</b> — their six-step LLM&rarr;SLM conversion pipeline, run <b>twice</b> on my own agent telemetry, with a pre-registered promotion gate deciding every result.</p>
       <div class="cs-hero__stats">
-        <div class="cs-hstat"><span class="cs-hstat__v" data-count>57%</span><span class="cs-hstat__l">of local-tier spend a 35B could absorb</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v" data-count>66%</span><span class="cs-hstat__l">hindsight-optimal ceiling it was measured against</span></div>
-        <div class="cs-hstat"><span class="cs-hstat__v" data-count>0.810</span><span class="cs-hstat__l">routing quality vs a 0.286 random floor</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v" data-count>0.82</span><span class="cs-hstat__l">converted 3.2&nbsp;GB model, vs 0.62 for a 9.5&nbsp;GB one</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v" data-count>+3.3</span><span class="cs-hstat__l">points bought by 21&times; more training data</span></div>
+        <div class="cs-hstat"><span class="cs-hstat__v" data-count>25</span><span class="cs-hstat__l">documented failure modes, mostly about instruments</span></div>
       </div>
       <ul class="cs-hero__stack" aria-label="Stack">
         <li class="chip"><svg class="ico" aria-hidden="true"><use href="#i-python"></use></svg>Python</li>
@@ -146,8 +146,69 @@
           <li><strong>Agentic interactions are the dataset.</strong> The paper treats ordinary usage as the data-collection pathway, so the router logs every decision to a JSONL ledger — that ledger <em>is</em> step one, not an afterthought.</li>
           <li><strong>Don't judge SLMs on generalist benchmarks.</strong> The paper is explicit that MMLU-style scores mispredict agentic utility, so the evals here score routing decisions on real logged tasks instead.</li>
         </ul>
-        <p>The headline check was the paper's own estimate that <strong>40&ndash;70%</strong> of LLM calls in published agent systems are SLM-replaceable. Replaying my telemetry in hindsight — asking, for each decision, what the cheapest model that still succeeded would have been — put the ceiling at 66% of local-tier spend. Probing a real 35B against those same tasks brought the defensible figure to <strong>57%</strong>, landing inside the band the paper predicted, on a corpus it never saw.</p>
-        <p class="cs-outcomes__note">Method, caveats and the numbers below are worked through in <a href="https://github.com/evince55/aria-llmops" rel="noopener">evince55/aria-llmops</a>.</p>
+        <p>The first check was the paper's own estimate that <strong>40&ndash;70%</strong> of LLM calls in published agent systems are SLM-replaceable. Replaying my telemetry in hindsight — asking, for each decision, what the cheapest model that still succeeded would have been — put the ceiling at 66% of local-tier spend. Probing a real 35B against those same tasks brought the defensible figure to <strong>57%</strong>, landing inside the band the paper predicted, on a corpus it never saw.</p>
+        <p>That measures whether conversion is <em>worth doing</em>. It doesn't do it. So I ran the actual pipeline — twice.</p>
+        <p class="cs-outcomes__note">Full method, every caveat, and the twenty-five findings: <a href="https://github.com/evince55/aria-llmops/blob/main/docs/REPRODUCTION.md" rel="noopener">the reproduction write-up</a> in <a href="https://github.com/evince55/aria-llmops" rel="noopener">evince55/aria-llmops</a>.</p>
+      </div>
+    </section>
+
+    <!-- 1.6 · The reproduction -->
+    <section class="cs-section" aria-labelledby="cs-repro">
+      <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-activity"></use></svg>The reproduction</span>
+      <h2 class="cs-section__title" id="cs-repro">Two rounds, and what each one cost me to believe</h2>
+      <div class="cs-prose">
+        <p><strong>Round one</strong> converted the router's own task-difficulty classifier. A QLoRA-tuned 3.2&nbsp;GB Gemma-4-E2B matched a 5.8&nbsp;GB keyword+9B hybrid on a promotion gate fixed <em>before</em> the first run — <em>promote iff accuracy &ge; incumbent and no tier recall regresses by more than 0.05</em> — and ships as the default. It is a tie, not a win; the case for shipping it is operational, at 55% of the memory with no network dependency.</p>
+        <p>Round one's own conclusion was that I had picked the wrong thing to convert. A perfect classifier changes only 16.5% of routing decisions, so the pipeline was sound and the target was low-leverage. <strong>Round two</strong> acted on that: it chose its target by measurement first — probing two candidates and discarding the one whose base model already scored 1.00 — and converted <em>tool-call emission</em>, an agentic subtask rather than a classification. Ground truth is authored with each example, so verification is exact structural comparison: no LLM judge, no teacher, and the round costs nothing to run.</p>
+      </div>
+
+      <div class="cs-outcomes" style="margin-top:1.5rem">
+        <div class="cs-outcome"><span class="cs-outcome__v">0.885</span><span class="cs-outcome__l">Converted Gemma-4-E2B</span><span class="cs-outcome__sub">3.2 GB · from a 0.541 base</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">0.885</span><span class="cs-outcome__l">Converted Qwen3.5-9B</span><span class="cs-outcome__sub">5.6 GB · from a 0.754 base</span></div>
+        <div class="cs-outcome"><span class="cs-outcome__v">0.623</span><span class="cs-outcome__l">Ornith-1.0-9B, tool-tuned</span><span class="cs-outcome__sub">9.5 GB · at its best config</span></div>
+      </div>
+      <p class="cs-outcomes__note">Strict accuracy on the same 61-task held-out set, greedy decoding. <strong>Two different model families, two different sizes, converging on exactly the same score from bases 21 points apart</strong> — which is what says the result belongs to the pipeline and not to one lucky checkpoint. Conversion beat selection at every interface and operating point tested. <em>Both converted arms were retrained here under a smaller-batch schedule so a 9B would fit in 16&nbsp;GB of unified memory, which is why they read a little above the 0.82 headline — that figure comes from the original schedule, and the two are not mixed within a comparison.</em></p>
+
+      <h3 class="cs-section__title" style="font-size:1.15rem;margin-top:2.5rem" id="cs-curve">The one thing the paper doesn&rsquo;t tell you</h3>
+      <p class="cs-prose">The paper trains on 10,000&ndash;100,000 examples. I could only reach 460, so I lifted the generator&rsquo;s ceiling and ran the whole range to find out whether it mattered. The rule for reading the answer — <em>plateau if the best larger arm gains under 0.05</em> — was fixed before any data existed.</p>
+
+      <div class="cs-diagram-wrap">
+        <figure class="cs-diagram reveal">
+          <svg viewBox="0 0 400 210" role="img" aria-label="Line chart of strict accuracy against training-set size on a 61-task held-out set. 460 examples scores 0.853, 1,000 scores 0.853, 2,500 peaks at 0.885, 5,000 falls to 0.836 and 10,000 stays at 0.836 — below the 460-example baseline. Twenty-one times the data buys 3.3 points and then regresses.">
+            <!-- baseline reference -->
+            <line x1="46" y1="72" x2="376" y2="72" stroke="var(--text-3)" stroke-width="1" stroke-dasharray="3 4" opacity=".55"></line>
+            <text class="cs-nsub" x="380" y="70" text-anchor="end" style="opacity:.7">460-example baseline</text>
+            <!-- axes -->
+            <line x1="46" y1="24" x2="46" y2="160" stroke="var(--text-3)" stroke-width="1" opacity=".5"></line>
+            <line x1="46" y1="160" x2="376" y2="160" stroke="var(--text-3)" stroke-width="1" opacity=".5"></line>
+            <text class="cs-nsub" x="40" y="76" text-anchor="end">0.85</text>
+            <text class="cs-nsub" x="40" y="140" text-anchor="end">0.80</text>
+            <!-- the curve: 460 .853 / 1k .853 / 2.5k .885 (peak) / 5k .836 / 10k .836 -->
+            <polyline points="70,72 145,72 220,31 295,134 370,134"
+                      fill="none" stroke="var(--accent)" stroke-width="2.5"
+                      stroke-linejoin="round" stroke-linecap="round"></polyline>
+            <circle cx="70"  cy="72"  r="4" fill="var(--accent)"></circle>
+            <circle cx="145" cy="72"  r="4" fill="var(--accent)"></circle>
+            <circle cx="220" cy="31"  r="5.5" fill="var(--accent)"></circle>
+            <circle cx="295" cy="134" r="4" fill="var(--accent)"></circle>
+            <circle cx="370" cy="134" r="4" fill="var(--accent)"></circle>
+            <text class="cs-nlabel" x="220" y="20" text-anchor="middle">0.885</text>
+            <text class="cs-nsub"   x="370" y="152" text-anchor="middle">0.836</text>
+            <!-- x labels -->
+            <text class="cs-nsub" x="70"  y="176" text-anchor="middle">460</text>
+            <text class="cs-nsub" x="145" y="176" text-anchor="middle">1k</text>
+            <text class="cs-nsub" x="220" y="176" text-anchor="middle">2.5k</text>
+            <text class="cs-nsub" x="295" y="176" text-anchor="middle">5k</text>
+            <text class="cs-nsub" x="370" y="176" text-anchor="middle">10k</text>
+            <text class="cs-nsub" x="211" y="198" text-anchor="middle" style="opacity:.7">training examples &middot; fixed compute</text>
+          </svg>
+          <figcaption><strong>21&times; the data buys 3.3 points, then goes backwards.</strong> 5k and 10k both land below the 460-example baseline.</figcaption>
+        </figure>
+        <ol class="cs-legend" aria-label="How to read the curve">
+          <li><b>The verdict was computed, not eyeballed.</b> Best arm above baseline gains 0.033, under the pre-registered 0.05 threshold — the same tolerance round one&rsquo;s promotion gate used, chosen before this curve existed.</li>
+          <li><b>It isn&rsquo;t compute starvation.</b> The obvious objection is that larger sets get fewer passes at a fixed budget, so I ran one epoch-matched arm: 2,500 examples at 5.4&times; the compute scored <b>0.820, six and a half points worse</b>.</li>
+          <li><b>Validation loss was useless throughout.</b> Every arm converged to ~0.001, and the epoch-matched arm hit <b>0.000 while being the worst model tested</b>. Anyone selecting on val loss picks exactly that one.</li>
+          <li><b>The caveat ships with the claim.</b> This scales rows of the same sentence shapes, not linguistic diversity — so it bounds what template-generated data buys, not what data buys.</li>
+        </ol>
       </div>
     </section>
 
@@ -297,7 +358,8 @@
     <!-- 5 · Measured outcomes -->
     <section class="cs-section" aria-labelledby="cs-outcomes">
       <span class="kicker"><svg class="ico" aria-hidden="true"><use href="#i-bar-chart-3"></use></svg>Measured outcomes</span>
-      <h2 class="cs-section__title" id="cs-outcomes">What the telemetry shows</h2>
+      <h2 class="cs-section__title" id="cs-outcomes">What the routing telemetry shows</h2>
+      <p class="cs-prose">The numbers above are the conversion pipeline. These are the router it feeds — measured by replaying the ledger, not projected.</p>
       <div class="cs-outcomes">
         <div class="cs-outcome"><span class="cs-outcome__v" data-count>66%</span><span class="cs-outcome__l">Hindsight-optimal ceiling</span><span class="cs-outcome__sub">replaying every routing decision</span></div>
         <div class="cs-outcome"><span class="cs-outcome__v" data-count>57%</span><span class="cs-outcome__l">Expected saving, 35B</span><span class="cs-outcome__sub">graded replay of real tasks</span></div>
