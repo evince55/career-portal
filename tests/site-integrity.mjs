@@ -99,9 +99,9 @@ describe('site integrity', () => {
     }
   });
 
-  it('service worker cache is v23 and every precached asset exists on disk', () => {
+  it('service worker cache is v24 and every precached asset exists on disk', () => {
     const sw = read('service-worker.js');
-    assert.ok(sw.includes("'career-portal-v23'"), 'cache name must be career-portal-v23');
+    assert.ok(sw.includes("'career-portal-v24'"), 'cache name must be career-portal-v24');
     const listMatch = sw.match(/ASSETS_TO_CACHE = \[([\s\S]*?)\]/);
     assert.ok(listMatch, 'ASSETS_TO_CACHE not found');
     const assets = [...listMatch[1].matchAll(/'(\/[^']*)'/g)].map((m) => m[1]).filter((a) => a !== '/');
@@ -109,6 +109,34 @@ describe('site integrity', () => {
     for (const a of assets) {
       assert.ok(onDisk(a.replace(/^\//, '').split('?')[0]), `SW precaches missing file: ${a}`);
     }
+  });
+
+  it('live API responses are never served cache-first', () => {
+    // Regression guard. When the worker moved to root scope it began seeing
+    // /api/* for the first time, and the generic runtime cache-put below
+    // swallowed /api/stats — after which the dashboard served one frozen
+    // snapshot forever. `ignoreSearch: true` means a cache-busting query
+    // cannot escape it either, and `cache: 'no-store'` only bypasses the HTTP
+    // cache, not the worker.
+    const sw = read('service-worker.js');
+    assert.match(sw, /isApiRequest/, 'fetch handler must special-case API requests');
+    const handler = sw.slice(sw.indexOf("addEventListener('fetch'"));
+    const apiBranch = handler.indexOf('isApiRequest');
+    const cacheFirst = handler.indexOf('caches.match(request, { ignoreSearch: true }).then((cached) => {');
+    assert.ok(apiBranch !== -1 && cacheFirst !== -1, 'both branches must exist');
+    assert.ok(apiBranch < cacheFirst, 'the API branch must run BEFORE the cache-first branch');
+  });
+
+  it('the API strategy is network-first, keeping a cache copy only for offline', () => {
+    const sw = read('service-worker.js');
+    const start = sw.indexOf('isApiRequest(request)');
+    const branch = sw.slice(start, start + 700);
+    // network is attempted first...
+    assert.ok(branch.indexOf('fetch(request)') < branch.indexOf('caches.match'),
+      'API branch must try the network before falling back to cache');
+    // ...and the cached copy still exists, so the dashboard degrades to its
+    // honest "last snapshot from the rack" state offline rather than nothing.
+    assert.match(branch, /caches\.match/, 'API branch needs an offline cache fallback');
   });
 
   it('service worker sits at the site root so its default scope covers every page', () => {

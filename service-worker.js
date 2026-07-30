@@ -1,4 +1,4 @@
-const CACHE_NAME = 'career-portal-v23';
+const CACHE_NAME = 'career-portal-v24';
 
 // Precache: every page + the design system + module JS + fonts + live-data config.
 // Kept in sync with files on disk by tests/site-integrity.mjs.
@@ -99,15 +99,51 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Same-origin /api/* is live data, not an asset.
+const isApiRequest = (request) => {
+  try {
+    const url = new URL(request.url);
+    return url.origin === self.location.origin && url.pathname.startsWith('/api/');
+  } catch {
+    return false;
+  }
+};
+
 // Fetch strategy:
 //  - navigations (HTML): network-first so visitors always get fresh pages;
 //    cache fallback when offline, then offline.html
+//  - /api/*: network-first, cache kept only as an offline fallback
 //  - everything else: cache-first (ignoreSearch so ?v= busters still hit the
 //    precache), network fallback with runtime cache-put for same-origin GETs
 //    (this is how the lazy three.js vendor file becomes available offline)
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
+
+  // Live data must never come from the cache first. /api/stats changes every few
+  // minutes, and the generic rule below would pin the dashboard to whichever
+  // snapshot happened to be cached first — permanently, because ignoreSearch
+  // means even a cache-busting query resolves to the same entry, and the
+  // client's `cache: 'no-store'` only bypasses the HTTP cache, not this worker.
+  // The cached copy is still written, so an offline visitor sees the last known
+  // snapshot, which home-live.js then labels honestly as not live.
+  if (isApiRequest(request)) {
+    event.respondWith(
+      fetch(request).then((response) => {
+        if (response && response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone)).catch(() => {});
+        }
+        return response;
+      }).catch(() => caches.match(request, { ignoreSearch: true }).then((cached) => {
+        return cached || new Response(JSON.stringify({ error: 'offline' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }))
+    );
+    return;
+  }
 
   if (request.mode === 'navigate') {
     event.respondWith(
