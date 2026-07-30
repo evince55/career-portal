@@ -29,6 +29,19 @@ from datetime import datetime, timezone
 PROM = os.environ.get("PROM_URL", "http://10.43.221.93:9090/prometheus/api/v1/query")
 JOB = 'job="minecraft-metrics"'
 FETCH_OK = 0  # live instant-query successes this run — gates the lastUpdated stamp
+
+# Players is the one live gauge that legitimately has NO series at all: when the
+# server empties, the per-player minecraft_player_online{player="..."} series go
+# away, and `sum()` over nothing returns an empty vector rather than 0. That
+# empty result is indistinguishable from "query failed" downstream, so the count
+# used to carry forward from the last published file and sit at 1 forever.
+#
+# `or (sum(up) >= 1) * 0` supplies the missing zero, but only while at least one
+# target is up. If the whole job is down the expression stays empty on purpose,
+# so the reading is dropped instead of reported as a confident nobody-online.
+PLAYERS_QUERY = (
+    f'sum(minecraft_player_online{{{JOB}}}) or (sum(up{{{JOB}}}) >= 1) * 0'
+)
 HERE = os.path.dirname(os.path.abspath(__file__))
 STATS_PATH = os.path.join(HERE, "..", "config", "minecraft-stats.json")
 
@@ -107,7 +120,7 @@ def build():
     if tps is not None and 0 <= tps <= 100:
         m["tps"] = min(round(tps), 20)  # clamp to Minecraft's hard 20 TPS cap
 
-    players = fetch(f'sum(minecraft_player_online{{{JOB}}})')
+    players = fetch(PLAYERS_QUERY)
     if players is not None and players >= 0:
         m["players"] = round(players)
 
@@ -197,6 +210,19 @@ def selftest():
         '"values":[[1,"3.1"],[2,"3.4"],[3,"3.2"]]}]}}') == [3.1, 3.4, 3.2]
     assert parse_range('{"status":"success","data":{"result":[]}}') == []
     assert parse_range('{"status":"error"}') == []
+
+    # The sticky-player-count bug. When the last player leaves, the per-player
+    # series disappears — and in PromQL `sum()` over NO series returns an empty
+    # result, not 0. Empty parses to None (asserted above), the caller's
+    # `is not None` guard then skips the assignment, and because load_base()
+    # seeds from the previously published file, the old count carries forward
+    # forever. The dashboard read "1 player" with nobody online.
+    #
+    # So the query itself has to produce a zero, and only when the exporters are
+    # actually up: if the whole job is down we want no reading at all rather than
+    # a confident "0 players", which would be guessing.
+    assert " or " in PLAYERS_QUERY, f"players query needs a zero fallback: {PLAYERS_QUERY}"
+    assert "up{" in PLAYERS_QUERY, f"the zero must be gated on target health: {PLAYERS_QUERY}"
     print("prom_stats selftest OK")
 
 
