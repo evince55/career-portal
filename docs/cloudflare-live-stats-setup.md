@@ -48,8 +48,16 @@ each run. (If you keep the token elsewhere, set `STATS_TOKEN_FILE` in the cron's
 Any push to `master` redeploys and picks up the KV binding. Then:
 
 ```bash
-# force a stats run + push now (or wait for the 10-min cron):
-~/MusicAppIOS/career-portal/scripts/update-minecraft-stats.sh   # adjust path to your checkout
+# Force a stats run + push now (or wait for the 10-min cron). Don't hardcode a
+# checkout path here — the cron already knows where it lives, so ask the cron.
+SCRIPT=$(crontab -l | grep -o '[^ ]*update-minecraft-stats\.sh' | head -1)
+echo "$SCRIPT"                      # confirm it found something before running it
+cd "$(dirname "$SCRIPT")/.." && git pull   # the cron runs from this checkout
+"$SCRIPT"
+
+# If the schedule is a systemd timer instead of a crontab:
+#   systemctl list-timers | grep -i stats
+#   systemctl cat <unit>            # ExecStart carries the real path
 
 # confirm the edge now serves live data:
 curl -s https://chai-homelab.com/api/stats | python3 -m json.tool
