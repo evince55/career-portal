@@ -52,7 +52,15 @@ Any push to `master` redeploys and picks up the KV binding. Then:
 # checkout path here — the cron already knows where it lives, so ask the cron.
 SCRIPT=$(crontab -l | grep -o '[^ ]*update-minecraft-stats\.sh' | head -1)
 echo "$SCRIPT"                      # confirm it found something before running it
-cd "$(dirname "$SCRIPT")/.." && git pull   # the cron runs from this checkout
+cd "$(dirname "$SCRIPT")/.."
+
+# The cron rewrites config/minecraft-stats.json (a TRACKED file) every 10 min, so
+# the checkout is always dirty and a plain `git pull` ABORTS with "local changes
+# would be overwritten". It fails loudly but is easy to skim past, and then the
+# box keeps running the old script. Discard the churn first — the next run
+# regenerates it seconds later.
+git checkout -- config/minecraft-stats.json
+git pull
 "$SCRIPT"
 
 # If the schedule is a systemd timer instead of a crontab:
