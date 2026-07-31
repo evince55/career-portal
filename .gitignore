@@ -6,3 +6,6 @@ dist/
 node_modules
 .vscode/
 scripts/__pycache__/
+
+# Claude Code local scaffolding (dev-server config for previewing)
+.claude/

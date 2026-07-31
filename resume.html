@@ -90,10 +90,11 @@
           <span class="rs-entry__kind">Applied AI &middot; Python</span>
         </div>
         <ul class="rs-entry__bullets">
-          <li>Reproduced NVIDIA Research's <b>&ldquo;Small Language Models are the Future of Agentic AI&rdquo;</b> end to end, running their six-step LLM&rarr;SLM conversion procedure against my own logged agent traffic rather than a public benchmark.</li>
-          <li>Built a hindsight replay over the telemetry ledger that measured a <b>66%</b> ceiling on locally-servable spend, then graded a 35B model against the same tasks to land a defensible <b>57%</b> &mdash; inside the paper's predicted <b>40&ndash;70%</b> band, on a corpus it never saw.</li>
-          <li>Raised routing quality to <b>0.810</b> against a <b>0.286</b> random-assignment floor by combining keyword classification with a local-model rescue pass.</li>
-          <li>Published the method with its caveats stated, including an estimate that moved <b>45%&rarr;24%</b> once a dominant session was sampled more than once.</li>
+          <li>Reproduced NVIDIA Research's <b>&ldquo;Small Language Models are the Future of Agentic AI&rdquo;</b> end to end, running their six-step LLM&rarr;SLM conversion procedure <b>twice</b> &mdash; on a classifier and on an agentic subtask &mdash; against my own logged agent traffic rather than a public benchmark.</li>
+          <li>Fine-tuned (QLoRA) a <b>3.2&nbsp;GB</b> model that beats a purpose-built <b>9.5&nbsp;GB</b> tool-tuned model <b>0.82 to 0.62</b> on a 61-task held-out set, at every interface and sampling configuration tested. Converting a second model family reached the identical score from a base 21 points apart, showing the result came from the pipeline rather than one checkpoint.</li>
+          <li>Ran a training-set size curve from <b>460 to 10,000</b> examples and found a <b>plateau</b>: 21&times; the data bought 3.3 points and regressed beyond 2,500. Ruled out compute starvation with a pre-registered epoch-matched arm that scored <b>6.5 points worse</b> at 5.4&times; the compute &mdash; while validation loss read <b>0.000</b> on that worst model.</li>
+          <li>Gated every promotion on a rule fixed <b>before</b> each run, which rejected <b>eight</b> of my own proposals and forced <b>five</b> published numbers to be corrected by my own instruments; wrote up <b>25 failure modes</b>, most of them defects in the measuring instruments rather than the models.</li>
+          <li>Built the router the pipeline feeds: hindsight replay over the telemetry ledger measured a <b>66%</b> ceiling on locally-servable spend and a defensible <b>57%</b> against a real 35B, with routing quality at <b>0.810</b> versus a <b>0.286</b> random-assignment floor &mdash; and published with its caveats, including an estimate that moved <b>45%&rarr;24%</b> once a dominant session was sampled more than once.</li>
         </ul>
         <ul class="rs-entry__stack" aria-label="Stack">
           <li class="chip">Python</li><li class="chip">llama.cpp</li><li class="chip">Claude API</li><li class="chip">evals + telemetry</li>
