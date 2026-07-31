@@ -60,7 +60,12 @@ cd "$(dirname "$SCRIPT")/.."
 # box keeps running the old script. Discard the churn first — the next run
 # regenerates it seconds later.
 git checkout -- config/minecraft-stats.json
-git pull
+
+# Pull with the remote and branch named explicitly. The homelab checkout has no
+# upstream tracking, so a bare `git pull` fetches and then stops with "There is
+# no tracking information for the current branch" — which reads like success
+# right up until you notice the merge never happened.
+git pull origin master
 "$SCRIPT"
 
 # If the schedule is a systemd timer instead of a crontab:
