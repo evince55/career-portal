@@ -4,13 +4,23 @@
 # Falls back to last-known-good values on failure (no corruption)
 # Execution time: <200ms
 
-cd "$(dirname "$0")/../config"
+# Resolve our own directory to an ABSOLUTE path before cd-ing anywhere. This used
+# to be `$(dirname "$0")` evaluated twice: once for the cd, and again afterwards
+# for the python path. Invoked by absolute path (how cron does it) that works,
+# but invoked as ./scripts/update-minecraft-stats.sh the second one resolves
+# against the new cwd and looks for config/./scripts/prom_stats.py, which does
+# not exist. The script then reports "metric fetch failed", keeps the previous
+# JSON, and still pushes it — so a hand-run looks like it worked while silently
+# republishing stale numbers. That is exactly how a deploy got confirmed twice
+# without ever taking effect.
+HERE="$(cd "$(dirname "$0")" && pwd)"
+cd "$HERE/../config" || exit 1
 
 # Fetch live metrics from Prometheus and write the JSON. prom_stats.py does the
 # querying + correct instant-vector parsing + per-field fallback to the existing
 # file (see scripts/prom_stats.py). It writes to stdout; only overwrite the file
 # on success so a Prometheus/parse failure never corrupts the last-good copy.
-NEW_JSON="$(python3 "$(dirname "$0")/prom_stats.py")" && [ -n "$NEW_JSON" ] \
+NEW_JSON="$(python3 "$HERE/prom_stats.py")" && [ -n "$NEW_JSON" ] \
   && printf '%s\n' "$NEW_JSON" > minecraft-stats.json \
   || echo "[stats] metric fetch failed — kept previous minecraft-stats.json" >&2
 
