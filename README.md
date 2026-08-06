@@ -22,12 +22,12 @@ Browser (chai-homelab.com)
   │ HTTPS / CDN
 Cloudflare Pages (auto-deploy on push to master)
   │
-├── Pages: index, projects (+5 case studies), dashboard, contact, offline, 404
+├── Pages: index, projects (+9 case studies), dashboard, resume, contact, offline, 404
 ├── Design system: css/tokens.css (AA contrast, test-enforced) + css/base.css + css/pages/*
-├── PWA service worker (career-portal-v22): network-first pages, cache-first assets
+├── PWA service worker (career-portal-v24): network-first pages, cache-first assets
 ├── Self-hosted fonts (Space Grotesk, JetBrains Mono — variable woff2)
 ├── Lazy Three.js hero (vendored, bails out on reduced-motion/saveData/mobile/no-WebGL)
-└── Azure Function backend for the contact form (Resend API / console fallback)
+└── Cloudflare Pages Functions: /api/stats (KV) and /api/contact (Resend / mailto: fallback)
 ```
 
 ## Pages
@@ -38,7 +38,8 @@ Cloudflare Pages (auto-deploy on push to master)
 | Projects | `/projects.html` | All projects with category filters and search |
 | Case studies | `/projects/<slug>.html` | Problem → architecture → decisions → measured outcomes |
 | Dashboard | `/dashboard.html` | Live homelab metrics (TPS, players, heap, staleness indicator) |
-| Contact | `/contact.html` | Email form (Azure Function → mailto: fallback) |
+| Contact | `/contact.html` | Email form (Pages Function → mailto: fallback) |
+| Resume | `/resume.html` | Current resume, kept in sync with the PDF |
 | Offline / 404 | `/offline.html`, `/404.html` | PWA fallback / not-found |
 
 `/project-explorer.html` and `/writeups.html` are redirect stubs preserving v1 inbound links.
@@ -64,7 +65,7 @@ Cloudflare Pages (auto-deploy on push to master)
 | `home-live.js` | Landing-page live chips (3s timeout, graceful fallback) |
 | `three-hero.js` + `js/vendor/` | Lazy synthwave hero background (index only, vendored Three.js) |
 | `contact.js` | Contact page terminal + form — POSTs to `/api/contact`, falls back to mailto: |
-| `service-worker.js` | PWA cache `career-portal-v22` |
+| `service-worker.js` | PWA cache `career-portal-v24` |
 | `pwa.js`, `performance.js`, `scroll-reveal.js`, `utils/helpers.js` | registration, timing metrics, reveal-on-scroll, shared utils |
 
 ## Cloudflare Pages Functions
@@ -88,7 +89,7 @@ See [AGENTS.md](AGENTS.md) for the full list. Headlines:
 
 - **No build step** — files are copied as-is. Do not add a bundler or transpiler.
 - **Tests use native `node --test`** — no mocha/jest. Tests run in pure Node.
-- **Service worker cache name** is `career-portal-v22` — bump it and `ASSETS_TO_CACHE`
+- **Service worker cache name** is `career-portal-v24` — bump it and `ASSETS_TO_CACHE`
   whenever cached assets change (`tests/site-integrity.mjs` enforces file parity).
 - **Fonts are self-hosted** — no Google Fonts CDN; don't reintroduce render-blocking font CSS.
 - **robots.txt must stay `Allow: /`** — it was accidentally `Disallow: /` until v2.
@@ -119,6 +120,6 @@ node --test tests/palette.mjs  # single file
 | Service | Cost/Month |
 |---------|------------|
 | Cloudflare Pages + DNS | $0 (free tier) |
-| Azure Functions | $0 (free tier) |
+| Cloudflare Pages Functions | $0 (free tier) |
 | Tailscale | $0 (personal plan) |
 | **Total** | **$0/mo** |
